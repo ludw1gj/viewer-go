@@ -1,0 +1,20 @@
+{{define "view" -}}
+
+<h1>Files</h1>
+<br>
+
+<ul>
+    {{if not .Index -}}
+    <li><a href="{{.Previous}}">../</a></li>
+    {{- end}}
+    {{range .Entities -}}
+    <li><a href="{{.URL}}">{{.Name}}</a></li>
+    {{- end}}
+</ul>
+
+<br>
+{{if not .Index -}}
+<a href="/viewer/">Go To Index</a>
+{{- end}}
+
+{{- end}}

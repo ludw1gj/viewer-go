@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Viewer</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css.map">-->
+</head>
+<body>
+<!--nav bar-->
+<nav class="nav has-shadow">
+    <div class="nav-left">
+        <a class="nav-item">Viewer</a>
+    </div>
+    <div class="nav-center">
+        <a class="nav-item is-tab is-hidden-mobile is-active">Home</a>
+        <a class="nav-item is-tab is-hidden-mobile">About</a>
+    </div>
+    <span class="nav-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <div class="nav-right nav-menu">
+        <a class="nav-item is-tab is-hidden-tablet is-active">Home</a>
+        <a class="nav-item is-tab is-hidden-tablet">About</a>
+        <a class="nav-item is-tab">
+            <figure class="image is-16x16" style="margin-right: 8px;">
+                <img src="http://bulma.io/images/jgthms.png">
+            </figure>
+            Profile
+        </a>
+        <a class="nav-item is-tab">Log out</a>
+    </div>
+</nav>
+
+<br>
+<div class="container">{{block "view" .}}{{end}}</div>
+<br>
+<div class="container">
+
+    <h1>Create Folder</h1>
+    <form action="/folder" method="post" enctype="multipart/form-data">
+        Folder Name: <input type="text" name="folder-name"><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <br>
+    <h1>Upload Files</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        Files: <input type="file" name="files" multiple><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <br>
+    <h1>Delete File or Folder</h1>
+    <form action="/delete" method="post" enctype="multipart/form-data">
+        File/Folder: <input id="delete" name="file">
+        <input type="submit" value="Submit">
+    </form>
+
+    <br>
+    <h1>Delete All Files and Folders in Current Directory</h1>
+    <form action="/delete-all" method="post" enctype="multipart/form-data">
+        <input id="delete-all" name="directory" value="" hidden>
+        <input type="submit" value="Submit">
+    </form>
+
+</div>
+
+<script src="/static/script/script.js"></script>
+</body>
+</html>
