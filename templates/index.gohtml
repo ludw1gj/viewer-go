@@ -58,7 +58,7 @@
 
             <br>
             <h3 class="title is-5">Delete File or Folder</h3>
-            <form action="/delete" method="post" enctype="multipart/form-data">
+            <form action="/delete?path={{.CurrentDir}}" method="post" enctype="multipart/form-data">
                 <label>File/Folder:</label>
                 <input class="input" id="delete" name="file">
                 <input class="button" type="submit" value="Delete">
@@ -66,7 +66,7 @@
 
             <br>
             <h3 class="title is-5">Delete All Files and Folders in Current Directory</h3>
-            <form action="/delete-all" method="post" enctype="multipart/form-data">
+            <form action="/delete-all?path={{.CurrentDir}}" method="post" enctype="multipart/form-data">
                 <input id="delete-all" name="directory" value="" hidden>
                 <input class="button" type="submit" value="Delete All">
             </form>

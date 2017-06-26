@@ -1,12 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -17,7 +14,7 @@ type indexData struct {
 }
 
 func Redirect(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
+	http.Redirect(w, r, baseURL, http.StatusMovedPermanently)
 }
 
 func Viewer(w http.ResponseWriter, r *http.Request) {
@@ -91,54 +88,35 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 }
 
-// fix
 func Delete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusBadRequest)
 		return
 	}
 
-	file := "./test/" + strings.TrimPrefix(r.FormValue("file"), "/viewer/")
-	fmt.Println(file)
+	path := r.URL.Query().Get("path")
+	file := wrkDir + strings.TrimPrefix(r.FormValue("file"), baseURL)
 
-	err := os.RemoveAll(file)
+	err := deleteEntity(file)
 	if err != nil {
 		log.Println(err)
-		http.Redirect(w, r, "/viewer/", http.StatusTemporaryRedirect)
-		return
+		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 	}
-	http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
+	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 }
 
-// no /viewer/ sent
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusBadRequest)
 		return
 	}
 
-	dir := "./test" + strings.TrimPrefix(r.FormValue("directory"), "/viewer/")
-	d, err := os.Open(dir)
-	if err != nil {
-		log.Println(err)
-		http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
-		return
-	}
-	defer d.Close()
+	path := r.URL.Query().Get("path")
 
-	names, err := d.Readdirnames(-1)
+	err := deleteAllEntities(r.FormValue("directory"))
 	if err != nil {
 		log.Println(err)
-		http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
-		return
+		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 	}
-	for _, name := range names {
-		err = os.RemoveAll(filepath.Join(dir, name))
-		if err != nil {
-			log.Println(err)
-			http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
-			return
-		}
-	}
-	http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
+	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 }

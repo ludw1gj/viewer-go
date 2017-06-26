@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -73,15 +74,6 @@ func createDirectoryList(pathURL string) (view template.HTML, isFile bool, file 
 	return template.HTML(buf.String()), false, file, nil
 }
 
-func createFolder(name string) error {
-	truePath := wrkDir + name
-	err := os.MkdirAll(truePath, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func processMultipartFormFiles(path string, file map[string][]*multipart.FileHeader) error {
 	truePath := wrkDir + path
 
@@ -107,4 +99,43 @@ func processMultipartFormFiles(path string, file map[string][]*multipart.FileHea
 		}
 	}
 	return nil
+}
+
+func createFolder(name string) error {
+	truePath := wrkDir + name
+	err := os.MkdirAll(truePath, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func deleteEntity(filePath string) (err error) {
+	err = os.RemoveAll(filePath)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func deleteAllEntities(filePath string) (err error) {
+	dir := wrkDir + strings.TrimPrefix(filePath, baseURL)
+
+	d, err := os.Open(dir)
+	if err != nil {
+		return
+	}
+	defer d.Close()
+
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return
+	}
+	for _, name := range names {
+		err = os.RemoveAll(filepath.Join(dir, name))
+		if err != nil {
+			return
+		}
+	}
+	return
 }
