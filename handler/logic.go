@@ -40,7 +40,7 @@ func getDirectoryList(w http.ResponseWriter, r *http.Request) (list template.HTM
 	// check if path is a file
 	fileInfo, _ := os.Stat(trueFilePath)
 	if !fileInfo.IsDir() {
-		w.Header().Set("Content-Type", contentType(trueFilePath))
+		w.Header().Add("Content-Type", contentType(trueFilePath))
 		http.ServeContent(w, r, trueFilePath, time.Now(), f)
 		return
 	}

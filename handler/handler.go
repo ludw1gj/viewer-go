@@ -9,11 +9,6 @@ import (
 	"strings"
 )
 
-type indexData struct {
-	List       template.HTML
-	CurrentDir string
-}
-
 func Redirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, baseURL, http.StatusMovedPermanently)
 }
@@ -54,13 +49,13 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	const _24K = (1 << 10) * 24
 	err := r.ParseMultipartForm(_24K)
 	if err != nil {
-		renderErrorPage(w, r, path, err)
+		renderErrorPage(w, path, err)
 		return
 	}
 
 	err = processMultipartFormFiles(path, r.MultipartForm.File)
 	if err != nil {
-		renderErrorPage(w, r, path, err)
+		renderErrorPage(w, path, err)
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
@@ -78,7 +73,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 
 	err := createFolder(folderPath)
 	if err != nil {
-		renderErrorPage(w, r, path, errors.New("Could not create directory: "+err.Error()))
+		renderErrorPage(w, path, errors.New("Could not create directory: "+err.Error()))
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -94,7 +89,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 	fileName := r.FormValue("file-name")
 	if fileName == "" {
-		renderErrorPage(w, r, path, errors.New("File name cannot be empty."))
+		renderErrorPage(w, path, errors.New("File name cannot be empty."))
 	}
 	file := wrkDir + path + "/" + fileName
 
@@ -121,7 +116,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 }
 
-func renderErrorPage(w http.ResponseWriter, r *http.Request, path string, err error) {
+func renderErrorPage(w http.ResponseWriter, path string, err error) {
 	page := baseURL + path
 
 	data := struct {
