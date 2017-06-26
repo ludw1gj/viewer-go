@@ -41,19 +41,19 @@
         <div class="column">
             <h1 class="title is-2">Options</h1>
 
-            <h3 class="title is-5">Create Folder</h3>
-            <form action="/folder" method="post" enctype="multipart/form-data">
-                <label>Folder Name:</label>
-                <input id="create-folder" class="input" type="text" name="folder-name"><br>
-                <input class="button" type="submit" value="Create">
-            </form>
-
-            <br>
             <h3 class="title is-5">Upload Files</h3>
-            <form action="/upload" method="post" enctype="multipart/form-data">
+            <form action="/upload?path={{.CurrentDir}}" method="post" enctype="multipart/form-data">
                 <label>Files:</label>
                 <input type="file" name="files" multiple><br>
                 <input class="button" type="submit" value="Upload">
+            </form>
+
+            <br>
+            <h3 class="title is-5">Create Folder</h3>
+            <form action="/folder?path={{.CurrentDir}}" method="post" enctype="multipart/form-data">
+                <label>Folder Name:</label>
+                <input id="create-folder" class="input" type="text" name="folder-name"><br>
+                <input class="button" type="submit" value="Create">
             </form>
 
             <br>
@@ -73,7 +73,7 @@
         </div>
 
         <!--Directory List-->
-        <div class="column is-two-thirds">{{.}}</div>
+        <div class="column is-two-thirds">{{.List}}</div>
 
     </div>
 </div>
