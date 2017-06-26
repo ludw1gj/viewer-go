@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"io"
@@ -14,22 +15,37 @@ import (
 	"time"
 )
 
+const (
+	baseURL = "/viewer/"
+	wrkDir  = "./test/"
+)
+
+type openedFile struct {
+	File         *os.File
+	TrueFilePath string
+}
+
 type entity struct {
-	URL  string
-	Name string
+	URL   string
+	Name  string
+	IsDir bool
 }
 
-type view struct {
-	Index    bool
-	Previous string
-	Entities []entity
+type directoryList struct {
+	Index       bool
+	PreviousURL string
+	Entities    []entity
+	CurrentDir  string
 }
 
-var tpl *template.Template
+var (
+	viewerTpl  *template.Template
+	dirListTpl *template.Template
+)
 
 func init() {
-	tpl = template.Must(template.ParseFiles(
-		path.Join("templates", "index.gohtml"), path.Join("templates", "view.gohtml")))
+	viewerTpl = template.Must(template.ParseFiles(path.Join("templates", "index.gohtml")))
+	dirListTpl = template.Must(template.ParseFiles(path.Join("templates", "view.gohtml")))
 }
 
 func Redirect(w http.ResponseWriter, r *http.Request) {
@@ -39,73 +55,85 @@ func Redirect(w http.ResponseWriter, r *http.Request) {
 func Viewer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	filePath := "./test/" + strings.TrimPrefix(r.URL.Path, "/viewer/")
-	f, err := os.Open(filePath)
+	list, isFile, file := createDirectoryList(r.URL.Path)
+	defer file.File.Close()
+	if isFile {
+		w.Header().Add("Content-Type", contentType(file.TrueFilePath))
+		http.ServeContent(w, r, file.TrueFilePath, time.Now(), file.File)
+		return
+	}
+
+	err := viewerTpl.Execute(w, list)
 	if err != nil {
-		log.Println("Viewer Hanlder:", err)
-		return
+		log.Println(err)
 	}
-	defer f.Close()
-
-	// not a directory
-	fileInfo, _ := os.Stat(filePath)
-	if !fileInfo.IsDir() {
-		w.Header().Add("Content-Type", contentType(filePath))
-		http.ServeContent(w, r, filePath, time.Now(), f)
-		return
-	}
-
-	// is a directory
-	dirs, err := f.Readdir(-1)
-	if err != nil {
-		http.Error(w, "Error reading directory", http.StatusInternalServerError)
-		return
-	}
-
-	// remove "/" from end of url
-	if string(r.URL.Path[len(r.URL.Path)-1]) == "/" {
-		r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
-	}
-
-	var entities []entity
-	for _, d := range dirs {
-		name := d.Name()
-		url := r.URL.Path + "/" + name
-
-		if d.IsDir() {
-			name += "/"
-		}
-		entities = append(entities, entity{url, name})
-	}
-
-	// get previous link
-	index := true
-	var previous string
-	if r.URL.Path != "/viewer" {
-		index = false
-		urlParts := strings.Split(r.URL.Path, "/")
-		previous = strings.TrimSuffix(r.URL.Path, urlParts[len(urlParts)-1])
-	}
-	tpl.Execute(w, view{index, previous, entities})
 }
 
+func createDirectoryList(pathURL string) (view template.HTML, isFile bool, file openedFile) {
+	filePath := strings.TrimPrefix(pathURL, "/viewer/")
+	trueFilePath := wrkDir + filePath
+
+	f, err := os.Open(trueFilePath)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// check if path is a file
+	fileInfo, _ := os.Stat(trueFilePath)
+	if !fileInfo.IsDir() {
+		return view, true, openedFile{f, trueFilePath}
+	}
+
+	files, err := f.Readdir(-1)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	f.Close()
+
+	// get directory list
+	var entities []entity
+	for _, file := range files {
+		fileName := file.Name()
+		fileURL := baseURL + filePath + "/" + fileName
+		entities = append(entities, entity{fileURL, fileName, file.IsDir()})
+	}
+
+	// get previous link if not at index of working directory
+	index := true
+	var previous string
+	if filePath != "" {
+		index = false
+		urlParts := strings.Split(pathURL, "/")
+		previous = strings.TrimSuffix(pathURL, "/"+urlParts[len(urlParts)-1])
+	}
+
+	var buf bytes.Buffer
+	err = dirListTpl.Execute(&buf, directoryList{index, previous, entities, filePath})
+	if err != nil {
+		log.Println(err)
+	}
+	return template.HTML(buf.String()), false, file
+}
+
+// fix
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusBadRequest)
 		return
 	}
 
-	newFolder := "./test/" + r.FormValue("folder-name")
-
-	err := os.MkdirAll(newFolder, os.ModePerm)
+	folderName := r.FormValue("folder-name")
+	err := os.MkdirAll(folderName, os.ModePerm)
 	if err != nil {
-		log.Println("Could not create directory.")
-		http.Redirect(w, r, "/viewer/", http.StatusTemporaryRedirect)
+		log.Println("Could not create directory.", err)
 		return
 	}
-	http.Redirect(w, r, "/viewer/", http.StatusTemporaryRedirect)
+
 }
 
+// fix
 func Upload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusBadRequest)
@@ -147,7 +175,13 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// fix
 func Delete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method must be POST", http.StatusBadRequest)
+		return
+	}
+
 	file := "./test/" + strings.TrimPrefix(r.FormValue("file"), "/viewer/")
 	fmt.Println(file)
 
@@ -160,7 +194,13 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/viewer/", http.StatusTemporaryRedirect)
 }
 
+// no /viewer/ sent
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method must be POST", http.StatusBadRequest)
+		return
+	}
+
 	dir := "./test" + strings.TrimPrefix(r.FormValue("directory"), "/viewer/")
 	d, err := os.Open(dir)
 	if err != nil {

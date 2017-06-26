@@ -1,5 +1,20 @@
+document.getElementById("create-folder").value = getCurrentDir(true);
+document.getElementById("delete").value = getCurrentDir(true);
+document.getElementById("delete-all").value = getCurrentDir(false);
 
-document.getElementById("delete-all").value = window.location.pathname;
+function getCurrentDir(trailingSlash) {
+    var currentDir;
+    if (window.location.pathname === "/viewer/") {
+        currentDir = "";
+    } else {
+        currentDir = window.location.pathname.replace("viewer/", "");
+    }
+
+    if (trailingSlash === true) {
+        currentDir += "/"
+    }
+    return currentDir
+}
 
 /**
  * This function submits an ajax request of content-type json to the 'api' route
