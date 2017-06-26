@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"html/template"
 	"log"
 	"net/http"
@@ -25,7 +26,7 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 
 	list, isFile, file, err := createDirectoryList(r.URL.Path)
 	if err != nil {
-		log.Println(err)
+		err = errors.New("There has been an error getting directory list: " + err.Error())
 	}
 
 	defer file.File.Close()
@@ -38,9 +39,11 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		List       template.HTML
 		CurrentDir string
+		Error      error
 	}{
 		list,
 		strings.TrimPrefix(r.URL.Path, baseURL),
+		err,
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err = viewerTpl.Execute(w, data)
