@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"bytes"
 	"errors"
 	"html/template"
 	"log"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type indexData struct {
@@ -24,18 +24,7 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, isFile, file, err := createDirectoryList(r.URL.Path)
-	if err != nil {
-		err = errors.New("There has been an error getting directory list: " + err.Error())
-	}
-
-	defer file.File.Close()
-	if isFile {
-		w.Header().Set("Content-Type", contentType(file.TrueFilePath))
-		http.ServeContent(w, r, file.TrueFilePath, time.Now(), file.File)
-		return
-	}
-
+	list, err := getDirectoryList(w, r)
 	data := struct {
 		List       template.HTML
 		CurrentDir string
@@ -45,6 +34,7 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 		strings.TrimPrefix(r.URL.Path, baseURL),
 		err,
 	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err = viewerTpl.Execute(w, data)
 	if err != nil {
@@ -58,18 +48,19 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	path := r.URL.Query().Get("path")
+
 	// parse request
 	const _24K = (1 << 10) * 24
 	err := r.ParseMultipartForm(_24K)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		renderErrorPage(w, r, path, err)
 		return
 	}
 
-	path := r.URL.Query().Get("path")
 	err = processMultipartFormFiles(path, r.MultipartForm.File)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		renderErrorPage(w, r, path, err)
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
@@ -87,7 +78,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 
 	err := createFolder(folderPath)
 	if err != nil {
-		log.Println("Could not create directory.", err)
+		renderErrorPage(w, r, path, errors.New("Could not create directory: "+err.Error()))
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -103,8 +94,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 	fileName := r.FormValue("file-name")
 	if fileName == "" {
-		log.Println("File name cannot be empty")
-		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+		renderErrorPage(w, r, path, errors.New("File name cannot be empty."))
 	}
 	file := wrkDir + path + "/" + fileName
 
@@ -129,4 +119,22 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 	}
 	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+}
+
+func renderErrorPage(w http.ResponseWriter, r *http.Request, path string, err error) {
+	page := baseURL + path
+
+	data := struct {
+		Error error
+		Page  string
+	}{
+		err,
+		page,
+	}
+	var buf bytes.Buffer
+	err = errorTpl.Execute(&buf, data)
+	if err != nil {
+		log.Println(err)
+	}
+	w.Write(buf.Bytes())
 }

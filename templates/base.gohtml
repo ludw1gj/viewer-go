@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Viewer</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
+</head>
+<body>
+<!--nav bar-->
+<nav class="nav has-shadow">
+    <div class="nav-left">
+        <a class="nav-item"><b>Viewer</b></a>
+    </div>
+    <div class="nav-center">
+        <a class="nav-item is-tab is-hidden-mobile is-active">Home</a>
+        <a class="nav-item is-tab is-hidden-mobile">About</a>
+    </div>
+    <span class="nav-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <div class="nav-right nav-menu">
+        <a class="nav-item is-tab is-hidden-tablet is-active">Home</a>
+        <a class="nav-item is-tab is-hidden-tablet">About</a>
+        <a class="nav-item is-tab">
+            <figure class="image is-16x16" style="margin-right: 8px;">
+                <img src="http://bulma.io/images/jgthms.png">
+            </figure>
+            Profile
+        </a>
+        <a class="nav-item is-tab">Log out</a>
+    </div>
+</nav>
+
+<br>
+<div class="container">{{block "content" .}}{{end}}</div>
+
+<script src="/static/script/script.js"></script>
+</body>
+</html>

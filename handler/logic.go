@@ -2,18 +2,16 @@ package handler
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
-
-type openedFile struct {
-	File         *os.File
-	TrueFilePath string
-}
 
 type entity struct {
 	URL   string
@@ -28,25 +26,29 @@ type directoryList struct {
 	CurrentDir  string
 }
 
-func createDirectoryList(pathURL string) (view template.HTML, isFile bool, file openedFile, err error) {
+func getDirectoryList(w http.ResponseWriter, r *http.Request) (list template.HTML, err error) {
+	pathURL := r.URL.Path
 	trueFilePath := strings.Replace(pathURL, baseURL, wrkDir, -1)
 
 	f, err := os.Open(trueFilePath)
+	defer f.Close()
 	if err != nil {
+		err = errors.New("There has been an error getting directory list: " + err.Error())
 		return
 	}
 
 	// check if path is a file
 	fileInfo, _ := os.Stat(trueFilePath)
 	if !fileInfo.IsDir() {
-		return view, true, openedFile{f, trueFilePath}, nil
+		w.Header().Set("Content-Type", contentType(trueFilePath))
+		http.ServeContent(w, r, trueFilePath, time.Now(), f)
+		return
 	}
 
 	files, err := f.Readdir(-1)
 	if err != nil {
 		return
 	}
-	f.Close()
 
 	// get directory list
 	var entities []entity
@@ -71,7 +73,7 @@ func createDirectoryList(pathURL string) (view template.HTML, isFile bool, file 
 	if err != nil {
 		return
 	}
-	return template.HTML(buf.String()), false, file, nil
+	return template.HTML(buf.String()), nil
 }
 
 func processMultipartFormFiles(path string, file map[string][]*multipart.FileHeader) error {
