@@ -2,15 +2,17 @@ package handler
 
 import (
 	"bytes"
-	"errors"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 type entity struct {
@@ -26,22 +28,31 @@ type directoryList struct {
 	CurrentDir  string
 }
 
-func getDirectoryList(w http.ResponseWriter, r *http.Request) (list template.HTML, err error) {
-	pathURL := r.URL.Path
+func renderIfFile(w http.ResponseWriter, r *http.Request) (isFile bool, err error) {
+	path := mux.Vars(r)["path"]
+	filePath := wrkDir + path
+
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return
+	}
+	if !fileInfo.IsDir() {
+		isFile = true
+
+		data, _ := ioutil.ReadFile(filePath)
+		w.Header().Add("Content-Type", contentType(filePath))
+		http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
+		return
+	}
+	return
+}
+
+func getDirectoryList(w http.ResponseWriter, r *http.Request, pathURL string) (list template.HTML, err error) {
 	trueFilePath := strings.Replace(pathURL, baseURL, wrkDir, -1)
 
 	f, err := os.Open(trueFilePath)
 	defer f.Close()
 	if err != nil {
-		err = errors.New("There has been an error getting directory list: " + err.Error())
-		return
-	}
-
-	// check if path is a file
-	fileInfo, _ := os.Stat(trueFilePath)
-	if !fileInfo.IsDir() {
-		w.Header().Add("Content-Type", contentType(trueFilePath))
-		http.ServeContent(w, r, trueFilePath, time.Now(), f)
 		return
 	}
 

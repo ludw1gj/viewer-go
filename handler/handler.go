@@ -14,23 +14,25 @@ func Redirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func Viewer(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Method must be GET", http.StatusBadRequest)
+	isFile, err := renderIfFile(w, r)
+	if err != nil {
+		renderErrorPage(w, "", errors.New("There has been an error: "+err.Error()))
+		return
+	} else if isFile {
 		return
 	}
 
-	list, err := getDirectoryList(w, r)
+	list, err := getDirectoryList(w, r, r.URL.Path)
+	if err != nil {
+		renderErrorPage(w, "", errors.New("There has been an error getting directory list: "+err.Error()))
+	}
 	data := struct {
 		List       template.HTML
 		CurrentDir string
-		Error      error
 	}{
 		list,
 		strings.TrimPrefix(r.URL.Path, baseURL),
-		err,
 	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err = viewerTpl.Execute(w, data)
 	if err != nil {
 		log.Println(err)
@@ -38,11 +40,6 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 }
 
 func Upload(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method must be POST", http.StatusBadRequest)
-		return
-	}
-
 	path := r.URL.Query().Get("path")
 
 	// parse request
@@ -62,11 +59,6 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method must be POST", http.StatusBadRequest)
-		return
-	}
-
 	path := r.URL.Query().Get("path")
 	folderName := r.FormValue("folder-name")
 	folderPath := path + "/" + folderName
@@ -81,12 +73,8 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method must be POST", http.StatusBadRequest)
-		return
-	}
-
 	path := r.URL.Query().Get("path")
+
 	fileName := r.FormValue("file-name")
 	if fileName == "" {
 		renderErrorPage(w, path, errors.New("File name cannot be empty."))
@@ -102,11 +90,6 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method must be POST", http.StatusBadRequest)
-		return
-	}
-
 	path := r.URL.Query().Get("path")
 	err := deleteAllEntities(path)
 	if err != nil {

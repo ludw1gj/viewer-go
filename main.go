@@ -7,6 +7,5 @@ import (
 )
 
 func main() {
-	route.Load()
-	http.ListenAndServe(":3000", nil)
+	http.ListenAndServe(":3000", route.Load())
 }

@@ -6,17 +6,19 @@ import (
 
 func contentType(path string) (contentType string) {
 	if strings.HasSuffix(path, ".css") {
-		contentType = "text/css"
+		return "text/css"
 	} else if strings.HasSuffix(path, ".html") {
-		contentType = "text/html"
+		return "text/html"
 	} else if strings.HasSuffix(path, ".js") {
-		contentType = "application/javascript"
+		return "application/javascript"
 	} else if strings.HasSuffix(path, ".png") {
-		contentType = "image/png"
+		return "image/png"
+	} else if strings.HasSuffix(path, ".jpg") {
+		return "image/jpeg"
+	} else if strings.HasSuffix(path, ".jpeg") {
+		return "image/jpeg"
 	} else if strings.HasSuffix(path, ".mp4") {
-		contentType = "video/mp4"
-	} else {
-		contentType = "text/plain"
+		return "video/mp4"
 	}
-	return
+	return "text/plain"
 }

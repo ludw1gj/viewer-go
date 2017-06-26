@@ -1,25 +1,19 @@
 package route
 
 import (
-	"flag"
-	"net/http"
-
 	"github.com/FriedPigeon/viewer-go/handler"
+	"github.com/gorilla/mux"
 )
 
-func Load() {
-	http.HandleFunc("/", handler.Redirect)
-	http.HandleFunc("/viewer/", handler.Viewer)
-	http.HandleFunc("/folder", handler.CreateFolder)
-	http.HandleFunc("/upload", handler.Upload)
-	http.HandleFunc("/delete", handler.Delete)
-	http.HandleFunc("/delete-all", handler.DeleteAll)
+func Load() *mux.Router {
+	r := mux.NewRouter()
 
-	// static files handler in dev mode
-	dev := flag.Bool("dev", false, "Use in development")
-	flag.Parse()
-	if *dev {
-		fs := http.FileServer(http.Dir("./static"))
-		http.Handle("/static/", http.StripPrefix("/static", fs))
-	}
+	r.HandleFunc("/", handler.Redirect).Methods("GET")
+	r.HandleFunc("/viewer/{path:.*}", handler.Viewer).Methods("GET")
+	r.HandleFunc("/folder", handler.CreateFolder).Methods("POST")
+	r.HandleFunc("/upload", handler.Upload).Methods("POST")
+	r.HandleFunc("/delete", handler.Delete).Methods("POST")
+	r.HandleFunc("/delete-all", handler.DeleteAll).Methods("POST")
+
+	return r
 }

@@ -35,14 +35,6 @@
     </div>
 
     <div class="column is-two-thirds">
-        {{if .Error}}
-        <div class="notification is-warning">
-            <button class="delete"></button>
-            {{.Error}}
-        </div>
-        <a href="/viewer/">Go To Index</a>
-        {{end}}
-
         <!--Directory List-->
         {{.List}}
     </div>

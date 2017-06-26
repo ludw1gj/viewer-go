@@ -15,6 +15,6 @@ var (
 
 func init() {
 	viewerTpl = template.Must(template.ParseFiles(baseTplPath, path.Join("templates", "viewer.gohtml")))
-	dirListTpl = template.Must(template.ParseFiles(path.Join("templates", "view.gohtml")))
+	dirListTpl = template.Must(template.ParseFiles(path.Join("templates", "directory_list.gohtml")))
 	errorTpl = template.Must(template.ParseFiles(baseTplPath, path.Join("templates", "error.gohtml")))
 }
