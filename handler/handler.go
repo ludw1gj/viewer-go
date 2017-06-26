@@ -78,8 +78,11 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := r.URL.Query().Get("path") // can replace full file-name requirement in front-end
-	err := createFolder(r.FormValue("folder-name"))
+	path := r.URL.Query().Get("path")
+	folderName := r.FormValue("folder-name")
+	folderPath := path + "/" + folderName
+
+	err := createFolder(folderPath)
 	if err != nil {
 		log.Println("Could not create directory.", err)
 	}
@@ -95,7 +98,12 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Query().Get("path")
-	file := wrkDir + strings.TrimPrefix(r.FormValue("file"), baseURL)
+	fileName := r.FormValue("file-name")
+	if fileName == "" {
+		log.Println("File name cannot be empty")
+		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+	}
+	file := wrkDir + path + "/" + fileName
 
 	err := deleteEntity(file)
 	if err != nil {
@@ -112,8 +120,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Query().Get("path")
-
-	err := deleteAllEntities(r.FormValue("directory"))
+	err := deleteAllEntities(path)
 	if err != nil {
 		log.Println(err)
 		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)

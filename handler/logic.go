@@ -101,8 +101,8 @@ func processMultipartFormFiles(path string, file map[string][]*multipart.FileHea
 	return nil
 }
 
-func createFolder(name string) error {
-	truePath := wrkDir + name
+func createFolder(path string) error {
+	truePath := wrkDir + path
 	err := os.MkdirAll(truePath, os.ModePerm)
 	if err != nil {
 		return err
@@ -118,8 +118,8 @@ func deleteEntity(filePath string) (err error) {
 	return
 }
 
-func deleteAllEntities(filePath string) (err error) {
-	dir := wrkDir + strings.TrimPrefix(filePath, baseURL)
+func deleteAllEntities(path string) (err error) {
+	dir := wrkDir + path
 
 	d, err := os.Open(dir)
 	if err != nil {
