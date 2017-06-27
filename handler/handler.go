@@ -105,6 +105,17 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
 }
 
+func NotFound(w http.ResponseWriter, _ *http.Request) {
+	var buf bytes.Buffer
+	err := notFoundTpl.Execute(&buf, nil)
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.WriteHeader(http.StatusNotFound)
+	w.Write(buf.Bytes())
+}
+
 func renderErrorPage(w http.ResponseWriter, path string, err error) {
 	page := baseURL + path
 
@@ -120,6 +131,8 @@ func renderErrorPage(w http.ResponseWriter, path string, err error) {
 	if err != nil {
 		log.Println(err)
 	}
+
+	w.WriteHeader(http.StatusInternalServerError)
 	w.Write(buf.Bytes())
 }
 

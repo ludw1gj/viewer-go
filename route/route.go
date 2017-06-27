@@ -1,6 +1,8 @@
 package route
 
 import (
+	"net/http"
+
 	"github.com/FriedPigeon/viewer-go/handler"
 	"github.com/gorilla/mux"
 )
@@ -14,6 +16,7 @@ func Load() *mux.Router {
 	r.HandleFunc("/upload", handler.Upload).Methods("POST")
 	r.HandleFunc("/delete", handler.Delete).Methods("POST")
 	r.HandleFunc("/delete-all", handler.DeleteAll).Methods("POST")
+	r.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 
 	return r
 }
