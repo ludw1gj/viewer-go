@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>{{block "title" .}}{{end}}</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
     <!--css-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
     <link rel="stylesheet" href="/static/style/style.css">
@@ -15,7 +17,7 @@
     <div class="nav-left">
         <a class="nav-item"><b>Viewer</b></a>
         <a class="nav-item is-tab is-hidden-mobile" href="/viewer/">Home</a>
-        <a class="nav-item is-tab is-hidden-mobile" href="#">About</a>
+        <a class="nav-item is-tab is-hidden-mobile" href="/about">About</a>
     </div>
 
     <span class="nav-toggle" id="burger-icon">
@@ -26,14 +28,16 @@
 
     <div class="nav-right nav-menu" id="burger-menu">
         <a class="nav-item is-tab is-hidden-tablet" href="/viewer/">Home</a>
-        <a class="nav-item is-tab is-hidden-tablet" href="#">About</a>
+        <a class="nav-item is-tab is-hidden-tablet" href="/about">About</a>
         <a class="nav-item is-tab" href="#">Log out</a>
     </div>
 </nav>
 <br>
 
 <!--content-->
-<div class="container">{{block "content" .}}{{end}}</div>
+<section>
+    <div class="container" id="content">{{block "content" .}}{{end}}</div>
+</section>
 </body>
 
 <!--js-->

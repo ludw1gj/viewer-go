@@ -1,3 +1,20 @@
+.nav-left {
+    margin-left: 5%
+}
+
+.container {
+    margin-right: 5%;
+    margin-left: 5%;
+}
+
+form {
+    max-width: 225px;
+}
+
+a {
+    color: cornflowerblue;
+}
+
 .subtitle.subtitle.is-5 {
     margin-bottom: 4px;
 }

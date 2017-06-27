@@ -45,6 +45,10 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func About(w http.ResponseWriter, _ *http.Request) {
+	aboutTpl.Execute(w, nil)
+}
+
 func Upload(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 
