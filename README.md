@@ -12,9 +12,9 @@ gorilla/mux
 go get github.com/gorilla/mux
 go get github.com/FriedPigeon/mathfever-go
 ```
-To run in development: `go run main.go -dev=true`
-Access via `http://localhost:3000`
-To build: `go build` and to run: `./go-mathfever`
+* To run in development: `go run main.go -dev=true`
+* Access via `http://localhost:3000`
+* To build: `go build` and to run: `./go-mathfever`
 
 ## Authors
 * **FriedPigeon**
