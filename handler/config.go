@@ -1,6 +1,7 @@
 package handler
 
+// configuration constants
 const (
-	baseURL = "/viewer/"
-	wrkDir  = "./test/"
+	viewerRootURL = "/viewer/"
+	wrkDir        = "./test/"
 )

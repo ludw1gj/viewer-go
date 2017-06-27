@@ -4,6 +4,7 @@ import (
 	"strings"
 )
 
+// contentType determines the content-type by the file extension of the file at the path.
 func contentType(path string) (contentType string) {
 	if strings.HasSuffix(path, ".css") {
 		return "text/css"

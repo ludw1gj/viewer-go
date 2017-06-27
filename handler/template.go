@@ -1,3 +1,5 @@
+// This files contains the template directory, and templates.
+
 package handler
 
 import (

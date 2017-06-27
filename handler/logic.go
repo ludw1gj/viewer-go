@@ -12,12 +12,14 @@ import (
 	"fmt"
 )
 
+// entity holds information of either a file or directory.
 type entity struct {
 	URL   string
 	Name  string
 	IsDir bool
 }
 
+// directoryList holds information needed for executing the directory list template.
 type directoryList struct {
 	Index       bool
 	PreviousURL string
@@ -25,6 +27,7 @@ type directoryList struct {
 	CurrentDir  string
 }
 
+// getDirectoryList renders the directory list template according the path provided.
 func getDirectoryList(path string) (list template.HTML, err error) {
 	trueFilePath := wrkDir + path
 
@@ -43,13 +46,13 @@ func getDirectoryList(path string) (list template.HTML, err error) {
 	var entities []entity
 	for _, file := range files {
 		fileName := file.Name()
-		fileURL := baseURL + path + "/" + fileName
+		fileURL := viewerRootURL + path + "/" + fileName
 		entities = append(entities, entity{fileURL, fileName, file.IsDir()})
 	}
 
 	index := true
 	var previous bytes.Buffer
-	fmt.Fprint(&previous, baseURL)
+	fmt.Fprint(&previous, viewerRootURL)
 
 	// get previous link if not at index
 	if path != "" {
@@ -63,7 +66,7 @@ func getDirectoryList(path string) (list template.HTML, err error) {
 			}
 			fmt.Fprintf(&previous, "%s/", segment)
 		}
-		if previous.String() != baseURL {
+		if previous.String() != viewerRootURL {
 			previous.Truncate(len(previous.String()) - 1)
 		}
 	}
@@ -76,12 +79,14 @@ func getDirectoryList(path string) (list template.HTML, err error) {
 	return template.HTML(tplBuf.String()), nil
 }
 
-func processMultipartFormFiles(path string, file map[string][]*multipart.FileHeader) error {
+// processMultipartFileHeaders opens the FileHeader's associated Files, creates the destinations at the path provided
+// and saves the files.
+func processMultipartFileHeaders(path string, file map[string][]*multipart.FileHeader) error {
 	truePath := wrkDir + path
 
 	for _, fileHeaders := range file {
 		for _, hdr := range fileHeaders {
-			// open uploaded
+			// open uploaded files
 			inFile, err := hdr.Open()
 			if err != nil {
 				return err
@@ -103,6 +108,7 @@ func processMultipartFormFiles(path string, file map[string][]*multipart.FileHea
 	return nil
 }
 
+// createFolder creates a folder at provided path in the working directory.
 func createFolder(path string) error {
 	truePath := wrkDir + path
 	err := os.MkdirAll(truePath, os.ModePerm)
@@ -112,7 +118,9 @@ func createFolder(path string) error {
 	return nil
 }
 
-func deleteEntity(filePath string) (err error) {
+// deleteFile deletes the file at path/fileName provided in the working directory.
+func deleteFile(path string, fileName string) (err error) {
+	filePath := wrkDir + path + "/" + fileName
 	err = os.RemoveAll(filePath)
 	if err != nil {
 		return
@@ -120,7 +128,8 @@ func deleteEntity(filePath string) (err error) {
 	return
 }
 
-func deleteAllEntities(path string) (err error) {
+// deleteAllFiles deletes all files in the path provided in the working directory.
+func deleteAllFiles(path string) (err error) {
 	dir := wrkDir + path
 
 	d, err := os.Open(dir)

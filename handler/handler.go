@@ -14,10 +14,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Redirect(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, baseURL, http.StatusMovedPermanently)
+// RedirectToViewer redirects users to the
+func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, viewerRootURL, http.StatusMovedPermanently)
 }
 
+// Viewer handles the viewer page. It uses the path variable in the route to determine which directory of the filesystem
+// to display a directory list for.
 func Viewer(w http.ResponseWriter, r *http.Request) {
 	isFile, err := renderIfFile(w, r)
 	if err != nil {
@@ -45,10 +48,13 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// About handles the about page.
 func About(w http.ResponseWriter, _ *http.Request) {
 	aboutTpl.Execute(w, nil)
 }
 
+// Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
+// redirects to the viewer page at that path.
 func Upload(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 
@@ -60,14 +66,16 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = processMultipartFormFiles(path, r.MultipartForm.File)
+	err = processMultipartFileHeaders(path, r.MultipartForm.File)
 	if err != nil {
 		renderErrorPage(w, path, err)
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
 }
 
+// CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
+// page at path provided in the query string "path".
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 	folderName := r.FormValue("folder-name")
@@ -79,9 +87,11 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
 }
 
+// Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
+// page at path provided in the query string "path".
 func Delete(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 
@@ -89,26 +99,28 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	if fileName == "" {
 		renderErrorPage(w, path, errors.New("File name cannot be empty."))
 	}
-	file := wrkDir + path + "/" + fileName
 
-	err := deleteEntity(file)
+	err := deleteFile(path, fileName)
 	if err != nil {
 		log.Println(err)
-		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+		http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
 	}
-	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
 }
 
+// DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the viewer
+// page at that path.
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
-	err := deleteAllEntities(path)
+	err := deleteAllFiles(path)
 	if err != nil {
 		log.Println(err)
-		http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+		http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
 	}
-	http.Redirect(w, r, baseURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
 }
 
+// NotFound renders the not found page and sends status 404.
 func NotFound(w http.ResponseWriter, _ *http.Request) {
 	var buf bytes.Buffer
 	err := notFoundTpl.Execute(&buf, nil)
@@ -120,8 +132,9 @@ func NotFound(w http.ResponseWriter, _ *http.Request) {
 	w.Write(buf.Bytes())
 }
 
+// NotFound renders the error page and sends status 500.
 func renderErrorPage(w http.ResponseWriter, path string, err error) {
-	page := baseURL + path
+	page := viewerRootURL + path
 
 	data := struct {
 		Error error
@@ -140,6 +153,8 @@ func renderErrorPage(w http.ResponseWriter, path string, err error) {
 	w.Write(buf.Bytes())
 }
 
+// renderIfFile uses the path variable in the route to determine if path on disk is a file or a directory. If it is a
+// file it will write the file to the client, but if it is a directory it will return isFile is false.
 func renderIfFile(w http.ResponseWriter, r *http.Request) (isFile bool, err error) {
 	path := mux.Vars(r)["path"]
 	filePath := wrkDir + path

@@ -1,3 +1,5 @@
+// Package route contains the Load function for initialising a router instance, which has registered routes and a static
+// file handler for development purposes.
 package route
 
 import (
@@ -8,10 +10,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Load returns a router instance with routes initialised and a static file handler if dev flag is used.
 func Load() *mux.Router {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", handler.Redirect).Methods("GET")
+	r.HandleFunc("/", handler.RedirectToViewer).Methods("GET")
 	r.HandleFunc("/viewer/{path:.*}", handler.Viewer).Methods("GET")
 	r.HandleFunc("/about", handler.About).Methods("GET")
 
