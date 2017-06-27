@@ -4,15 +4,12 @@ import (
 	"bytes"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
-	"github.com/gorilla/mux"
+	"fmt"
 )
 
 type entity struct {
@@ -28,27 +25,8 @@ type directoryList struct {
 	CurrentDir  string
 }
 
-func renderIfFile(w http.ResponseWriter, r *http.Request) (isFile bool, err error) {
-	path := mux.Vars(r)["path"]
-	filePath := wrkDir + path
-
-	fileInfo, err := os.Stat(filePath)
-	if err != nil {
-		return
-	}
-	if !fileInfo.IsDir() {
-		isFile = true
-
-		data, _ := ioutil.ReadFile(filePath)
-		w.Header().Add("Content-Type", contentType(filePath))
-		http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
-		return
-	}
-	return
-}
-
-func getDirectoryList(w http.ResponseWriter, r *http.Request, pathURL string) (list template.HTML, err error) {
-	trueFilePath := strings.Replace(pathURL, baseURL, wrkDir, -1)
+func getDirectoryList(path string) (list template.HTML, err error) {
+	trueFilePath := wrkDir + path
 
 	f, err := os.Open(trueFilePath)
 	defer f.Close()
@@ -65,26 +43,37 @@ func getDirectoryList(w http.ResponseWriter, r *http.Request, pathURL string) (l
 	var entities []entity
 	for _, file := range files {
 		fileName := file.Name()
-		fileURL := pathURL + "/" + fileName
+		fileURL := baseURL + path + "/" + fileName
 		entities = append(entities, entity{fileURL, fileName, file.IsDir()})
 	}
 
-	// get previous link if not at index of working directory
 	index := true
-	var previous string
-	if trueFilePath != wrkDir {
+	var previous bytes.Buffer
+	fmt.Fprint(&previous, baseURL)
+
+	// get previous link if not at index
+	if path != "" {
 		index = false
-		urlParts := strings.Split(pathURL, "/")
-		previous = strings.TrimSuffix(pathURL, "/"+urlParts[len(urlParts)-1])
+
+		urlSegments := strings.Split(path, "/")
+		count := len(urlSegments) - 1
+		for i, segment := range urlSegments {
+			if i == count {
+				break
+			}
+			fmt.Fprintf(&previous, "%s/", segment)
+		}
+		if previous.String() != baseURL {
+			previous.Truncate(len(previous.String()) - 1)
+		}
 	}
 
-	var buf bytes.Buffer
-	currentDir := strings.TrimPrefix(trueFilePath, wrkDir)
-	err = dirListTpl.Execute(&buf, directoryList{index, previous, entities, currentDir})
+	var tplBuf bytes.Buffer
+	err = dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, path})
 	if err != nil {
 		return
 	}
-	return template.HTML(buf.String()), nil
+	return template.HTML(tplBuf.String()), nil
 }
 
 func processMultipartFormFiles(path string, file map[string][]*multipart.FileHeader) error {
