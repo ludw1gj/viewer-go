@@ -1,41 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Viewer</title>
+    <title>{{block "title" .}}{{end}}</title>
 
+    <!--css-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
 </head>
+
 <body>
 <!--nav bar-->
 <nav class="nav has-shadow">
     <div class="nav-left">
         <a class="nav-item"><b>Viewer</b></a>
+        <a class="nav-item is-tab is-hidden-mobile" href="/viewer/">Home</a>
+        <a class="nav-item is-tab is-hidden-mobile" href="#">About</a>
     </div>
-    <div class="nav-center">
-        <a class="nav-item is-tab is-hidden-mobile is-active">Home</a>
-        <a class="nav-item is-tab is-hidden-mobile">About</a>
-    </div>
-    <span class="nav-toggle">
+
+    <span class="nav-toggle" id="burger-icon">
       <span></span>
       <span></span>
       <span></span>
     </span>
-    <div class="nav-right nav-menu">
-        <a class="nav-item is-tab is-hidden-tablet is-active">Home</a>
-        <a class="nav-item is-tab is-hidden-tablet">About</a>
-        <a class="nav-item is-tab">
-            <figure class="image is-16x16" style="margin-right: 8px;">
-                <img src="http://bulma.io/images/jgthms.png">
-            </figure>
-            Profile
-        </a>
-        <a class="nav-item is-tab">Log out</a>
+
+    <div class="nav-right nav-menu" id="burger-menu">
+        <a class="nav-item is-tab is-hidden-tablet" href="/viewer/">Home</a>
+        <a class="nav-item is-tab is-hidden-tablet" href="#">About</a>
+        <a class="nav-item is-tab" href="#">Log out</a>
     </div>
 </nav>
-
 <br>
-<div class="container">{{block "content" .}}{{end}}</div>
 
+<!--content-->
+<div class="container">{{block "content" .}}{{end}}</div>
 </body>
+
+<!--js-->
+<script src="/static/script/script.js"></script>
 </html>
