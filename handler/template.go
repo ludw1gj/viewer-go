@@ -1,4 +1,4 @@
-// This files contains the template directory, and templates.
+// This file contains template logic.
 
 package handler
 

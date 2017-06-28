@@ -1,3 +1,4 @@
+// Package handler contains handler functions for routes, and also functions which write to a http.Response.
 package handler
 
 import (

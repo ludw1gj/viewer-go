@@ -1,6 +1,7 @@
+// This file contains configuration constants used by handler functions.
+
 package handler
 
-// configuration constants
 const (
 	viewerRootURL = "/viewer/"
 	wrkDir        = "./test/"
