@@ -1,6 +1,4 @@
-// This file contains functions which are used by handler functions, these handle the bulk of the logic.
-
-package handler
+package model
 
 import (
 	"bytes"
@@ -14,7 +12,14 @@ import (
 	"fmt"
 
 	"github.com/FriedPigeon/viewer-go/config"
+	"github.com/FriedPigeon/viewer-go/tpl"
 )
+
+type User struct {
+	ID           int
+	Username     string
+	HashPassword string
+}
 
 // entity holds information of either a file or directory.
 type entity struct {
@@ -31,8 +36,8 @@ type directoryList struct {
 	CurrentDir  string
 }
 
-// getDirectoryList renders the directory list template according the path provided.
-func getDirectoryList(path string) (list template.HTML, err error) {
+// GetDirectoryList renders the directory list template according the path provided.
+func (u User) GetDirectoryList(path string) (list template.HTML, err error) {
 	trueFilePath := config.WrkDir + path
 
 	f, err := os.Open(trueFilePath)
@@ -76,16 +81,16 @@ func getDirectoryList(path string) (list template.HTML, err error) {
 	}
 
 	var tplBuf bytes.Buffer
-	err = dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, path})
+	err = tpl.DirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, path})
 	if err != nil {
 		return
 	}
 	return template.HTML(tplBuf.String()), nil
 }
 
-// processMultipartFileHeaders opens the FileHeader's associated Files, creates the destinations at the path provided
+// ProcessMultipartFileHeaders opens the FileHeader's associated Files, creates the destinations at the path provided
 // and saves the files.
-func processMultipartFileHeaders(path string, file map[string][]*multipart.FileHeader) error {
+func (u User) ProcessMultipartFileHeaders(path string, file map[string][]*multipart.FileHeader) error {
 	truePath := config.WrkDir + path
 
 	for _, fileHeaders := range file {
@@ -112,8 +117,8 @@ func processMultipartFileHeaders(path string, file map[string][]*multipart.FileH
 	return nil
 }
 
-// createFolder creates a folder at provided path in the working directory.
-func createFolder(path string) error {
+// CreateFolder creates a folder at provided path in the working directory.
+func (u User) CreateFolder(path string) error {
 	truePath := config.WrkDir + path
 	err := os.MkdirAll(truePath, os.ModePerm)
 	if err != nil {
@@ -122,8 +127,8 @@ func createFolder(path string) error {
 	return nil
 }
 
-// deleteFile deletes the file at path/fileName provided in the working directory.
-func deleteFile(path string, fileName string) (err error) {
+// DeleteFile deletes the file at path/fileName provided in the working directory.
+func (u User) DeleteFile(path string, fileName string) (err error) {
 	filePath := config.WrkDir + path + "/" + fileName
 	err = os.RemoveAll(filePath)
 	if err != nil {
@@ -132,8 +137,8 @@ func deleteFile(path string, fileName string) (err error) {
 	return
 }
 
-// deleteAllFiles deletes all files in the path provided in the working directory.
-func deleteAllFiles(path string) (err error) {
+// DeleteAllFiles deletes all files in the path provided in the working directory.
+func (u User) DeleteAllFiles(path string) (err error) {
 	dir := config.WrkDir + path
 
 	d, err := os.Open(dir)
@@ -153,24 +158,4 @@ func deleteAllFiles(path string) (err error) {
 		}
 	}
 	return
-}
-
-// contentType determines the content-type by the file extension of the file at the path.
-func contentType(path string) (contentType string) {
-	if strings.HasSuffix(path, ".css") {
-		return "text/css"
-	} else if strings.HasSuffix(path, ".html") {
-		return "text/html"
-	} else if strings.HasSuffix(path, ".js") {
-		return "application/javascript"
-	} else if strings.HasSuffix(path, ".png") {
-		return "image/png"
-	} else if strings.HasSuffix(path, ".jpg") {
-		return "image/jpeg"
-	} else if strings.HasSuffix(path, ".jpeg") {
-		return "image/jpeg"
-	} else if strings.HasSuffix(path, ".mp4") {
-		return "video/mp4"
-	}
-	return "text/plain"
 }

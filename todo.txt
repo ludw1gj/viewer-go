@@ -1,0 +1,10 @@
+Create Cookies
+Read Cookies for auth
+Auth page
+
+
+Dep
+"golang.org/x/crypto/bcrypt"
+"github.com/lib/pq"
+"github.com/gorilla/sessions"
+// maybe "github.com/gorilla/securecookie"

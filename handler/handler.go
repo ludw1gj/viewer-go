@@ -12,7 +12,11 @@ import (
 	"os"
 	"time"
 
+	"strings"
+
 	"github.com/FriedPigeon/viewer-go/config"
+	"github.com/FriedPigeon/viewer-go/session"
+	"github.com/FriedPigeon/viewer-go/tpl"
 	"github.com/gorilla/mux"
 )
 
@@ -24,53 +28,73 @@ func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
 // Viewer handles the viewer page. It uses the path variable in the route to determine which directory of the filesystem
 // to display a directory list for.
 func Viewer(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		renderErrorPage(w, err)
+		return
+	}
+
 	isFile, err := renderIfFile(w, r)
 	if err != nil {
-		renderErrorPage(w, "", errors.New("There has been an error: "+err.Error()))
+		renderErrorPage(w, errors.New("There has been an error: "+err.Error()))
 		return
 	} else if isFile {
 		return
 	}
 
 	path := mux.Vars(r)["path"]
-	list, err := getDirectoryList(path)
+	list, err := user.GetDirectoryList(path)
 	if err != nil {
-		renderErrorPage(w, "", errors.New("There has been an error getting directory list: "+err.Error()))
+		renderErrorPage(w, errors.New("There has been an error getting directory list: "+err.Error()))
 	}
 	data := struct {
 		List       template.HTML
 		CurrentDir string
+		Username   string
 	}{
 		list,
 		path,
+		user.Username,
 	}
-	err = viewerTpl.Execute(w, data)
+	err = tpl.ViewerTpl.Execute(w, data)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
 // About handles the about page.
-func About(w http.ResponseWriter, _ *http.Request) {
-	aboutTpl.Execute(w, nil)
+func About(w http.ResponseWriter, r *http.Request) {
+	//user, err := session.GetUserFromSession(r)
+	//if err != nil {
+	//	renderErrorPage(w, err)
+	//	return
+	//}
+
+	tpl.AboutTpl.Execute(w, nil)
 }
 
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
 // redirects to the viewer page at that path.
 func Upload(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		renderErrorPage(w, err)
+		return
+	}
+
 	path := r.URL.Query().Get("path")
 
 	// parse request
 	const _24K = (1 << 10) * 24
-	err := r.ParseMultipartForm(_24K)
+	err = r.ParseMultipartForm(_24K)
 	if err != nil {
-		renderErrorPage(w, path, err)
+		renderErrorPage(w, err)
 		return
 	}
 
-	err = processMultipartFileHeaders(path, r.MultipartForm.File)
+	err = user.ProcessMultipartFileHeaders(path, r.MultipartForm.File)
 	if err != nil {
-		renderErrorPage(w, path, err)
+		renderErrorPage(w, err)
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.Redirect(w, r, config.ViewerRootURL+path, http.StatusSeeOther)
@@ -79,13 +103,19 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
 // page at path provided in the query string "path".
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		renderErrorPage(w, err)
+		return
+	}
+
 	path := r.URL.Query().Get("path")
 	folderName := r.FormValue("folder-name")
 	folderPath := path + "/" + folderName
 
-	err := createFolder(folderPath)
+	err = user.CreateFolder(folderPath)
 	if err != nil {
-		renderErrorPage(w, path, errors.New("Could not create directory: "+err.Error()))
+		renderErrorPage(w, errors.New("Could not create directory: "+err.Error()))
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -95,16 +125,22 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 // Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
 // page at path provided in the query string "path".
 func Delete(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		renderErrorPage(w, err)
+		return
+	}
+
 	path := r.URL.Query().Get("path")
 
 	fileName := r.FormValue("file-name")
 	if fileName == "" {
-		renderErrorPage(w, path, errors.New("File name cannot be empty."))
+		renderErrorPage(w, errors.New("File name cannot be empty."))
 	}
 
-	err := deleteFile(path, fileName)
+	err = user.DeleteFile(path, fileName)
 	if err != nil {
-		renderErrorPage(w, path, err)
+		renderErrorPage(w, err)
 	}
 	http.Redirect(w, r, config.ViewerRootURL+path, http.StatusSeeOther)
 }
@@ -112,18 +148,30 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 // DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the viewer
 // page at that path.
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Query().Get("path")
-	err := deleteAllFiles(path)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		renderErrorPage(w, path, err)
+		renderErrorPage(w, err)
+		return
+	}
+
+	path := r.URL.Query().Get("path")
+	err = user.DeleteAllFiles(path)
+	if err != nil {
+		renderErrorPage(w, err)
 	}
 	http.Redirect(w, r, config.ViewerRootURL+path, http.StatusSeeOther)
 }
 
 // NotFound renders the not found page and sends status 404.
-func NotFound(w http.ResponseWriter, _ *http.Request) {
+func NotFound(w http.ResponseWriter, r *http.Request) {
+	//user, err := session.GetUserFromSession(r)
+	//if err != nil {
+	//	renderErrorPage(w, err)
+	//	return
+	//}
+
 	var buf bytes.Buffer
-	err := notFoundTpl.Execute(&buf, nil)
+	err := tpl.NotFoundTpl.Execute(&buf, nil)
 	if err != nil {
 		log.Println(err)
 	}
@@ -133,18 +181,9 @@ func NotFound(w http.ResponseWriter, _ *http.Request) {
 }
 
 // NotFound renders the error page and sends status 500.
-func renderErrorPage(w http.ResponseWriter, path string, err error) {
-	page := config.ViewerRootURL + path
-
-	data := struct {
-		Error error
-		Page  string
-	}{
-		err,
-		page,
-	}
+func renderErrorPage(w http.ResponseWriter, err error) {
 	var buf bytes.Buffer
-	err = errorTpl.Execute(&buf, data)
+	err = tpl.ErrorTpl.Execute(&buf, err)
 	if err != nil {
 		log.Println(err)
 	}
@@ -172,4 +211,24 @@ func renderIfFile(w http.ResponseWriter, r *http.Request) (isFile bool, err erro
 		return
 	}
 	return
+}
+
+// contentType determines the content-type by the file extension of the file at the path.
+func contentType(path string) (contentType string) {
+	if strings.HasSuffix(path, ".css") {
+		return "text/css"
+	} else if strings.HasSuffix(path, ".html") {
+		return "text/html"
+	} else if strings.HasSuffix(path, ".js") {
+		return "application/javascript"
+	} else if strings.HasSuffix(path, ".png") {
+		return "image/png"
+	} else if strings.HasSuffix(path, ".jpg") {
+		return "image/jpeg"
+	} else if strings.HasSuffix(path, ".jpeg") {
+		return "image/jpeg"
+	} else if strings.HasSuffix(path, ".mp4") {
+		return "video/mp4"
+	}
+	return "text/plain"
 }
