@@ -21,5 +21,5 @@ func Load() (err error) {
 	if err != nil {
 		return err
 	}
-	return nil
+	return db.Ping()
 }

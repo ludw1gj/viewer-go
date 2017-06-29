@@ -21,7 +21,7 @@ func Load() {
 
 	protected.HandleFunc("/logout", handler.Logout).Methods("GET")
 	protected.HandleFunc("/upload", handler.Upload).Methods("POST")
-	protected.HandleFunc("/folder", handler.CreateFolder).Methods("POST")
+	protected.HandleFunc("/create-folder", handler.CreateFolder).Methods("POST")
 	protected.HandleFunc("/delete", handler.Delete).Methods("POST")
 	protected.HandleFunc("/delete-all", handler.DeleteAll).Methods("POST")
 	protected.NotFoundHandler = http.HandlerFunc(handler.NotFound)
