@@ -18,6 +18,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type userInfo struct {
+	User db.User
+}
+
 const viewerRootURL = "/viewer/"
 
 // RedirectToViewer redirects users to the viewer page.
@@ -30,13 +34,13 @@ func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
 func Viewer(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
-		renderErrorPage(w, err)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
 	isFile, err := renderIfFile(w, r, user)
 	if err != nil {
-		renderErrorPage(w, errors.New("There has been an error: "+err.Error()))
+		renderErrorPage(w, r, errors.New("There has been an error: "+err.Error()))
 		return
 	} else if isFile {
 		return
@@ -46,16 +50,16 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 	dirPath := path.Join(user.DirectoryRoot, urlPath)
 	list, err := getDirectoryList(dirPath, urlPath)
 	if err != nil {
-		renderErrorPage(w, errors.New("There has been an error getting directory list: "+err.Error()))
+		renderErrorPage(w, r, errors.New("There has been an error getting directory list: "+err.Error()))
 	}
 	data := struct {
 		List       template.HTML
 		CurrentDir string
-		Username   string
+		User       db.User
 	}{
 		list,
 		urlPath,
-		user.Username,
+		user,
 	}
 	err = viewerTpl.Execute(w, data)
 	if err != nil {
@@ -65,13 +69,13 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 
 // About handles the about page.
 func About(w http.ResponseWriter, r *http.Request) {
-	//user, err := session.GetUserFromSession(r)
-	//if err != nil {
-	//	renderErrorPage(w, err)
-	//	return
-	//}
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 
-	aboutTpl.Execute(w, nil)
+	aboutTpl.Execute(w, userInfo{user})
 }
 
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
@@ -79,7 +83,7 @@ func About(w http.ResponseWriter, r *http.Request) {
 func Upload(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
-		renderErrorPage(w, err)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
@@ -87,7 +91,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	const _24K = (1 << 10) * 24
 	err = r.ParseMultipartForm(_24K)
 	if err != nil {
-		renderErrorPage(w, err)
+		renderErrorPage(w, r, err)
 		return
 	}
 
@@ -95,7 +99,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	dirPath := path.Join(user.DirectoryRoot, urlPath)
 	err = uploadFiles(dirPath, r.MultipartForm.File)
 	if err != nil {
-		renderErrorPage(w, err)
+		renderErrorPage(w, r, err)
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.Redirect(w, r, viewerRootURL+urlPath, http.StatusSeeOther)
@@ -106,7 +110,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
-		renderErrorPage(w, err)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
@@ -114,7 +118,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	dirPath := path.Join(user.DirectoryRoot, urlPath, r.FormValue("folder-name"))
 	err = createFolder(dirPath)
 	if err != nil {
-		renderErrorPage(w, errors.New("Could not create directory: "+err.Error()))
+		renderErrorPage(w, r, errors.New("Could not create directory: "+err.Error()))
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -126,20 +130,20 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
-		renderErrorPage(w, err)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
 	fileName := r.FormValue("file-name")
 	if fileName == "" {
-		renderErrorPage(w, errors.New("File name cannot be empty."))
+		renderErrorPage(w, r, errors.New("File name cannot be empty."))
 	}
 
 	urlPath := r.URL.Query().Get("path")
 	filePath := path.Join(user.DirectoryRoot, urlPath, fileName)
 	err = deleteFile(filePath)
 	if err != nil {
-		renderErrorPage(w, err)
+		renderErrorPage(w, r, err)
 	}
 	http.Redirect(w, r, viewerRootURL+urlPath, http.StatusSeeOther)
 }
@@ -149,7 +153,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
-		renderErrorPage(w, err)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
@@ -157,21 +161,21 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	dirPath := path.Join(user.DirectoryRoot, urlPath)
 	err = deleteAllFiles(dirPath)
 	if err != nil {
-		renderErrorPage(w, err)
+		renderErrorPage(w, r, err)
 	}
 	http.Redirect(w, r, viewerRootURL+urlPath, http.StatusSeeOther)
 }
 
 // NotFound renders the not found page and sends status 404.
 func NotFound(w http.ResponseWriter, r *http.Request) {
-	//user, err := session.GetUserFromSession(r)
-	//if err != nil {
-	//	renderErrorPage(w, err)
-	//	return
-	//}
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 
 	var buf bytes.Buffer
-	err := notFoundTpl.Execute(&buf, nil)
+	err = notFoundTpl.Execute(&buf, userInfo{user})
 	if err != nil {
 		log.Println(err)
 	}
@@ -181,9 +185,23 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 // NotFound renders the error page and sends status 500.
-func renderErrorPage(w http.ResponseWriter, err error) {
+func renderErrorPage(w http.ResponseWriter, r *http.Request, err error) {
+	user, ok := getUserFromSession(r)
+	if ok != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	data := struct {
+		Error string
+		User  db.User
+	}{
+		err.Error(),
+		user,
+	}
+
 	var buf bytes.Buffer
-	err = errorTpl.Execute(&buf, err)
+	err = errorTpl.Execute(&buf, data)
 	if err != nil {
 		log.Println(err)
 	}
