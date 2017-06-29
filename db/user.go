@@ -3,10 +3,15 @@ package db
 import (
 	"log"
 
-	"github.com/FriedPigeon/viewer-go/model"
-
 	"golang.org/x/crypto/bcrypt"
 )
+
+type User struct {
+	ID            int
+	Username      string
+	HashPassword  string
+	DirectoryRoot string
+}
 
 func CreateUser(username string, password string) {
 	// generate hash of user password
@@ -24,9 +29,9 @@ func CreateUser(username string, password string) {
 	}
 }
 
-func GetUser(id int) (user model.User, err error) {
+func GetUser(id int) (user User, err error) {
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
-	err = row.Scan(&user.ID, &user.Username, &user.HashPassword)
+	err = row.Scan(&user.ID, &user.Username, &user.HashPassword, &user.DirectoryRoot)
 	if err != nil {
 		return user, err
 
@@ -34,9 +39,9 @@ func GetUser(id int) (user model.User, err error) {
 	return user, nil
 }
 
-func ValidateUser(username string, password string) (user model.User, auth bool) {
+func ValidateUser(username string, password string) (user User, auth bool) {
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
-	err := row.Scan(&user.ID, &user.Username, &user.HashPassword)
+	err := row.Scan(&user.ID, &user.Username, &user.HashPassword, &user.DirectoryRoot)
 	if err != nil {
 		// TODO: Properly handle error
 		log.Println(err)

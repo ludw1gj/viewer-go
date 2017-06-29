@@ -1,19 +1,18 @@
-package session
+package handler
 
 import (
 	"log"
 	"net/http"
 
-	"github.com/FriedPigeon/viewer-go/config"
 	"github.com/FriedPigeon/viewer-go/db"
-	"github.com/FriedPigeon/viewer-go/model"
-	"github.com/FriedPigeon/viewer-go/tpl"
 	"github.com/gorilla/sessions"
 )
 
-var store = sessions.NewCookieStore([]byte(config.CookieStoreAuthKey))
+const cookieStoreAuthKey = "something-very-secret"
 
-func GetUserFromSession(r *http.Request) (user model.User, err error) {
+var store = sessions.NewCookieStore([]byte(cookieStoreAuthKey))
+
+func getUserFromSession(r *http.Request) (user db.User, err error) {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
 		log.Println(err)
@@ -46,7 +45,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		w.WriteHeader(http.StatusForbidden)
-		tpl.LoginTpl.Execute(w, nil)
+		loginTpl.Execute(w, nil)
 	case "POST":
 		session, err := store.Get(r, "viewer-session")
 		if err != nil {
@@ -59,7 +58,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		// validate authentication
 		user, validated := db.ValidateUser(username, password)
 		if validated != true {
-			http.Redirect(w, r, config.ViewerRootURL, http.StatusSeeOther)
+			http.Redirect(w, r, viewerRootURL, http.StatusSeeOther)
 			return
 		}
 
@@ -70,7 +69,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
-		http.Redirect(w, r, config.ViewerRootURL, http.StatusSeeOther)
+		http.Redirect(w, r, viewerRootURL, http.StatusSeeOther)
 	default:
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}

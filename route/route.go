@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/FriedPigeon/viewer-go/handler"
-	"github.com/FriedPigeon/viewer-go/session"
 	"github.com/gorilla/mux"
 )
 
@@ -20,7 +19,7 @@ func Load() {
 	protected.HandleFunc("/viewer/{path:.*}", handler.Viewer).Methods("GET")
 	protected.HandleFunc("/about", handler.About).Methods("GET")
 
-	protected.HandleFunc("/logout", session.Logout).Methods("GET")
+	protected.HandleFunc("/logout", handler.Logout).Methods("GET")
 	protected.HandleFunc("/upload", handler.Upload).Methods("POST")
 	protected.HandleFunc("/folder", handler.CreateFolder).Methods("POST")
 	protected.HandleFunc("/delete", handler.Delete).Methods("POST")
@@ -30,7 +29,7 @@ func Load() {
 	http.Handle("/", authenticateRoute(protected))
 
 	// open routes
-	http.HandleFunc("/login", session.Login)
+	http.HandleFunc("/login", handler.Login)
 
 	// static file handler in dev mode
 	dev := flag.Bool("dev", false, "Use in development")
@@ -44,7 +43,7 @@ func Load() {
 // authenticateRoute is middleware that checks if users are authenticated.
 func authenticateRoute(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuth := session.CheckIfAuth(w, r)
+		isAuth := handler.CheckIfAuth(w, r)
 
 		// if user is authenticated, proceed to route
 		if isAuth {
