@@ -12,6 +12,8 @@ import (
 	"strings"
 
 	"fmt"
+
+	"github.com/FriedPigeon/viewer-go/config"
 )
 
 // entity holds information of either a file or directory.
@@ -31,7 +33,7 @@ type directoryList struct {
 
 // getDirectoryList renders the directory list template according the path provided.
 func getDirectoryList(path string) (list template.HTML, err error) {
-	trueFilePath := wrkDir + path
+	trueFilePath := config.WrkDir + path
 
 	f, err := os.Open(trueFilePath)
 	defer f.Close()
@@ -48,13 +50,13 @@ func getDirectoryList(path string) (list template.HTML, err error) {
 	var entities []entity
 	for _, file := range files {
 		fileName := file.Name()
-		fileURL := viewerRootURL + path + "/" + fileName
+		fileURL := config.ViewerRootURL + path + "/" + fileName
 		entities = append(entities, entity{fileURL, fileName, file.IsDir()})
 	}
 
 	index := true
 	var previous bytes.Buffer
-	fmt.Fprint(&previous, viewerRootURL)
+	fmt.Fprint(&previous, config.ViewerRootURL)
 
 	// get previous link if not at index
 	if path != "" {
@@ -68,7 +70,7 @@ func getDirectoryList(path string) (list template.HTML, err error) {
 			}
 			fmt.Fprintf(&previous, "%s/", segment)
 		}
-		if previous.String() != viewerRootURL {
+		if previous.String() != config.ViewerRootURL {
 			previous.Truncate(len(previous.String()) - 1)
 		}
 	}
@@ -84,7 +86,7 @@ func getDirectoryList(path string) (list template.HTML, err error) {
 // processMultipartFileHeaders opens the FileHeader's associated Files, creates the destinations at the path provided
 // and saves the files.
 func processMultipartFileHeaders(path string, file map[string][]*multipart.FileHeader) error {
-	truePath := wrkDir + path
+	truePath := config.WrkDir + path
 
 	for _, fileHeaders := range file {
 		for _, hdr := range fileHeaders {
@@ -112,7 +114,7 @@ func processMultipartFileHeaders(path string, file map[string][]*multipart.FileH
 
 // createFolder creates a folder at provided path in the working directory.
 func createFolder(path string) error {
-	truePath := wrkDir + path
+	truePath := config.WrkDir + path
 	err := os.MkdirAll(truePath, os.ModePerm)
 	if err != nil {
 		return err
@@ -122,7 +124,7 @@ func createFolder(path string) error {
 
 // deleteFile deletes the file at path/fileName provided in the working directory.
 func deleteFile(path string, fileName string) (err error) {
-	filePath := wrkDir + path + "/" + fileName
+	filePath := config.WrkDir + path + "/" + fileName
 	err = os.RemoveAll(filePath)
 	if err != nil {
 		return
@@ -132,7 +134,7 @@ func deleteFile(path string, fileName string) (err error) {
 
 // deleteAllFiles deletes all files in the path provided in the working directory.
 func deleteAllFiles(path string) (err error) {
-	dir := wrkDir + path
+	dir := config.WrkDir + path
 
 	d, err := os.Open(dir)
 	if err != nil {

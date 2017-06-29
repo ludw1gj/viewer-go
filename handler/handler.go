@@ -12,12 +12,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/FriedPigeon/viewer-go/config"
 	"github.com/gorilla/mux"
 )
 
-// RedirectToViewer redirects users to the
+// RedirectToViewer redirects users to the viewer page.
 func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, viewerRootURL, http.StatusMovedPermanently)
+	http.Redirect(w, r, config.ViewerRootURL, http.StatusMovedPermanently)
 }
 
 // Viewer handles the viewer page. It uses the path variable in the route to determine which directory of the filesystem
@@ -72,7 +73,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		renderErrorPage(w, path, err)
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, config.ViewerRootURL+path, http.StatusSeeOther)
 }
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
@@ -88,7 +89,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, config.ViewerRootURL+path, http.StatusSeeOther)
 }
 
 // Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
@@ -103,10 +104,9 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	err := deleteFile(path, fileName)
 	if err != nil {
-		log.Println(err)
-		http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
+		renderErrorPage(w, path, err)
 	}
-	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, config.ViewerRootURL+path, http.StatusSeeOther)
 }
 
 // DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the viewer
@@ -115,10 +115,9 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 	err := deleteAllFiles(path)
 	if err != nil {
-		log.Println(err)
-		http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
+		renderErrorPage(w, path, err)
 	}
-	http.Redirect(w, r, viewerRootURL+path, http.StatusMovedPermanently)
+	http.Redirect(w, r, config.ViewerRootURL+path, http.StatusSeeOther)
 }
 
 // NotFound renders the not found page and sends status 404.
@@ -135,7 +134,7 @@ func NotFound(w http.ResponseWriter, _ *http.Request) {
 
 // NotFound renders the error page and sends status 500.
 func renderErrorPage(w http.ResponseWriter, path string, err error) {
-	page := viewerRootURL + path
+	page := config.ViewerRootURL + path
 
 	data := struct {
 		Error error
@@ -158,7 +157,7 @@ func renderErrorPage(w http.ResponseWriter, path string, err error) {
 // file it will write the file to the client, but if it is a directory it will return isFile is false.
 func renderIfFile(w http.ResponseWriter, r *http.Request) (isFile bool, err error) {
 	path := mux.Vars(r)["path"]
-	filePath := wrkDir + path
+	filePath := config.WrkDir + path
 
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {

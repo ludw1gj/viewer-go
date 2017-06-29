@@ -12,6 +12,7 @@ const tplDir = "templates"
 var (
 	baseTplPath = path.Join(tplDir, "base.gohtml")
 
+	loginTpl,
 	viewerTpl,
 	dirListTpl,
 	aboutTpl,
@@ -20,6 +21,7 @@ var (
 )
 
 func init() {
+	loginTpl = template.Must(template.ParseFiles(path.Join(tplDir, "login.gohtml")))
 	viewerTpl = template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, "viewer.gohtml")))
 	dirListTpl = template.Must(template.ParseFiles(path.Join(tplDir, "directory_list.gohtml")))
 	aboutTpl = template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, "about.gohtml")))
