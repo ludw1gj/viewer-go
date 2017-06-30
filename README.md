@@ -4,10 +4,10 @@ includes easy uploading and simple file management.
 
 ## Project Dependencies
 Golang >=1.8  
-gorilla/mux
-gorilla/sessions
-lib/pq
-crypto/bcrypt
+gorilla/mux  
+gorilla/sessions  
+lib/pq  
+crypto/bcrypt  
 
 ## Setup Notes:
 * Get the code and dependencies:
