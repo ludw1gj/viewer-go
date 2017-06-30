@@ -9,8 +9,11 @@ import (
 type User struct {
 	ID            int
 	Username      string
+	FirstName     string
+	LastName      string
 	HashPassword  string
 	DirectoryRoot string
+	IsAdmin       string
 }
 
 func CreateUser(username string, password string) {
@@ -31,7 +34,7 @@ func CreateUser(username string, password string) {
 
 func GetUser(id int) (user User, err error) {
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
-	err = row.Scan(&user.ID, &user.Username, &user.HashPassword, &user.DirectoryRoot)
+	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.HashPassword, &user.DirectoryRoot, &user.IsAdmin)
 	if err != nil {
 		return user, err
 
@@ -41,7 +44,7 @@ func GetUser(id int) (user User, err error) {
 
 func ValidateUser(username string, password string) (user User, auth bool) {
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
-	err := row.Scan(&user.ID, &user.Username, &user.HashPassword, &user.DirectoryRoot)
+	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.HashPassword, &user.DirectoryRoot, &user.IsAdmin)
 	if err != nil {
 		// TODO: Properly handle error
 		log.Println(err)

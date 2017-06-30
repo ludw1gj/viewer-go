@@ -8,7 +8,6 @@
 
         <h3 class="subtitle is-5">Upload Files</h3>
         <form action="/upload?path={{.CurrentDir}}" method="post" enctype="multipart/form-data">
-            <label>Files:</label>
             <input type="file" name="files" multiple><br>
             <input class="button" type="submit" value="Upload">
         </form>

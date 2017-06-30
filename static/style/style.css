@@ -18,3 +18,7 @@ a {
 .subtitle.subtitle.is-5 {
     margin-bottom: 4px;
 }
+
+.button {
+    margin-top: 10px;
+}
