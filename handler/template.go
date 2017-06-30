@@ -12,19 +12,32 @@ const tplDir = "templates"
 var (
 	baseTplPath = path.Join(tplDir, "base.gohtml")
 
+	// independent templates
 	loginTpl,
+	dirListTpl *template.Template
+
+	// site templates
 	viewerTpl,
-	dirListTpl,
 	aboutTpl,
+	userTpl,
 	errorTpl,
 	notFoundTpl *template.Template
 )
 
 func init() {
-	loginTpl = template.Must(template.ParseFiles(path.Join(tplDir, "login.gohtml")))
-	viewerTpl = template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, "viewer.gohtml")))
-	dirListTpl = template.Must(template.ParseFiles(path.Join(tplDir, "directory_list.gohtml")))
-	aboutTpl = template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, "about.gohtml")))
-	errorTpl = template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, "error.gohtml")))
-	notFoundTpl = template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, "not_found.gohtml")))
+	loginTpl = initTemplate("login.gohtml", false)
+	dirListTpl = initTemplate("directory_list.gohtml", false)
+
+	viewerTpl = initTemplate("viewer.gohtml", true)
+	aboutTpl = initTemplate("about.gohtml", true)
+	userTpl = initTemplate("user.gohtml", true)
+	errorTpl = initTemplate("error.gohtml", true)
+	notFoundTpl = initTemplate("not_found.gohtml", true)
+}
+
+func initTemplate(tplName string, withBase bool) *template.Template {
+	if withBase {
+		return template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, tplName)))
+	}
+	return template.Must(template.ParseFiles(path.Join(tplDir, tplName)))
 }

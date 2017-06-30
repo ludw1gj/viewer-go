@@ -75,7 +75,23 @@ func About(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	aboutTpl.Execute(w, userInfo{user})
+	err = aboutTpl.Execute(w, userInfo{user})
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func User(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	err = userTpl.Execute(w, userInfo{user})
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then

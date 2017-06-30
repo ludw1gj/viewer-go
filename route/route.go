@@ -18,6 +18,7 @@ func Load() {
 	protected.HandleFunc("/", handler.RedirectToViewer).Methods("GET")
 	protected.HandleFunc("/viewer/{path:.*}", handler.Viewer).Methods("GET")
 	protected.HandleFunc("/about", handler.About).Methods("GET")
+	protected.HandleFunc("/user", handler.User).Methods("GET")
 
 	protected.HandleFunc("/logout", handler.Logout).Methods("GET")
 	protected.HandleFunc("/upload", handler.Upload).Methods("POST")
