@@ -30,7 +30,11 @@ func (userController) Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		w.WriteHeader(http.StatusForbidden)
-		loginTpl.Execute(w, nil)
+		err := loginTpl.Execute(w, nil)
+		if err != nil {
+			// TODO: handler error properly
+			log.Println(err)
+		}
 	case "POST":
 		username := r.FormValue("username")
 		password := r.FormValue("password")

@@ -8,11 +8,12 @@ import (
 	"github.com/FriedPigeon/viewer-go/db"
 )
 
-// NotFound renders the error page and sends status 500.
+// renderErrorPage renders the error page and sends status 500.
 func renderErrorPage(w http.ResponseWriter, r *http.Request, err error) {
 	user, ok := getUserFromSession(r)
 	if ok != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		log.Println(ok)
+		// TODO: handle error properly
 		return
 	}
 

@@ -11,9 +11,9 @@
 <h3 class="subtitle is-5">Change Password</h3>
 <form action="/user/password" method="post">
     <label>Old Password:</label>
-    <input class="input" type="text" name="old-password"><br>
+    <input class="input" type="text" name="old-password" required><br>
     <label>New Password:</label>
-    <input class="input" type="text" name="new-password"><br>
+    <input class="input" type="text" name="new-password" required><br>
     <input class="button is-warning" type="submit" value="Change">
 </form>
 
@@ -21,7 +21,7 @@
 <h3 class="subtitle is-5">Delete Account</h3>
 <form action="/user/delete" method="post">
     <label>Password:</label>
-    <input class="input" type="text" name="password"><br>
+    <input class="input" type="text" name="password" required><br>
     <input class="button is-danger" type="submit" value="Delete">
 </form>
 {{end}}
