@@ -35,6 +35,7 @@ func init() {
 	notFoundTpl = initTemplate("not_found.gohtml", true)
 }
 
+// initTemplate creates new template.Template and parses files of tplName in the template directory (tplDir).
 func initTemplate(tplName string, withBase bool) *template.Template {
 	if withBase {
 		return template.Must(template.ParseFiles(baseTplPath, path.Join(tplDir, tplName)))

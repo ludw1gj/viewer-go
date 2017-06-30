@@ -29,8 +29,8 @@ func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, viewerRootURL, http.StatusMovedPermanently)
 }
 
-// Viewer handles the viewer page. It uses the path variable in the route to determine which directory of the filesystem
-// to display a directory list for.
+// Viewer handles the viewer page. It uses the path variable in the route to determine which directory in the user's
+// directory in the filesystem to display a directory list for.
 func Viewer(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
