@@ -1,5 +1,6 @@
-// Package handler contains handler functions for routes, and also functions which write to a http.Response.
-package handler
+// Package controller contains handler functions for routes, and also functions which write to a http.Response.
+
+package controller
 
 import (
 	"bytes"
@@ -18,27 +19,28 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const viewerRootURL = "/viewer/"
+
+type viewerController struct{}
+
+func NewViewerController() *viewerController {
+	return &viewerController{}
+}
+
 type userInfo struct {
 	User db.User
 }
 
-const viewerRootURL = "/viewer/"
-
-// RedirectToViewer redirects users to the viewer page.
-func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, viewerRootURL, http.StatusMovedPermanently)
-}
-
 // Viewer handles the viewer page. It uses the path variable in the route to determine which directory in the user's
 // directory in the filesystem to display a directory list for.
-func Viewer(w http.ResponseWriter, r *http.Request) {
+func (vc viewerController) Viewer(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	isFile, err := renderIfFile(w, r, user)
+	isFile, err := vc.renderIfFile(w, r, user)
 	if err != nil {
 		renderErrorPage(w, r, errors.New("There has been an error: "+err.Error()))
 		return
@@ -67,36 +69,9 @@ func Viewer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// About handles the about page.
-func About(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	err = aboutTpl.Execute(w, userInfo{user})
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func User(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	err = userTpl.Execute(w, userInfo{user})
-	if err != nil {
-		log.Println(err)
-	}
-}
-
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
 // redirects to the viewer page at that path.
-func Upload(w http.ResponseWriter, r *http.Request) {
+func (viewerController) Upload(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -123,7 +98,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
 // page at path provided in the query string "path".
-func CreateFolder(w http.ResponseWriter, r *http.Request) {
+func (viewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -143,7 +118,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 
 // Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
 // page at path provided in the query string "path".
-func Delete(w http.ResponseWriter, r *http.Request) {
+func (viewerController) Delete(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -166,7 +141,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 // DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the viewer
 // page at that path.
-func DeleteAll(w http.ResponseWriter, r *http.Request) {
+func (viewerController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -182,53 +157,9 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, viewerRootURL+urlPath, http.StatusSeeOther)
 }
 
-// NotFound renders the not found page and sends status 404.
-func NotFound(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	var buf bytes.Buffer
-	err = notFoundTpl.Execute(&buf, userInfo{user})
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.WriteHeader(http.StatusNotFound)
-	w.Write(buf.Bytes())
-}
-
-// NotFound renders the error page and sends status 500.
-func renderErrorPage(w http.ResponseWriter, r *http.Request, err error) {
-	user, ok := getUserFromSession(r)
-	if ok != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	data := struct {
-		Error string
-		User  db.User
-	}{
-		err.Error(),
-		user,
-	}
-
-	var buf bytes.Buffer
-	err = errorTpl.Execute(&buf, data)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write(buf.Bytes())
-}
-
 // renderIfFile uses the path variable in the route to determine if path on disk is a file or a directory. If it is a
 // file it will write the file to the client, but if it is a directory it will return isFile is false.
-func renderIfFile(w http.ResponseWriter, r *http.Request, user db.User) (isFile bool, err error) {
+func (vc viewerController) renderIfFile(w http.ResponseWriter, r *http.Request, user db.User) (isFile bool, err error) {
 	filePath := path.Join(user.DirectoryRoot, mux.Vars(r)["path"])
 
 	fileInfo, err := os.Stat(filePath)
@@ -240,7 +171,7 @@ func renderIfFile(w http.ResponseWriter, r *http.Request, user db.User) (isFile 
 		isFile = true
 
 		data, _ := ioutil.ReadFile(filePath)
-		w.Header().Add("Content-Type", contentType(filePath))
+		w.Header().Add("Content-Type", vc.contentType(filePath))
 		http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
 		return
 	}
@@ -248,7 +179,7 @@ func renderIfFile(w http.ResponseWriter, r *http.Request, user db.User) (isFile 
 }
 
 // contentType determines the content-type by the file extension of the file at the path.
-func contentType(path string) (contentType string) {
+func (viewerController) contentType(path string) (contentType string) {
 	if strings.HasSuffix(path, ".css") {
 		return "text/css"
 	} else if strings.HasSuffix(path, ".html") {

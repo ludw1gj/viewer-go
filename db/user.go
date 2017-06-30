@@ -32,6 +32,19 @@ func CreateUser(username string, password string) {
 	}
 }
 
+func DeleteUser(user User, password string) error {
+	// check if password is valid
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashPassword), []byte(password)); err != nil {
+		return err
+	}
+
+	_, err := db.Exec("DELETE FROM users WHERE id = $1", user.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func GetUser(id int) (user User, err error) {
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
 	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.HashPassword, &user.DirectoryRoot, &user.IsAdmin)
@@ -42,17 +55,38 @@ func GetUser(id int) (user User, err error) {
 	return user, nil
 }
 
-func ValidateUser(username string, password string) (user User, auth bool) {
-	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
-	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.HashPassword, &user.DirectoryRoot, &user.IsAdmin)
+func ChangeUserPassword(user User, oldPassword string, newPassword string) error {
+	// check if oldPassword is valid
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashPassword), []byte(oldPassword)); err != nil {
+		return err
+	}
+
+	// generate hash of new password
+	newHashPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		// TODO: Properly handle error
-		log.Println(err)
+		log.Fatal(err)
+	}
+
+	// store new password
+	_, err = db.Exec("UPDATE users SET hash_password = $1 WHERE id = $2;", newHashPassword, user.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckUserValidation(username string, password string) (userID int, err error) {
+	var user User
+	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
+	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.HashPassword, &user.DirectoryRoot, &user.IsAdmin)
+	if err != nil {
+		return userID, err
 	}
 
 	// comparing password with hash
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashPassword), []byte(password)); err != nil {
-		return user, false
+		return userID, err
 	}
-	return user, true
+	return user.ID, err
 }

@@ -1,6 +1,6 @@
 // This file contains template logic.
 
-package handler
+package controller
 
 import (
 	"html/template"

@@ -1,4 +1,4 @@
-{{define "title"}}{{.User.Username}} | Viewer{{end}}
+{{define "title"}}{{.User.FirstName}} | Viewer{{end}}
 
 {{define "content"}}
 <h3 class="title is-3">Information:</h3>
@@ -14,12 +14,14 @@
     <input class="input" type="text" name="old-password"><br>
     <label>New Password:</label>
     <input class="input" type="text" name="new-password"><br>
-    <input class="button is-warning" type="submit" value="Submit">
+    <input class="button is-warning" type="submit" value="Change">
 </form>
 
 <br>
 <h3 class="subtitle is-5">Delete Account</h3>
 <form action="/user/delete" method="post">
+    <label>Password:</label>
+    <input class="input" type="text" name="password"><br>
     <input class="button is-danger" type="submit" value="Delete">
 </form>
 {{end}}
