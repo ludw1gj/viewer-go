@@ -3,6 +3,8 @@ package db
 import (
 	"log"
 
+	"errors"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -81,12 +83,12 @@ func CheckUserValidation(username string, password string) (userID int, err erro
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
 	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.HashPassword, &user.DirectoryRoot, &user.IsAdmin)
 	if err != nil {
-		return userID, err
+		return userID, errors.New("Invalid username.")
 	}
 
 	// comparing password with hash
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashPassword), []byte(password)); err != nil {
-		return userID, err
+		return userID, errors.New("Invalid password.")
 	}
 	return user.ID, err
 }

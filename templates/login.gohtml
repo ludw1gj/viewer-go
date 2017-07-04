@@ -18,6 +18,18 @@
     <div class="container">
         <img src="/static/image/lock.png" width="300">
 
+        {{if .Error}}
+        <article class="message is-danger">
+            <div class="message-header">
+                <p><strong>Error</strong></p>
+                <button class="delete"></button>
+            </div>
+            <div class="message-body">
+                {{.Error}}
+            </div>
+        </article>
+        {{end}}
+
         <h3 class="title is-4">Login</h3>
         <form action="/login" method="post">
             <label class="label">Username:</label>

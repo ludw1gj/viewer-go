@@ -16,3 +16,12 @@ form {
     text-align: left;
     width: 300px;
 }
+
+.message {
+    width: 400px;
+
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}

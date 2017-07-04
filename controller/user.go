@@ -22,6 +22,7 @@ func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
 
 	err = userTpl.Execute(w, userInfo{user})
 	if err != nil {
+		// TODO: handler error properly
 		log.Println(err)
 	}
 }
@@ -29,25 +30,32 @@ func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
 func (userController) Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		w.WriteHeader(http.StatusForbidden)
-		err := loginTpl.Execute(w, nil)
-		if err != nil {
-			// TODO: handler error properly
-			log.Println(err)
-		}
+		renderLogin(w, nil)
 	case "POST":
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
 		err := newUserSession(w, r, username, password)
 		if err != nil {
-			// TODO: controller error properly
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			w.WriteHeader(http.StatusForbidden)
+			renderLogin(w, err)
 			return
 		}
 		http.Redirect(w, r, viewerRootURL, http.StatusSeeOther)
 	default:
 		http.Error(w, "Bad request", http.StatusBadRequest)
+	}
+}
+
+func renderLogin(w http.ResponseWriter, err error) {
+	type Err struct {
+		Error error `json:"error"`
+	}
+
+	err = loginTpl.Execute(w, Err{err})
+	if err != nil {
+		// TODO: handler error properly
+		log.Println(err.Error())
 	}
 }
 
