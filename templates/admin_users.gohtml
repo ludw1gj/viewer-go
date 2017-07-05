@@ -1,0 +1,16 @@
+{{define "title"}}All Users | Admin | Viewer{{end}}
+
+{{define "content"}}
+<h3 class="title is-3">All Users:</h3>
+{{range .Users}}
+<p>ID: {{.ID}}</p>
+<p>First Name: {{.FirstName}}</p>
+<p>Last Name: {{.LastName}}</p>
+<p>Directory Root: {{.DirectoryRoot}}</p>
+<p>Is Admin: {{.IsAdmin}}</p>
+<br>
+{{end}}
+
+<a href="/admin">Go Back</a>
+<br><br>
+{{end}}

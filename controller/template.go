@@ -20,6 +20,8 @@ var (
 	viewerTpl,
 	aboutTpl,
 	userTpl,
+	adminTpl,
+	adminUsersTpl,
 	errorTpl,
 	notFoundTpl *template.Template
 )
@@ -31,6 +33,8 @@ func init() {
 	viewerTpl = initTemplate("viewer.gohtml", true)
 	aboutTpl = initTemplate("about.gohtml", true)
 	userTpl = initTemplate("user.gohtml", true)
+	adminTpl = initTemplate("admin.gohtml", true)
+	adminUsersTpl = initTemplate("admin_users.gohtml", true)
 	errorTpl = initTemplate("error.gohtml", true)
 	notFoundTpl = initTemplate("not_found.gohtml", true)
 }

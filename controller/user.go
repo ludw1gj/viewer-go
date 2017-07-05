@@ -15,20 +15,6 @@ func NewUserController() *userController {
 	return &userController{}
 }
 
-func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	err = userTpl.Execute(w, userInfo{user})
-	if err != nil {
-		// TODO: handler error properly
-		log.Println(err)
-	}
-}
-
 func (userController) Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -63,6 +49,20 @@ func (userController) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
+func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	err = userTpl.Execute(w, userInfo{user})
+	if err != nil {
+		// TODO: handler error properly
+		log.Println(err)
+	}
 }
 
 func (userController) ChangePassword(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +108,7 @@ func (userController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pw := r.FormValue("password")
-	err = db.DeleteUser(user, pw)
+	err = db.DeleteUserPasswordValidated(user, pw)
 	if err != nil {
 		// TODO: handle error properly
 		log.Println(err)

@@ -31,6 +31,7 @@
     <div class="nav-right nav-menu" id="burger-menu">
         <a class="nav-item is-tab is-hidden-tablet" href="/viewer/">Home</a>
         <a class="nav-item is-tab is-hidden-tablet" href="/about">About</a>
+        {{if .User.IsAdmin}}<a class="nav-item is-tab" href="/admin">Admin</a>{{end}}
         <a class="nav-item is-tab" href="/user">{{.User.FirstName}}</a>
         <a class="nav-item is-tab" href="/user/logout">Log out</a>
     </div>

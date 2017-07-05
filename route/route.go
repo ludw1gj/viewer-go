@@ -17,6 +17,7 @@ func Load() {
 	sc := controller.NewSiteController()
 	vc := controller.NewViewerController()
 	uc := controller.NewUserController()
+	ac := controller.NewAdminController()
 
 	// -- protected routes --
 	// site
@@ -26,7 +27,6 @@ func Load() {
 
 	// viewer
 	protected.HandleFunc("/viewer/{path:.*}", vc.Viewer).Methods("GET")
-
 	protected.HandleFunc("/upload", vc.Upload).Methods("POST")
 	protected.HandleFunc("/create-folder", vc.CreateFolder).Methods("POST")
 	protected.HandleFunc("/delete", vc.Delete).Methods("POST")
@@ -37,6 +37,12 @@ func Load() {
 	protected.HandleFunc("/user/logout", uc.Logout).Methods("GET")
 	protected.HandleFunc("/user/delete", uc.DeleteAccount).Methods("POST")
 	protected.HandleFunc("/api/user/change-password", uc.ChangePassword).Methods("POST")
+
+	// admin
+	protected.HandleFunc("/admin", ac.AdminPage).Methods("GET")
+	protected.HandleFunc("/admin/users", ac.DisplayAllUsers).Methods("GET")
+	protected.HandleFunc("/api/admin/create-user", ac.CreateUser).Methods("POST")
+	protected.HandleFunc("/api/admin/delete-user", ac.DeleteUser).Methods("POST")
 	//-- end --
 
 	// -- open routes --
