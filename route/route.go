@@ -35,8 +35,8 @@ func Load() {
 	// user
 	protected.HandleFunc("/user", uc.UserPage).Methods("GET")
 	protected.HandleFunc("/user/logout", uc.Logout).Methods("GET")
-	protected.HandleFunc("/user/password", uc.ChangePassword).Methods("POST")
 	protected.HandleFunc("/user/delete", uc.DeleteAccount).Methods("POST")
+	protected.HandleFunc("/api/user/change-password", uc.ChangePassword).Methods("POST")
 	//-- end --
 
 	// -- open routes --

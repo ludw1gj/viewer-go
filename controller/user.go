@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"encoding/json"
+
 	"github.com/FriedPigeon/viewer-go/db"
 )
 
@@ -30,7 +32,10 @@ func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
 func (userController) Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		renderLogin(w, nil)
+		err := loginTpl.Execute(w, errType{nil})
+		if err != nil {
+			log.Println(err)
+		}
 	case "POST":
 		username := r.FormValue("username")
 		password := r.FormValue("password")
@@ -38,24 +43,15 @@ func (userController) Login(w http.ResponseWriter, r *http.Request) {
 		err := newUserSession(w, r, username, password)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
-			renderLogin(w, err)
+			err = loginTpl.Execute(w, errType{err})
+			if err != nil {
+				log.Println(err)
+			}
 			return
 		}
 		http.Redirect(w, r, viewerRootURL, http.StatusSeeOther)
 	default:
 		http.Error(w, "Bad request", http.StatusBadRequest)
-	}
-}
-
-func renderLogin(w http.ResponseWriter, err error) {
-	type Err struct {
-		Error error `json:"error"`
-	}
-
-	err = loginTpl.Execute(w, Err{err})
-	if err != nil {
-		// TODO: handler error properly
-		log.Println(err.Error())
 	}
 }
 
@@ -75,16 +71,33 @@ func (userController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 
-	oldPw := r.FormValue("old-password")
-	newPw := r.FormValue("new-password")
-	err = db.ChangeUserPassword(user, oldPw, newPw)
+	passwords := struct {
+		NewPassword string `json:"new_password"`
+		OldPassword string `json:"old_password"`
+	}{}
+
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&passwords)
 	if err != nil {
-		// TODO: handle error properly
-		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+	}
+
+	err = db.ChangeUserPassword(user, passwords.OldPassword, passwords.NewPassword)
+	if err != nil {
+		if err.Error() == "Incorrect password." {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(errorJSON{err.Error()})
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(errorJSON{err.Error()})
 		return
 	}
-	http.Redirect(w, r, "/user", http.StatusSeeOther)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(contentJSON{"Password changed successfully."})
 }
 
 func (userController) DeleteAccount(w http.ResponseWriter, r *http.Request) {

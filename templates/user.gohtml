@@ -1,6 +1,10 @@
 {{define "title"}}{{.User.FirstName}} | Viewer{{end}}
 
 {{define "content"}}
+<article id="user-message" class="message">
+    <div class="message-body"></div>
+</article>
+
 <h3 class="title is-3">Information:</h3>
 <p>
     Username: {{.User.Username}}<br>
@@ -9,11 +13,11 @@
 
 <br>
 <h3 class="subtitle is-5">Change Password</h3>
-<form action="/user/password" method="post">
+<form id="change-password-form" action="/user/password" method="post">
     <label>Old Password:</label>
-    <input class="input" type="text" name="old-password" required><br>
+    <input id="change-password-form-old-password" class="input" type="password" name="old-password" required><br>
     <label>New Password:</label>
-    <input class="input" type="text" name="new-password" required><br>
+    <input id="change-password-form-new-password" class="input" type="password" name="new-password" required><br>
     <input class="button is-warning" type="submit" value="Change">
 </form>
 
@@ -21,7 +25,7 @@
 <h3 class="subtitle is-5">Delete Account</h3>
 <form action="/user/delete" method="post">
     <label>Password:</label>
-    <input class="input" type="text" name="password" required><br>
+    <input class="input" type="password" name="password" required><br>
     <input class="button is-danger" type="submit" value="Delete">
 </form>
 {{end}}

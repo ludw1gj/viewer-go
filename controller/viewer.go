@@ -27,10 +27,6 @@ func NewViewerController() *viewerController {
 	return &viewerController{}
 }
 
-type userInfo struct {
-	User db.User
-}
-
 // Viewer handles the viewer page. It uses the path variable in the route to determine which directory in the user's
 // directory in the filesystem to display a directory list for.
 func (vc viewerController) Viewer(w http.ResponseWriter, r *http.Request) {

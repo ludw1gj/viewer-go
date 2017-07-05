@@ -60,7 +60,7 @@ func GetUser(id int) (user User, err error) {
 func ChangeUserPassword(user User, oldPassword string, newPassword string) error {
 	// check if oldPassword is valid
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashPassword), []byte(oldPassword)); err != nil {
-		return err
+		return errors.New("Incorrect password.")
 	}
 
 	// generate hash of new password

@@ -22,3 +22,8 @@ a {
 .button {
     margin-top: 10px;
 }
+
+#user-message {
+    display: none;
+    width: 500px;
+}

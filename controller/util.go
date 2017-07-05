@@ -8,6 +8,22 @@ import (
 	"github.com/FriedPigeon/viewer-go/db"
 )
 
+type userInfo struct {
+	User db.User
+}
+
+type errType struct {
+	Error error
+}
+
+type contentJSON struct {
+	Content string `json:"content"`
+}
+
+type errorJSON struct {
+	Error string `json:"error"`
+}
+
 // renderErrorPage renders the error page and sends status 500.
 func renderErrorPage(w http.ResponseWriter, r *http.Request, err error) {
 	user, ok := getUserFromSession(r)
