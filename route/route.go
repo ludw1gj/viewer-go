@@ -20,6 +20,11 @@ func Load() {
 	uc := controller.NewUserController()
 	ac := controller.NewAdminController()
 
+	// -- open routes --
+	http.HandleFunc("/login", uc.Login)
+	http.Handle("/", authenticateRoute(protected))
+	//-- end --
+
 	// -- protected routes --
 	// site
 	protected.HandleFunc("/", sc.RedirectToViewer).Methods("GET")
@@ -44,11 +49,6 @@ func Load() {
 	protected.HandleFunc("/admin/users", ac.DisplayAllUsers).Methods("GET")
 	protected.HandleFunc("/api/admin/create-user", ac.CreateUser).Methods("POST")
 	protected.HandleFunc("/api/admin/delete-user", ac.DeleteUser).Methods("POST")
-	//-- end --
-
-	// -- open routes --
-	http.HandleFunc("/login", uc.Login)
-	http.Handle("/", authenticateRoute(protected))
 	//-- end --
 
 	// static file controller in dev mode

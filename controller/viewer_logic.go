@@ -11,7 +11,8 @@ import (
 	"strings"
 )
 
-// getDirectoryList renders the directory list template according the path provided.
+// getDirectoryList renders the directory list template according the directory path and returns the HTML document
+// fragment.
 func getDirectoryList(dirPath string, urlPath string) (list template.HTML, err error) {
 	f, err := os.Open(dirPath)
 	defer f.Close()
@@ -76,8 +77,8 @@ func getDirectoryList(dirPath string, urlPath string) (list template.HTML, err e
 	return template.HTML(tplBuf.String()), nil
 }
 
-// uploadFiles opens the FileHeader's associated Files, creates the destinations at the path provided
-// and saves the files.
+// uploadFiles opens the FileHeader's associated Files, creates the destinations at the directory path and saves the
+// files.
 func uploadFiles(dirPath string, file map[string][]*multipart.FileHeader) error {
 	for _, fileHeaders := range file {
 		for _, hdr := range fileHeaders {
@@ -103,7 +104,7 @@ func uploadFiles(dirPath string, file map[string][]*multipart.FileHeader) error 
 	return nil
 }
 
-// createFolder creates a folder at provided path in the working directory.
+// createFolder creates a folder in the directory path.
 func createFolder(dirPath string) error {
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
@@ -112,7 +113,7 @@ func createFolder(dirPath string) error {
 	return nil
 }
 
-// deleteFile deletes the file at path/fileName provided in the working directory.
+// deleteFile deletes the file at file path.
 func deleteFile(filePath string) (err error) {
 	err = os.RemoveAll(filePath)
 	if err != nil {
@@ -121,7 +122,7 @@ func deleteFile(filePath string) (err error) {
 	return
 }
 
-// deleteAllFiles deletes all files in the path provided in the working directory.
+// deleteAllFiles deletes all files in the directory oath.
 func deleteAllFiles(dirPath string) (err error) {
 	d, err := os.Open(dirPath)
 	if err != nil {

@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/FriedPigeon/viewer-go/db"
-	"github.com/gorilla/mux"
 	"github.com/FriedPigeon/viewer-go/session"
+	"github.com/gorilla/mux"
 )
 
 const viewerRootURL = "/viewer/"
