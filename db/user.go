@@ -5,6 +5,8 @@ import (
 
 	"errors"
 
+	"os"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -53,6 +55,12 @@ func CreateUser(u User) error {
 	// store user in db
 	_, err = db.Exec("INSERT INTO users (username, first_name, last_name, hash_password, directory_root, is_admin) VALUES ($1, $2, $3, $4, $5, $6)",
 		u.Username, u.FirstName, u.LastName, string(hashPassword), u.DirectoryRoot, u.IsAdmin)
+	if err != nil {
+		return err
+	}
+
+	// create user root directory on disk
+	err = os.MkdirAll(u.DirectoryRoot, os.ModePerm)
 	if err != nil {
 		return err
 	}
