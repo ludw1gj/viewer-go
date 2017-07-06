@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// User type contains user information.
 type User struct {
 	ID            int    `json:"id"`
 	Username      string `json:"username"`
@@ -18,6 +19,7 @@ type User struct {
 	IsAdmin       bool   `json:"is_admin"`
 }
 
+// GetAllUsers returns all users in the database.
 func GetAllUsers() (users []User, err error) {
 	rows, err := db.Query("SELECT * FROM users")
 	if err != nil {
@@ -38,6 +40,7 @@ func GetAllUsers() (users []User, err error) {
 	return users, nil
 }
 
+// CreateUser inserts a new user into the database.
 func CreateUser(u User) error {
 	// generate hash of user password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
@@ -56,6 +59,7 @@ func CreateUser(u User) error {
 	return nil
 }
 
+// DeleteUser deletes a user from the database that matches the provided id.
 func DeleteUser(id int) error {
 	_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
 	if err != nil {
@@ -64,6 +68,7 @@ func DeleteUser(id int) error {
 	return nil
 }
 
+// DeleteUserPasswordValidated deletes a user from the database if the provided password is valid.
 func DeleteUserPasswordValidated(user User, password string) error {
 	// check if password is valid
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
@@ -77,6 +82,7 @@ func DeleteUserPasswordValidated(user User, password string) error {
 	return nil
 }
 
+// GetUser returns a single user from the database that matches the provided id.
 func GetUser(id int) (user User, err error) {
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
 	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.IsAdmin)
@@ -87,6 +93,7 @@ func GetUser(id int) (user User, err error) {
 	return user, nil
 }
 
+// ChangeUserPassword changes a user's password in the database, if the provided password is valid.
 func ChangeUserPassword(user User, oldPassword string, newPassword string) error {
 	// check if oldPassword is valid
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
@@ -108,6 +115,8 @@ func ChangeUserPassword(user User, oldPassword string, newPassword string) error
 	return nil
 }
 
+// CheckUserValidation validates a user with username and password. It will check if the username exists in the database
+// and checks if the password is valid, then returning the user's id.
 func CheckUserValidation(username string, password string) (userID int, err error) {
 	var user User
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)

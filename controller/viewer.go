@@ -17,6 +17,7 @@ import (
 
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/gorilla/mux"
+	"github.com/FriedPigeon/viewer-go/session"
 )
 
 const viewerRootURL = "/viewer/"
@@ -30,7 +31,7 @@ func NewViewerController() *viewerController {
 // Viewer handles the viewer page. It uses the path variable in the route to determine which directory in the user's
 // directory in the filesystem to display a directory list for.
 func (vc viewerController) Viewer(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -68,7 +69,7 @@ func (vc viewerController) Viewer(w http.ResponseWriter, r *http.Request) {
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
 // redirects to the viewer page at that path.
 func (viewerController) Upload(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -95,7 +96,7 @@ func (viewerController) Upload(w http.ResponseWriter, r *http.Request) {
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
 // page at path provided in the query string "path".
 func (viewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -115,7 +116,7 @@ func (viewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 // Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
 // page at path provided in the query string "path".
 func (viewerController) Delete(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -138,7 +139,7 @@ func (viewerController) Delete(w http.ResponseWriter, r *http.Request) {
 // DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the viewer
 // page at that path.
 func (viewerController) DeleteAll(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return

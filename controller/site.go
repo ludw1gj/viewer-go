@@ -1,9 +1,13 @@
+// This files contains the site controller, which contains methods for rendering standard pages.
+
 package controller
 
 import (
 	"bytes"
 	"log"
 	"net/http"
+
+	"github.com/FriedPigeon/viewer-go/session"
 )
 
 type siteController struct{}
@@ -19,7 +23,7 @@ func (siteController) RedirectToViewer(w http.ResponseWriter, r *http.Request) {
 
 // About handles the about page.
 func (siteController) About(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -33,7 +37,7 @@ func (siteController) About(w http.ResponseWriter, r *http.Request) {
 
 // NotFound renders the not found page and sends status 404.
 func (siteController) NotFound(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return

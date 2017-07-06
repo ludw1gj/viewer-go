@@ -1,4 +1,5 @@
-package controller
+// Package session contains logic concerning session and cookies.
+package session
 
 import (
 	"log"
@@ -12,6 +13,7 @@ const cookieStoreAuthKey = "something-very-secret"
 
 var store = sessions.NewCookieStore([]byte(cookieStoreAuthKey))
 
+// CheckIfAuth checks if user is authenticated.
 func CheckIfAuth(w http.ResponseWriter, r *http.Request) bool {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
@@ -27,7 +29,8 @@ func CheckIfAuth(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
-func newUserSession(w http.ResponseWriter, r *http.Request, username string, password string) error {
+// NewUserSession creates a new user session and authenticates the user.
+func NewUserSession(w http.ResponseWriter, r *http.Request, username string, password string) error {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
 		return err
@@ -49,7 +52,8 @@ func newUserSession(w http.ResponseWriter, r *http.Request, username string, pas
 	return nil
 }
 
-func removeUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
+// RemoveUserAuthFromSession removes user's session authentication.
+func RemoveUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
 		return err
@@ -64,7 +68,8 @@ func removeUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func getUserFromSession(r *http.Request) (user db.User, err error) {
+// GetUserFromSession returns a user identified by the user's session.
+func GetUserFromSession(r *http.Request) (user db.User, err error) {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
 		log.Println(err)

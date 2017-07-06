@@ -1,3 +1,6 @@
+// This files contains the user controller, which contains methods for logging in and logging out for users, user
+// actions, and rendering the user page.
+
 package controller
 
 import (
@@ -7,6 +10,7 @@ import (
 	"encoding/json"
 
 	"github.com/FriedPigeon/viewer-go/db"
+	"github.com/FriedPigeon/viewer-go/session"
 )
 
 type userController struct{}
@@ -15,6 +19,8 @@ func NewUserController() *userController {
 	return &userController{}
 }
 
+// Login method when accessed via a GET request renders the login page, and when when accessed via a POST request it
+// will process the login form values and login the user and redirect the user the viewer page.
 func (userController) Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -26,7 +32,7 @@ func (userController) Login(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
-		err := newUserSession(w, r, username, password)
+		err := session.NewUserSession(w, r, username, password)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			err = loginTpl.Execute(w, errType{err})
@@ -41,8 +47,14 @@ func (userController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Logout will logout the user by changing the session value "authenticated" to false.
 func (userController) Logout(w http.ResponseWriter, r *http.Request) {
-	err := removeUserAuthFromSession(w, r)
+	if r.Method != "POST" {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	err := session.RemoveUserAuthFromSession(w, r)
 	if err != nil {
 		// TODO: controller error properly
 		log.Println(err)
@@ -51,8 +63,9 @@ func (userController) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
+// UserPage renders the user page.
 func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -65,8 +78,10 @@ func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ChangePassword will process a json post request, comparing password sent with current password and if they match, the
+// current password will be changed to the new password.
 func (userController) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -74,8 +89,8 @@ func (userController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	passwords := struct {
-		NewPassword string `json:"new_password"`
 		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
 	}{}
 
 	decoder := json.NewDecoder(r.Body)
@@ -100,8 +115,10 @@ func (userController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(contentJSON{"Password changed successfully."})
 }
 
+// DeleteAccount will process the delete user form, if password is correct the user's account will be deleted and the
+// user redirected to the login page.
 func (userController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return

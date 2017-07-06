@@ -33,7 +33,11 @@
         <a class="nav-item is-tab is-hidden-tablet" href="/about">About</a>
         {{if .User.IsAdmin}}<a class="nav-item is-tab" href="/admin">Admin</a>{{end}}
         <a class="nav-item is-tab" href="/user">{{.User.FirstName}}</a>
-        <a class="nav-item is-tab" href="/user/logout">Log out</a>
+        <div class="nav-item">
+            <form name="logout_form" id="logout-form" method="post" action="/logout">
+                <a id="logout-button">Logout</a>
+            </form>
+        </div>
     </div>
 </nav>
 <br>

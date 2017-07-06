@@ -1,3 +1,5 @@
+// This file contains the admin controller, which has methods concerning administrations pages and operations.
+
 package controller
 
 import (
@@ -7,6 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/FriedPigeon/viewer-go/db"
+	"github.com/FriedPigeon/viewer-go/session"
 )
 
 type adminController struct{}
@@ -15,8 +18,9 @@ func NewAdminController() *adminController {
 	return &adminController{}
 }
 
+// AdminPage renders the Administration page. Client must be admin.
 func (adminController) AdminPage(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -33,8 +37,9 @@ func (adminController) AdminPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// DisplayAllUsers render a sub administration page which displays all users in database. Client must be admin.
 func (adminController) DisplayAllUsers(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -57,8 +62,9 @@ func (adminController) DisplayAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CreateUser receives new user information via json and creates the user. Client must be admin.
 func (adminController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -83,8 +89,9 @@ func (adminController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(contentJSON{"Successfully created user."})
 }
 
+// DeleteUser receives user information via json and deletes the user. Client must be admin.
 func (adminController) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserFromSession(r)
+	user, err := session.GetUserFromSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -95,16 +102,16 @@ func (adminController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 
-	id := struct {
+	data := struct {
 		ID int `json:"id"`
 	}{}
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&id)
+	err = decoder.Decode(&data)
 	if err != nil {
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})
 	}
 
-	err = db.DeleteUser(id.ID)
+	err = db.DeleteUser(data.ID)
 	if err != nil {
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})
 	}

@@ -129,3 +129,9 @@ if (document.getElementById("delete-user-form")) {
     });
 }
 
+// Logout
+var logoutButton = document.getElementById("logout-button");
+var logoutForm = document.getElementById("logout-form");
+logoutButton.addEventListener('click', function () {
+    logoutForm.submit();
+});
