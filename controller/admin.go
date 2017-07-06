@@ -32,7 +32,7 @@ func (adminController) AdminPage(w http.ResponseWriter, r *http.Request) {
 
 	err = adminTpl.Execute(w, userInfo{user})
 	if err != nil {
-		// TODO: handle error properly
+		renderErrorPage(w, r, err)
 		log.Println(err)
 	}
 }

@@ -32,11 +32,12 @@ type errorJSON struct {
 }
 
 // renderErrorPage renders the error page and sends status 500.
-func renderErrorPage(w http.ResponseWriter, r *http.Request, err error) {
-	user, ok := session.GetUserFromSession(r)
-	if ok != nil {
-		log.Println(ok)
-		// TODO: handle error properly
+func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		w.Write([]byte("500: Server error"))
+		log.Print("StatusInternalServerError failed to execute get user from session on error page.")
 		return
 	}
 
@@ -44,16 +45,17 @@ func renderErrorPage(w http.ResponseWriter, r *http.Request, err error) {
 		Error string
 		User  db.User
 	}{
-		err.Error(),
+		pageErr.Error(),
 		user,
 	}
 
 	var buf bytes.Buffer
 	err = errorTpl.Execute(&buf, data)
 	if err != nil {
-		log.Println(err)
+		w.Write([]byte("500: Server error"))
+		log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
+		return
 	}
 
-	w.WriteHeader(http.StatusInternalServerError)
 	w.Write(buf.Bytes())
 }

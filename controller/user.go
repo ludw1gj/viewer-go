@@ -38,6 +38,8 @@ func (userController) Login(w http.ResponseWriter, r *http.Request) {
 			err = loginTpl.Execute(w, errType{err})
 			if err != nil {
 				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte("500: Server error"))
 			}
 			return
 		}
@@ -56,7 +58,6 @@ func (userController) Logout(w http.ResponseWriter, r *http.Request) {
 
 	err := session.RemoveUserAuthFromSession(w, r)
 	if err != nil {
-		// TODO: controller error properly
 		log.Println(err)
 		return
 	}
@@ -73,8 +74,8 @@ func (userController) UserPage(w http.ResponseWriter, r *http.Request) {
 
 	err = userTpl.Execute(w, userInfo{user})
 	if err != nil {
-		// TODO: handler error properly
 		log.Println(err)
+		renderErrorPage(w, r, err)
 	}
 }
 
@@ -127,8 +128,8 @@ func (userController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	pw := r.FormValue("password")
 	err = db.DeleteUserPasswordValidated(user, pw)
 	if err != nil {
-		// TODO: handle error properly
 		log.Println(err)
+		renderErrorPage(w, r, err)
 		return
 	}
 	http.Redirect(w, r, "/login", http.StatusSeeOther)

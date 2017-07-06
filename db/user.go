@@ -23,7 +23,8 @@ type User struct {
 func GetAllUsers() (users []User, err error) {
 	rows, err := db.Query("SELECT * FROM users")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return users, err
 	}
 	defer rows.Close()
 
@@ -32,8 +33,8 @@ func GetAllUsers() (users []User, err error) {
 
 		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.IsAdmin)
 		if err != nil {
-			// TODO: Properly handle error
 			log.Println(err)
+			return users, err
 		}
 		users = append(users, user)
 	}
@@ -45,7 +46,6 @@ func CreateUser(u User) error {
 	// generate hash of user password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
-		// TODO: Properly handle error
 		log.Println(err)
 		return err
 	}
@@ -103,8 +103,8 @@ func ChangeUserPassword(user User, oldPassword string, newPassword string) error
 	// generate hash of new password
 	newHashPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
-		// TODO: Properly handle error
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 
 	// store new password
