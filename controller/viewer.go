@@ -42,6 +42,7 @@ func (vc viewerController) Viewer(w http.ResponseWriter, r *http.Request) {
 		renderErrorPage(w, r, errors.New("There has been an error: "+err.Error()))
 		return
 	} else if isFile {
+		// if it is a file, it has already been rendered by renderIfFile.
 		return
 	}
 

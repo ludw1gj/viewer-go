@@ -5,13 +5,17 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/FriedPigeon/viewer-go/config"
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/gorilla/sessions"
 )
 
-const cookieStoreAuthKey = "something-very-secret"
+var store *sessions.CookieStore
 
-var store = sessions.NewCookieStore([]byte(cookieStoreAuthKey))
+// Load returns a new CookieStore with key from config.Config type.
+func Load(c config.Config) {
+	store = sessions.NewCookieStore([]byte(c.CookieStoreAuthKey))
+}
 
 // CheckIfAuth checks if user is authenticated.
 func CheckIfAuth(w http.ResponseWriter, r *http.Request) bool {

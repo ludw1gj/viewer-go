@@ -15,10 +15,10 @@ import (
 // fragment.
 func getDirectoryList(dirPath string, urlPath string) (list template.HTML, err error) {
 	f, err := os.Open(dirPath)
-	defer f.Close()
 	if err != nil {
 		return
 	}
+	defer f.Close()
 
 	files, err := f.Readdir(-1)
 	if err != nil {
