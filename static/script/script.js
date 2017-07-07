@@ -1,49 +1,7 @@
 "use strict";
 
-// --- Util functions ---
 /**
- * This function serialises a Form Element Object into a general Javascript Object
- * @param {Object} form
- * A DOM Form Element Object
- * @returns {Object}
- * A general Javascript Object
- */
-function serializeFormObj(form) {
-    var elems = form.elements;
-    var obj = {};
-
-    for (var i = 0; i < elems.length; i += 1) {
-        var element = elems[i];
-        var type = element.type;
-        var name = element.name;
-        var value = element.value;
-
-        switch (type) {
-            case "text":
-                obj[name] = value;
-                break;
-            case "password":
-                obj[name] = value;
-                break;
-            case "checkbox":
-                if (value === "on") {
-                    obj[name] = true;
-                } else {
-                    obj[name] = false;
-                }
-                break;
-            case "number":
-                obj[name] = parseInt(value);
-                break;
-            default:
-                break;
-        }
-    }
-    return obj;
-}
-
-/**
- * This function submits an ajax request of content-type json to the change-password route
+ * This function submits an ajax post request of content-type json to the change-password route
  * @param {Object} data
  * A Form Element Object
  * @param {String} url
@@ -53,11 +11,12 @@ function serializeFormObj(form) {
  */
 function submitAjax(data, url, bannerId) {
     var request = new XMLHttpRequest();
-    request.open('POST', url, true);
+    request.open("POST", url, true);
 
     request.onload = function () {
         var resp = JSON.parse(this.response);
         var userMessage = document.getElementById(bannerId);
+
         if (this.status === 200) {
             userMessage.classList.remove("is-danger");
             userMessage.classList.add("is-success");
@@ -69,7 +28,6 @@ function submitAjax(data, url, bannerId) {
             userMessage.style.display = "block";
             userMessage.getElementsByClassName("message-body")[0].innerText = resp.error;
         }
-        return resp
     };
     request.onerror = function () {
         console.log("There was a connection issue. Check your internet connection or the sever might be down.");

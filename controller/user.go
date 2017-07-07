@@ -9,8 +9,13 @@ import (
 
 	"encoding/json"
 
+	"database/sql"
+
+	"errors"
+
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/FriedPigeon/viewer-go/session"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userController struct{}
@@ -24,26 +29,31 @@ func NewUserController() *userController {
 func (userController) Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		err := loginTpl.Execute(w, errType{nil})
+		err := loginTpl.Execute(w, nil)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500: Server error"))
 			log.Println(err)
 		}
 	case "POST":
-		username := r.FormValue("username")
-		password := r.FormValue("password")
+		loginCredentials := struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}{}
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&loginCredentials)
 
-		err := session.NewUserSession(w, r, username, password)
+		err = session.NewUserSession(w, r, loginCredentials.Username, loginCredentials.Password)
+		if err == sql.ErrNoRows || err == bcrypt.ErrMismatchedHashAndPassword {
+			err = errors.New("Invalid username or password.")
+		}
 		if err != nil {
-			w.WriteHeader(http.StatusForbidden)
-			err = loginTpl.Execute(w, errType{err})
-			if err != nil {
-				log.Println(err)
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("500: Server error"))
-			}
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(errorJSON{err.Error()})
 			return
 		}
-		http.Redirect(w, r, viewerRootURL, http.StatusSeeOther)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Login Successful."))
 	default:
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}

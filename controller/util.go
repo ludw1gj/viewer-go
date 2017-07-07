@@ -16,11 +16,6 @@ type userInfo struct {
 	User db.User
 }
 
-// errType is used for data object of error for rendering templates.
-type errType struct {
-	Error error
-}
-
 // contentJSON is used for json response with generic key of "content".
 type contentJSON struct {
 	Content string `json:"content"`

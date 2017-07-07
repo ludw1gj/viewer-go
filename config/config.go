@@ -13,7 +13,10 @@ type Config struct {
 		Password string `json:"password"`
 		Name     string `json:"name"`
 	} `json:"database"`
-	CookieStoreAuthKey string `json:"cookie_store_auth_key"`
+	Cookie struct {
+		CookieAuthKey       string `json:"cookie_auth_key"`
+		CookieEncryptionKey string `json:"cookie_encryption_key"`
+	}
 }
 
 // Load reads a json file and returns the configuration values in config struct.

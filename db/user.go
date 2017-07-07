@@ -3,8 +3,6 @@ package db
 import (
 	"log"
 
-	"errors"
-
 	"os"
 
 	"golang.org/x/crypto/bcrypt"
@@ -41,6 +39,17 @@ func GetAllUsers() (users []User, err error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+// GetUser returns a single user from the database that matches the provided id.
+func GetUser(id int) (user User, err error) {
+	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
+	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
+	if err != nil {
+		return user, err
+
+	}
+	return user, nil
 }
 
 // CreateUser inserts a new user into the database.
@@ -90,22 +99,11 @@ func DeleteUserPasswordValidated(user User, password string) error {
 	return nil
 }
 
-// GetUser returns a single user from the database that matches the provided id.
-func GetUser(id int) (user User, err error) {
-	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
-	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
-	if err != nil {
-		return user, err
-
-	}
-	return user, nil
-}
-
 // ChangeUserPassword changes a user's password in the database, if the provided password is valid.
 func ChangeUserPassword(user User, oldPassword string, newPassword string) error {
 	// check if oldPassword is valid
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
-		return errors.New("Incorrect password.")
+		return err
 	}
 
 	// generate hash of new password
@@ -130,12 +128,12 @@ func CheckUserValidation(username string, password string) (userID int, err erro
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
 	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
 	if err != nil {
-		return userID, errors.New("Invalid username.")
+		return userID, err
 	}
 
 	// comparing password with hash
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return userID, errors.New("Invalid password.")
+		return userID, err
 	}
 	return user.ID, err
 }
