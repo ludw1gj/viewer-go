@@ -1,3 +1,5 @@
+"use strict";
+
 // --- Util functions ---
 /**
  * This function serialises a Form Element Object into a general Javascript Object
@@ -17,20 +19,22 @@ function serializeFormObj(form) {
         var value = element.value;
 
         switch (type) {
-            case "hidden":
             case "text":
                 obj[name] = value;
                 break;
             case "password":
                 obj[name] = value;
+                break;
             case "checkbox":
                 if (value === "on") {
                     obj[name] = true;
                 } else {
                     obj[name] = false;
                 }
+                break;
             case "number":
                 obj[name] = parseInt(value);
+                break;
             default:
                 break;
         }
@@ -55,10 +59,12 @@ function submitAjax(data, url, bannerId) {
         var resp = JSON.parse(this.response);
         var userMessage = document.getElementById(bannerId);
         if (this.status === 200) {
+            userMessage.classList.remove("is-danger");
             userMessage.classList.add("is-success");
             userMessage.style.display = "block";
             userMessage.getElementsByClassName("message-body")[0].innerText = resp.content;
         } else if (this.status === 401 || this.status === 500) {
+            userMessage.classList.remove("is-success");
             userMessage.classList.add("is-danger");
             userMessage.style.display = "block";
             userMessage.getElementsByClassName("message-body")[0].innerText = resp.error;

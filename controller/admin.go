@@ -25,7 +25,7 @@ func (adminController) AdminPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	if !user.IsAdmin {
+	if !user.Admin {
 		http.Redirect(w, r, "/viewer", http.StatusForbidden)
 		return
 	}
@@ -44,7 +44,7 @@ func (adminController) DisplayAllUsers(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	if !user.IsAdmin {
+	if !user.Admin {
 		http.Redirect(w, r, "/viewer", http.StatusForbidden)
 		return
 	}
@@ -69,7 +69,7 @@ func (adminController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	if !user.IsAdmin {
+	if !user.Admin {
 		http.Redirect(w, r, "/viewer", http.StatusForbidden)
 		return
 	}
@@ -96,7 +96,7 @@ func (adminController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	if !user.IsAdmin {
+	if !user.Admin {
 		http.Redirect(w, r, "/viewer", http.StatusForbidden)
 		return
 	}

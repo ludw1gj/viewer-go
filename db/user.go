@@ -18,7 +18,7 @@ type User struct {
 	LastName      string `json:"last_name"`
 	Password      string `json:"password"`
 	DirectoryRoot string `json:"directory_root"`
-	IsAdmin       bool   `json:"is_admin"`
+	Admin         bool   `json:"is_admin"`
 }
 
 // GetAllUsers returns all users in the database.
@@ -33,7 +33,7 @@ func GetAllUsers() (users []User, err error) {
 	for rows.Next() {
 		user := User{}
 
-		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.IsAdmin)
+		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
 		if err != nil {
 			log.Println(err)
 			return users, err
@@ -53,8 +53,8 @@ func CreateUser(u User) error {
 	}
 
 	// store user in db
-	_, err = db.Exec("INSERT INTO users (username, first_name, last_name, hash_password, directory_root, is_admin) VALUES ($1, $2, $3, $4, $5, $6)",
-		u.Username, u.FirstName, u.LastName, string(hashPassword), u.DirectoryRoot, u.IsAdmin)
+	_, err = db.Exec("INSERT INTO users (username, first_name, last_name, password, directory_root, admin) VALUES ($1, $2, $3, $4, $5, $6)",
+		u.Username, u.FirstName, u.LastName, string(hashPassword), u.DirectoryRoot, u.Admin)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func DeleteUserPasswordValidated(user User, password string) error {
 // GetUser returns a single user from the database that matches the provided id.
 func GetUser(id int) (user User, err error) {
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
-	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.IsAdmin)
+	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
 	if err != nil {
 		return user, err
 
@@ -116,7 +116,7 @@ func ChangeUserPassword(user User, oldPassword string, newPassword string) error
 	}
 
 	// store new password
-	_, err = db.Exec("UPDATE users SET hash_password = $1 WHERE id = $2;", newHashPassword, user.ID)
+	_, err = db.Exec("UPDATE users SET password = $1 WHERE id = $2;", newHashPassword, user.ID)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func ChangeUserPassword(user User, oldPassword string, newPassword string) error
 func CheckUserValidation(username string, password string) (userID int, err error) {
 	var user User
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
-	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.IsAdmin)
+	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
 	if err != nil {
 		return userID, errors.New("Invalid username.")
 	}
