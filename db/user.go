@@ -59,10 +59,10 @@ func GetUser(id int) (user User, err error) {
 // CreateUser inserts a new user into the database.
 func CreateUser(u User) error {
 	// check if username is taken
+	var count int
 	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", u.Username)
-	var n int
-	row.Scan(&n)
-	if n > 0 {
+	row.Scan(&count)
+	if count > 0 {
 		return errors.New("Username is taken.")
 	}
 
