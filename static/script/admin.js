@@ -1,6 +1,5 @@
 "use strict";
-var notification = document.getElementById("notification"),
-    createUserForm = document.getElementById("create-user-form"),
+var createUserForm = document.getElementById("create-user-form"),
     deleteUserForm = document.getElementById("delete-user-form");
 
 // Submit create user form logic

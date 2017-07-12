@@ -74,6 +74,7 @@ func GetDirectoryList(userDirRoot string, urlPath string) (list template.HTML, e
 			fmt.Fprintf(&previous, "%s/", segment)
 		}
 		if previous.String() != "/viewer/" {
+			// remove trailing slash
 			previous.Truncate(len(previous.String()) - 1)
 		}
 	}
