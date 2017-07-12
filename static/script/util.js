@@ -1,4 +1,25 @@
 "use strict";
+/**
+ * This function displays error notification.
+ * @param {String} msg
+ * A message to display in the notification
+ */
+function displayErrorNotification(msg) {
+    notification.classList.remove("is-success", "hidden");
+    notification.classList.add("is-danger");
+    notification.innerText = msg;
+}
+
+/**
+ * This function displays success notification.
+ * @param {String} msg
+ * A message to display in the notification
+ */
+function displaySuccessNotification(msg) {
+    notification.classList.remove("is-danger", "hidden");
+    notification.classList.add("is-success");
+    notification.innerText = msg;
+}
 
 /**
  * This function serialises a Form Element Object into a general Javascript Object
@@ -25,11 +46,7 @@ function serializeFormObj(form) {
                 obj[name] = value;
                 break;
             case "checkbox":
-                if (value === "on") {
-                    obj[name] = true;
-                } else {
-                    obj[name] = false;
-                }
+                obj[name] = element.checked;
                 break;
             case "number":
                 obj[name] = parseInt(value);

@@ -5,6 +5,9 @@ import (
 
 	"os"
 
+	"database/sql"
+	"errors"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -45,15 +48,22 @@ func GetAllUsers() (users []User, err error) {
 func GetUser(id int) (user User, err error) {
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
 	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
-	if err != nil {
+	switch err {
+	case sql.ErrNoRows:
+		return user, errors.New("There is no user by that ID.")
+	default:
 		return user, err
-
 	}
-	return user, nil
 }
 
 // CreateUser inserts a new user into the database.
 func CreateUser(u User) error {
+	// create user root directory on disk
+	err := os.MkdirAll(u.DirectoryRoot, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
 	// generate hash of user password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -61,15 +71,11 @@ func CreateUser(u User) error {
 		return err
 	}
 
+	// TODO: check if username is taken
+
 	// store user in db
 	_, err = db.Exec("INSERT INTO users (username, first_name, last_name, password, directory_root, admin) VALUES ($1, $2, $3, $4, $5, $6)",
 		u.Username, u.FirstName, u.LastName, string(hashPassword), u.DirectoryRoot, u.Admin)
-	if err != nil {
-		return err
-	}
-
-	// create user root directory on disk
-	err = os.MkdirAll(u.DirectoryRoot, os.ModePerm)
 	if err != nil {
 		return err
 	}

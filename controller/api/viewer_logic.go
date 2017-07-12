@@ -1,4 +1,4 @@
-package controller
+package api
 
 import (
 	"bytes"
@@ -7,14 +7,18 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
-// getDirectoryList renders the directory list template according the directory path and returns the HTML document
+var dirListTpl = template.Must(template.ParseFiles(path.Join("templates", "api", "dir_list.gohtml")))
+
+// GetDirectoryList renders the directory list template according the directory path and returns the HTML document
 // fragment.
-func getDirectoryList(dirPath string, urlPath string) (list template.HTML, err error) {
-	f, err := os.Open(dirPath)
+func GetDirectoryList(userDirRoot string, urlPath string) (list template.HTML, err error) {
+	f, err := os.Open(path.Join(userDirRoot, urlPath))
 	if err != nil {
 		return
 	}
@@ -25,6 +29,19 @@ func getDirectoryList(dirPath string, urlPath string) (list template.HTML, err e
 		return
 	}
 
+	// sort files by name
+	fileInfo := make(map[string]bool)
+	for _, file := range files {
+		fileInfo[file.Name()] = file.IsDir()
+	}
+	fileNamesSorted := make([]string, len(fileInfo))
+	i := 0
+	for fileName := range fileInfo {
+		fileNamesSorted[i] = fileName
+		i++
+	}
+	sort.Strings(fileNamesSorted)
+
 	// entity holds information of either a file or directory.
 	type entity struct {
 		URL   string
@@ -34,15 +51,14 @@ func getDirectoryList(dirPath string, urlPath string) (list template.HTML, err e
 
 	// get directory list
 	var entities []entity
-	for _, file := range files {
-		fileName := file.Name()
-		fileURL := viewerRootURL + urlPath + "/" + fileName
-		entities = append(entities, entity{fileURL, fileName, file.IsDir()})
+	for _, fileName := range fileNamesSorted {
+		fileURL := "/viewer/" + urlPath + "/" + fileName
+		entities = append(entities, entity{fileURL, fileName, fileInfo[fileName]})
 	}
 
 	index := true
 	var previous bytes.Buffer
-	fmt.Fprint(&previous, viewerRootURL)
+	fmt.Fprint(&previous, "/viewer/")
 
 	// get previous link if not at index
 	if urlPath != "" {
@@ -56,7 +72,7 @@ func getDirectoryList(dirPath string, urlPath string) (list template.HTML, err e
 			}
 			fmt.Fprintf(&previous, "%s/", segment)
 		}
-		if previous.String() != viewerRootURL {
+		if previous.String() != "/viewer/" {
 			previous.Truncate(len(previous.String()) - 1)
 		}
 	}
@@ -115,6 +131,7 @@ func createFolder(dirPath string) error {
 
 // deleteFile deletes the file at file path.
 func deleteFile(filePath string) (err error) {
+	// TODO: check if folder exists
 	err = os.RemoveAll(filePath)
 	if err != nil {
 		return

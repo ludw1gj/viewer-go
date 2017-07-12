@@ -6,7 +6,8 @@ import (
 	"flag"
 	"net/http"
 
-	"github.com/FriedPigeon/viewer-go/controller"
+	"github.com/FriedPigeon/viewer-go/controller/api"
+	"github.com/FriedPigeon/viewer-go/controller/frontend"
 	"github.com/FriedPigeon/viewer-go/session"
 	"github.com/gorilla/mux"
 )
@@ -15,41 +16,31 @@ import (
 func Load() {
 	protected := mux.NewRouter()
 
-	sc := controller.NewSiteController()
-	vc := controller.NewViewerController()
-	uc := controller.NewUserController()
-	ac := controller.NewAdminController()
-
-	// -- open routes --
-	http.HandleFunc("/login", uc.Login)
+	http.HandleFunc("/login", frontend.LoginPage)
+	http.HandleFunc("/api/user/login", api.Login)
 	http.Handle("/", authenticateRoute(protected))
-	//-- end --
 
-	// -- protected routes --
-	// site
-	protected.HandleFunc("/", sc.RedirectToViewer).Methods("GET")
-	protected.HandleFunc("/about", sc.About).Methods("GET")
-	protected.NotFoundHandler = http.HandlerFunc(sc.NotFound)
+	// frontend
+	protected.HandleFunc("/", frontend.RedirectToViewer).Methods("GET")
+	protected.HandleFunc("/viewer/{path:.*}", frontend.ViewerPage).Methods("GET")
+	protected.HandleFunc("/about", frontend.AboutPage).Methods("GET")
+	protected.HandleFunc("/user", frontend.UserPage).Methods("GET")
+	protected.HandleFunc("/admin", frontend.AdminPage).Methods("GET")
+	protected.HandleFunc("/admin/users", frontend.AdminDisplayAllUsers).Methods("GET")
+	protected.NotFoundHandler = http.HandlerFunc(frontend.NotFound)
 
-	// viewer
-	protected.HandleFunc("/viewer/{path:.*}", vc.Viewer).Methods("GET")
-	protected.HandleFunc("/upload", vc.Upload).Methods("POST")
-	protected.HandleFunc("/create-folder", vc.CreateFolder).Methods("POST")
-	protected.HandleFunc("/delete", vc.Delete).Methods("POST")
-	protected.HandleFunc("/delete-all", vc.DeleteAll).Methods("POST")
+	// api
+	protected.HandleFunc("/api/viewer/upload", api.Upload).Methods("POST")
+	protected.HandleFunc("/api/viewer/create", api.CreateFolder).Methods("POST")
+	protected.HandleFunc("/api/viewer/delete", api.Delete).Methods("POST")
+	protected.HandleFunc("/api/viewer/delete-all", api.DeleteAll).Methods("POST")
 
-	// user
-	protected.HandleFunc("/logout", uc.Logout).Methods("POST")
-	protected.HandleFunc("/user", uc.UserPage).Methods("GET")
-	protected.HandleFunc("/user/delete", uc.DeleteAccount).Methods("POST")
-	protected.HandleFunc("/api/user/change-password", uc.ChangePassword).Methods("POST")
+	protected.HandleFunc("/api/user/logout", api.Logout).Methods("POST")
+	protected.HandleFunc("/api/user/delete", api.DeleteAccount).Methods("POST")
+	protected.HandleFunc("/api/user/change-password", api.ChangePassword).Methods("POST")
 
-	// admin
-	protected.HandleFunc("/admin", ac.AdminPage).Methods("GET")
-	protected.HandleFunc("/admin/users", ac.DisplayAllUsers).Methods("GET")
-	protected.HandleFunc("/api/admin/create-user", ac.CreateUser).Methods("POST")
-	protected.HandleFunc("/api/admin/delete-user", ac.DeleteUser).Methods("POST")
-	//-- end --
+	protected.HandleFunc("/api/admin/create-user", api.CreateUser).Methods("POST")
+	protected.HandleFunc("/api/admin/delete-user", api.DeleteUser).Methods("POST")
 
 	// static file controller in dev mode
 	dev := flag.Bool("dev", false, "Use in development")
@@ -63,11 +54,12 @@ func Load() {
 // authenticateRoute is middleware that checks if users are authenticated.
 func authenticateRoute(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuth := session.CheckIfAuth(w, r)
-
+		isAuth := session.CheckIfAuth(r)
 		// if user is authenticated, proceed to route
-		if isAuth {
-			h.ServeHTTP(w, r)
+		if !isAuth {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
 		}
+		h.ServeHTTP(w, r)
 	})
 }

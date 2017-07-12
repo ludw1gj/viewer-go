@@ -23,33 +23,34 @@
         <a class="nav-item is-tab is-hidden-mobile" href="/about">About</a>
     </div>
 
-    <span class="nav-toggle" id="burger-icon">
+    <span id="mobile-menu-button" class="nav-toggle">
       <span></span>
       <span></span>
       <span></span>
     </span>
 
-    <div class="nav-right nav-menu" id="burger-menu">
+    <div id="mobile-menu" class="nav-right nav-menu">
         <a class="nav-item is-tab is-hidden-tablet" href="/viewer/">Home</a>
         <a class="nav-item is-tab is-hidden-tablet" href="/about">About</a>
         {{if .User.Admin}}<a class="nav-item is-tab" href="/admin">Admin</a>{{end}}
         <a class="nav-item is-tab" href="/user">{{.User.FirstName}}</a>
-        <div class="nav-item">
-            <form name="logout_form" id="logout-form" method="post" action="/logout">
-                <a id="logout-button">Logout</a>
-            </form>
-        </div>
+        <a id="logout-button" class="nav-item is-tab">Logout</a>
     </div>
 </nav>
 <br>
 
 <!--content-->
 <section>
-    <div class="container" id="content">{{block "content" .}}{{end}}</div>
+    <div class="container" id="content">
+        <div id="notification" class="notification hidden">
+        </div>
+        {{block "content" .}}{{end}}
+    </div>
 </section>
 </body>
 
 <!--js-->
 <script src="/static/script/util.js"></script>
-<script src="/static/script/script.js"></script>
+<script src="/static/script/base.js"></script>
+{{block "js" .}}{{end}}
 </html>

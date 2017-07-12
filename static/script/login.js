@@ -1,37 +1,28 @@
 "use strict";
-
-var loginForm = document.getElementById("login-form");
+var loginForm = document.getElementById("login-form"),
+    notification = document.getElementById("notification");
 
 loginForm.addEventListener("submit", function (event) {
     event.preventDefault();
+    var data = {
+        username: loginForm.elements[0].value,
+        password: loginForm.elements[1].value
+    };
 
-    var data = serializeFormObj(loginForm);
-    submitLoginAjax(data);
-});
-
-/**
- * This function submits an ajax post request of content-type json to the login route
- * @param {Object} data
- * A Form Element Object
- */
-function submitLoginAjax(data) {
-    var request = new XMLHttpRequest();
-    request.open("POST", "/login", true);
-
-    request.onload = function () {
-        var userMessage = document.getElementById("user-message");
-
-        if (this.status === 200) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/user/login", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        var resp = JSON.parse(xhr.responseText);
+        if (this.status === 401 || this.status === 500) {
+            // error, display error in notification
+            notification.classList.remove("is-success", "hidden");
+            notification.classList.add("is-danger");
+            notification.innerText = resp.error;
+        } else if (this.status === 200) {
+            // success, redirect to the viewer page
             window.location = "/viewer/";
-        } else if (this.status === 401 || this.status === 500) {
-            userMessage.classList.add("is-danger");
-            userMessage.style.display = "block";
-            userMessage.getElementsByClassName("message-body")[0].innerText = JSON.parse(this.response).error;
         }
     };
-    request.onerror = function () {
-        console.log("There was a connection issue. Check your internet connection or the sever might be down.");
-    };
-    request.setRequestHeader('Content-Type', 'application/json');
-    request.send(JSON.stringify(data));
-}
+    xhr.send(JSON.stringify(data));
+});

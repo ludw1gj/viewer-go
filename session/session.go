@@ -18,7 +18,7 @@ func Load(c config.Config) {
 }
 
 // CheckIfAuth checks if user is authenticated.
-func CheckIfAuth(w http.ResponseWriter, r *http.Request) bool {
+func CheckIfAuth(r *http.Request) bool {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
 		log.Println(err)
@@ -26,8 +26,7 @@ func CheckIfAuth(w http.ResponseWriter, r *http.Request) bool {
 
 	// check if user is authenticated
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		// user is not auth, send to login page
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		// user is not auth
 		return false
 	}
 	return true

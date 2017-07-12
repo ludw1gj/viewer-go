@@ -11,17 +11,19 @@
     margin-top: 10px;
 }
 
+.hidden {
+    display: none;
+}
+
+#notification {
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
 form {
     display: inline-block;
     text-align: left;
     width: 300px;
-}
-
-#user-message {
-    width: 400px;
-
-    display: none;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
 }

@@ -7,30 +7,28 @@
         <h1 class="title is-2 is-spaced">Options</h1>
 
         <h3 class="subtitle is-5">Upload Files</h3>
-        <form action="/upload?path={{.CurrentDir}}" method="post" enctype="multipart/form-data">
+        <form id="upload-form" enctype="multipart/form-data">
             <input type="file" name="files" multiple><br>
             <input class="button" type="submit" value="Upload">
         </form>
 
         <br>
         <h3 class="subtitle is-5">Create Folder</h3>
-        <form action="/create-folder?path={{.CurrentDir}}" method="post">
-            <label>Folder Name:</label>
-            <input id="create-folder" class="input" type="text" name="folder-name" required><br>
+        <form id="create-folder-form">
+            Folder Name: <input id="create-folder" class="input" type="text" name="folder-name" required><br>
             <input class="button" type="submit" value="Create">
         </form>
 
         <br>
         <h3 class="subtitle is-5">Delete File or Folder</h3>
-        <form action="/delete?path={{.CurrentDir}}" method="post">
-            <label>File/Folder:</label>
-            <input class="input" id="delete" name="file-name" required>
+        <form id="delete-file-folder-form">
+            File/Folder: <input class="input" id="delete" name="file-name" required>
             <input class="button" type="submit" value="Delete">
         </form>
 
         <br>
         <h3 class="subtitle is-5">Delete All Files and Folders in Current Directory</h3>
-        <form action="/delete-all?path={{.CurrentDir}}" method="post">
+        <form id="delete-all-form">
             <input id="delete-all" name="directory" value="" hidden>
             <input class="button i" type="submit" value="Delete All">
         </form>
@@ -38,7 +36,11 @@
 
     <!--Directory List-->
     <div class="column is-two-thirds">
-        {{.List}}
+        {{genDirectoryList .User.DirectoryRoot .CurrentDir}}
     </div>
 </div>
+{{end}}
+
+{{define "js"}}
+<script src="/static/script/viewer.js"></script>
 {{end}}

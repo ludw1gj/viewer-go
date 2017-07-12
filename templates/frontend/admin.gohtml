@@ -16,27 +16,30 @@
 <br>
 <h3 class="subtitle is-5">Create User</h3>
 <form id="create-user-form" method="post">
-    <label>First Name:</label>
-    <input class="input" type="text" name="first_name" required><br>
-    <label>Last Name:</label>
-    <input class="input" type="text" name="last_name" required><br>
     <label>Username:</label>
     <input class="input" type="text" name="username" required><br>
     <label>Password:</label>
     <input class="input" type="password" name="password" required><br>
+    <label>First Name:</label>
+    <input class="input" type="text" name="first_name" required><br>
+    <label>Last Name:</label>
+    <input class="input" type="text" name="last_name" required><br>
     <label>Directory:</label>
     <input class="input" type="text" name="directory_root" required><br>
     <label>Make Admin: </label>
-    <input type="checkbox" name="is_admin" required><br>
+    <input type="checkbox" name="is_admin"><br>
     <input class="button" type="submit" value="Create">
 </form>
 
 <br>
 <h3 class="subtitle is-5">Delete User</h3>
 <form id="delete-user-form" method="post">
-    <label>User ID:</label>
-    <input class="input" type="number" name="id" required><br>
+    User ID: <input class="input" type="number" name="id" required><br>
     <input class="button is-danger" type="submit" value="Delete">
 </form>
 <br>
+{{end}}
+
+{{define "js"}}
+<script src="/static/script/admin.js"></script>
 {{end}}

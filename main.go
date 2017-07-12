@@ -25,5 +25,6 @@ func main() {
 	route.Load()
 
 	// listen and serve
+	log.Println("Viewer-go listening on port 3000...")
 	http.ListenAndServe(":3000", nil)
 }

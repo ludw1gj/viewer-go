@@ -1,6 +1,6 @@
 // This file contains utility functions and types used by controllers.
 
-package controller
+package frontend
 
 import (
 	"bytes"
@@ -11,19 +11,20 @@ import (
 	"github.com/FriedPigeon/viewer-go/session"
 )
 
-// userInfo is used for data object of error for rendering templates.
-type userInfo struct {
-	User db.User
-}
-
-// contentJSON is used for json response with generic key of "content".
-type contentJSON struct {
-	Content string `json:"content"`
-}
-
-// errorJSON is used for json response with the key of "error".
-type errorJSON struct {
-	Error string `json:"error"`
+// NotFound renders the not found page and sends status 404.
+func NotFound(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	var buf bytes.Buffer
+	err = notFoundTpl.ExecuteTemplate(&buf, "base.gohtml", userInfo{user})
+	if err != nil {
+		log.Println(err)
+	}
+	w.WriteHeader(http.StatusNotFound)
+	w.Write(buf.Bytes())
 }
 
 // renderErrorPage renders the error page and sends status 500.
@@ -45,7 +46,7 @@ func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	}
 
 	var buf bytes.Buffer
-	err = errorTpl.Execute(&buf, data)
+	err = errorTpl.ExecuteTemplate(&buf, "base.gohtml", data)
 	if err != nil {
 		w.Write([]byte("500: Server error"))
 		log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
