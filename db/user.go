@@ -67,7 +67,6 @@ func CreateUser(u User) error {
 	// generate hash of user password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
@@ -85,30 +84,26 @@ func CreateUser(u User) error {
 // DeleteUser deletes a user from the database that matches the provided id.
 func DeleteUser(id int) error {
 	_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // DeleteUserPasswordValidated deletes a user from the database if the provided password is valid.
 func DeleteUserPasswordValidated(user User, password string) error {
 	// check if password is valid
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return err
-	}
-
-	_, err := db.Exec("DELETE FROM users WHERE id = $1", user.ID)
+	err := comparePasswords(user.Password, password)
 	if err != nil {
 		return err
 	}
-	return nil
+
+	_, err = db.Exec("DELETE FROM users WHERE id = $1", user.ID)
+	return err
 }
 
 // ChangeUserPassword changes a user's password in the database, if the provided password is valid.
 func ChangeUserPassword(user User, oldPassword string, newPassword string) error {
 	// check if oldPassword is valid
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
+	err := comparePasswords(user.Password, oldPassword)
+	if err != nil {
 		return err
 	}
 
@@ -137,9 +132,14 @@ func CheckUserValidation(username string, password string) (userID int, err erro
 		return userID, err
 	}
 
-	// comparing password with hash
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return userID, err
-	}
+	err = comparePasswords(user.Password, password)
 	return user.ID, err
+}
+
+func comparePasswords(hashPW string, pw string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashPW), []byte(pw))
+	if err != nil {
+		return errors.New("Password is invalid.")
+	}
+	return nil
 }
