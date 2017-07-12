@@ -58,6 +58,14 @@ func GetUser(id int) (user User, err error) {
 
 // CreateUser inserts a new user into the database.
 func CreateUser(u User) error {
+	// check if username is taken
+	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", u.Username)
+	var n int
+	row.Scan(&n)
+	if n > 0 {
+		return errors.New("Username is taken.")
+	}
+
 	// create user root directory on disk
 	err := os.MkdirAll(u.DirectoryRoot, os.ModePerm)
 	if err != nil {
@@ -69,8 +77,6 @@ func CreateUser(u User) error {
 	if err != nil {
 		return err
 	}
-
-	// TODO: check if username is taken
 
 	// store user in db
 	_, err = db.Exec("INSERT INTO users (username, first_name, last_name, password, directory_root, admin) VALUES ($1, $2, $3, $4, $5, $6)",
