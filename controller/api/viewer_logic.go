@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"errors"
 )
 
 var dirListTpl = template.Must(template.ParseFiles(path.Join("templates", "api", "dir_list.gohtml")))
@@ -131,7 +132,10 @@ func createFolder(dirPath string) error {
 
 // deleteFile deletes the file at file path.
 func deleteFile(filePath string) (err error) {
-	// TODO: check if folder exists
+	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+		return errors.New("File or Folder does not exist.")
+	}
+
 	err = os.RemoveAll(filePath)
 	if err != nil {
 		return

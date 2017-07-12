@@ -32,6 +32,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	err = session.NewUserSession(w, r, loginCredentials.Username, loginCredentials.Password)
 	if err == sql.ErrNoRows || err == bcrypt.ErrMismatchedHashAndPassword {
 		err = errors.New("Invalid username or password.")
+		return
 	}
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -111,6 +112,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		return
 	}
 
 	err = db.ChangeUserPassword(user, passwords.OldPassword, passwords.NewPassword)

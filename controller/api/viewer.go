@@ -62,6 +62,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		return
 	}
 
 	filePath := path.Join(user.DirectoryRoot, data.Path)
@@ -69,6 +70,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -94,6 +96,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		return
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, data.Path)
@@ -101,6 +104,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
