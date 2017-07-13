@@ -1,34 +1,33 @@
 "use strict";
 var notification = document.getElementById("notification"),
-    mobileMenu = document.getElementById("mobile-menu"),
-    mobileMenuButton = document.getElementById("mobile-menu-button"),
-    logoutButton = document.getElementById("logout-button");
+    baseMobileMenu = document.getElementById("mobile-menu"),
+    baseMobileMenuButton = document.getElementById("mobile-menu-button"),
+    baseLogoutButton = document.getElementById("logout-button");
 
-mobileMenuButton.addEventListener("click", function () {
-    if (mobileMenuButton.classList.contains("is-active") || mobileMenuButton.classList.contains("is-active")) {
-        mobileMenu.classList.remove("is-active");
-        mobileMenuButton.classList.remove("is-active");
+// extend and collapse navigation menu for mobile
+baseMobileMenuButton.addEventListener("click", function () {
+    if (baseMobileMenuButton.classList.contains("is-active") || baseMobileMenuButton.classList.contains("is-active")) {
+        baseMobileMenu.classList.remove("is-active");
+        baseMobileMenuButton.classList.remove("is-active");
     } else {
-        mobileMenuButton.classList.add("is-active");
-        mobileMenu.classList.add("is-active");
+        baseMobileMenuButton.classList.add("is-active");
+        baseMobileMenu.classList.add("is-active");
     }
 });
 
-logoutButton.addEventListener('click', function () {
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/user/logout", true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        var resp = JSON.parse(xhr.responseText);
-        if (this.status === 401 || this.status === 500) {
-            // error, display error in notification
-            displayErrorNotification(resp.error);
-        } else if (this.status === 200) {
-            // success, redirect to login page
-            window.location = "/login";
-        }
+// handle logout user
+baseLogoutButton.addEventListener('click', function () {
+    var url = "/api/user/logout";
+    var data = undefined;
+
+    var errFunc = function (resp) {
+        displayErrorNotification(resp.error);
     };
-    xhr.send();
+
+    var okFunc = function () {
+        window.location = "/login";
+    };
+    submitAjaxJson(url, data, errFunc, okFunc);
 });
 
 /**

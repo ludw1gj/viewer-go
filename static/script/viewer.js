@@ -11,60 +11,51 @@ if (currentDir[0] === "/") {
     currentDir = currentDir.slice(1);
 }
 
+// handle upload form logic
 uploadForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    var formData = new FormData(uploadForm);
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-        var resp = JSON.parse(xhr.responseText);
-        if (this.status === 401 || this.status === 500) {
-            // error, display error in notification
-            displayErrorNotification(resp.error);
-        } else if (this.status === 200) {
-            // success, reload the page to see changes
-            location.reload(true);
-        }
+    var url = apiRoute + "upload";
+    var errFunc = function (resp) {
+        displayErrorNotification(resp.error);
     };
-    xhr.open("POST", apiRoute + "upload", true);
-    xhr.send(formData);
+    var okFunc = function () {
+        location.reload(true);
+    };
+    submitAjaxFormData(url, uploadForm, errFunc, okFunc);
 });
 
+// handle create folder form logic
 createFolderForm.addEventListener("submit", function (event) {
     event.preventDefault();
     viewerAjaxHelper({path: currentDir + createFolderForm.elements[0].value}, "create");
 });
 
+// handle delete file/folder form logic
 deleteFileFolderForm.addEventListener("submit", function (event) {
     event.preventDefault();
     viewerAjaxHelper({path: currentDir + deleteFileFolderForm.elements[0].value}, "delete");
 });
 
+// handle delete all form logic
 deleteAllForm.addEventListener("submit", function (event) {
     event.preventDefault();
     viewerAjaxHelper({path: currentDir}, "delete-all");
 });
 
 /**
- * This function is for sending ajax for create/delete forms on viewer page
+ * This function is a wrapper for submitAjaxJson function
  * @param data {Object}
  * The data to be sent to the url, parsed to json
  * @param url
  * The apiRoute specific url to send the ajax request to
  */
 function viewerAjaxHelper(data, url) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", apiRoute + url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        var resp = JSON.parse(xhr.responseText);
-        if (this.status === 401 || this.status === 500) {
-            // error, display error in notification
-            displayErrorNotification(resp.error);
-        } else if (this.status === 200) {
-            // success, reload the page to see changes
-            location.reload(true);
-        }
+    var errFunc = function (resp) {
+        displayErrorNotification(resp.error);
     };
-    xhr.send(JSON.stringify(data));
+    var okFunc = function () {
+        location.reload(true);
+    };
+    submitAjaxJson(apiRoute + url, data, errFunc, okFunc)
 }

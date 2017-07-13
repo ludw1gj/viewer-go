@@ -1,46 +1,36 @@
 "use strict";
-var createUserForm = document.getElementById("create-user-form"),
-    deleteUserForm = document.getElementById("delete-user-form");
+var adminApiRoute = "/api/admin/",
+    adminCreateUserForm = document.getElementById("create-user-form"),
+    adminDeleteUserForm = document.getElementById("delete-user-form");
 
-// Submit create user form logic
-createUserForm.addEventListener('submit', function (event) {
+// handle create user form logic
+adminCreateUserForm.addEventListener('submit', function (event) {
     event.preventDefault();
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/admin/create-user", true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        var resp = JSON.parse(xhr.responseText);
-        if (this.status === 401 || this.status === 500) {
-            // error, display error in notification
-            displayErrorNotification(resp.error);
-        } else if (this.status === 200) {
-            // success
-            displaySuccessNotification(resp.content);
-            createUserForm.elements[0].value = "";
-        }
+    var url = adminApiRoute + "create-user";
+    var data = serializeFormObj(adminCreateUserForm);
+    var errFunc = function (resp) {
+        displayErrorNotification(resp.error);
     };
-    console.log(serializeFormObj(createUserForm));
-    xhr.send(JSON.stringify(serializeFormObj(createUserForm)));
+    var okFunc = function (resp) {
+        displaySuccessNotification(resp.content);
+        adminCreateUserForm.elements[0].value = "";
+    };
+    submitAjaxJson(url, data, errFunc, okFunc);
 });
 
-// Submit delete user form logic
-deleteUserForm.addEventListener('submit', function (event) {
+// handle delete user form logic
+adminDeleteUserForm.addEventListener('submit', function (event) {
     event.preventDefault();
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/admin/delete-user", true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        var resp = JSON.parse(xhr.responseText);
-        if (this.status === 401 || this.status === 500) {
-            // error, display error in notification
-            displayErrorNotification(resp.error);
-        } else if (this.status === 200) {
-            // success
-            displaySuccessNotification(resp.content);
-            deleteUserForm.elements[0].value = "";
-        }
+    var url = adminApiRoute + "delete-user";
+    var data = serializeFormObj(adminDeleteUserForm);
+    var errFunc = function (resp) {
+        displayErrorNotification(resp.error);
     };
-    xhr.send(JSON.stringify(serializeFormObj(deleteUserForm)));
+    var okFunc = function (resp) {
+        displaySuccessNotification(resp.content);
+        adminDeleteUserForm.elements[0].value = "";
+    };
+    submitAjaxJson(url, data, errFunc, okFunc);
 });
