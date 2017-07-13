@@ -1,0 +1,43 @@
+/*nav-bar*/
+.nav-left {
+    margin-left: 5%
+}
+
+.nav-right {
+    margin-right: 1%;
+}
+
+/*content*/
+#site-content {
+    margin-right: 5%;
+    margin-left: 5%;
+    padding-bottom: 3em;
+}
+
+/*notification*/
+#notification {
+    width: 20em;
+    margin: auto;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+/*styles*/
+a {
+    color: cornflowerblue;
+}
+
+form {
+    max-width: 15em;
+}
+
+.button {
+    margin-top: 0.625em;
+}
+
+.subtitle.subtitle.is-5 {
+    margin-bottom: 0.3em;
+}

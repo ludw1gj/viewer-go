@@ -11,7 +11,7 @@
 
     <!--css-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
-    <link rel="stylesheet" href="/static/style/style.css">
+    <link rel="stylesheet" href="/static/style/base.css">
 </head>
 
 <body>
@@ -40,8 +40,8 @@
 <br>
 
 <!--content-->
-<section>
-    <div class="container" id="content">
+<section id="site-content">
+    <div class="container">
         <div id="notification" class="notification hidden">
         </div>
         {{block "content" .}}{{end}}

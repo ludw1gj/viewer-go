@@ -1,10 +1,11 @@
+/*content*/
 #login-content {
     padding-top: 5em;
     padding-bottom: 5em;
     text-align: center;
 }
 
-/*Notification*/
+/*notification*/
 #notification {
     width: 20em;
     margin-left: auto;
@@ -16,7 +17,7 @@
     display: none;
 }
 
-/*Login Form*/
+/*login form*/
 #login-form {
     display: inline-block;
     text-align: left;
