@@ -21,7 +21,8 @@ func Load(c config.Config) {
 func CheckIfAuth(r *http.Request) bool {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
-		log.Println(err)
+		// user doesn't exist in session
+		return false
 	}
 
 	// check if user is authenticated

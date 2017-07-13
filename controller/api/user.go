@@ -3,16 +3,13 @@
 package api
 
 import (
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"fmt"
 
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/FriedPigeon/viewer-go/session"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // Login will process a user login.
@@ -32,10 +29,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&loginCredentials)
 
 	err = session.NewUserSession(w, r, loginCredentials.Username, loginCredentials.Password)
-	if err == sql.ErrNoRows || err == bcrypt.ErrMismatchedHashAndPassword {
-		err = errors.New("Invalid username or password.")
-		return
-	}
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(errorJSON{err.Error()})

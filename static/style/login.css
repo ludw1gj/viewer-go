@@ -1,29 +1,32 @@
-.container {
+#login-content {
+    padding-top: 5em;
+    padding-bottom: 5em;
     text-align: center;
-    padding-top: 100px;
 }
 
-.label {
-    font-weight: normal;
-}
-
-.button {
-    margin-top: 10px;
+/*Notification*/
+#notification {
+    width: 20em;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }
 
 .hidden {
     display: none;
 }
 
-#notification {
-    width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-}
-
-form {
+/*Login Form*/
+#login-form {
     display: inline-block;
     text-align: left;
     width: 300px;
+}
+
+#login-btn {
+    margin-top: 0.5em;
+}
+
+.label {
+    font-weight: normal;
 }

@@ -137,7 +137,7 @@ func CheckUserValidation(username string, password string) (userID int, err erro
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
 	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
 	if err != nil {
-		return userID, err
+		return userID, errors.New("There is no user by that username.")
 	}
 
 	err = comparePasswords(user.Password, password)
