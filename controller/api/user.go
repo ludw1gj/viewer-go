@@ -1,3 +1,5 @@
+// This file contains handlers for user specific api routes.
+
 package api
 
 import (

@@ -1,3 +1,5 @@
+// This file contains database functions for interacting with User data.
+
 package db
 
 import (
@@ -142,6 +144,7 @@ func CheckUserValidation(username string, password string) (userID int, err erro
 	return user.ID, err
 }
 
+// comparePasswords compares the hash string with a string to determine if it is equivalent.
 func comparePasswords(hashPW string, pw string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashPW), []byte(pw))
 	if err != nil {

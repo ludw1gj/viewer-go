@@ -1,3 +1,5 @@
+// This file contains handlers for admin api routes.
+
 package api
 
 import (

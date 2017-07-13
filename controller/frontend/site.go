@@ -1,4 +1,4 @@
-// This files contains the site controller, which contains methods for rendering standard pages.
+// This file contains functions for rendering standard site pages.
 
 package frontend
 

@@ -1,4 +1,4 @@
-// This file contains utility functions and types used by controllers.
+// This file contains error page functions.
 
 package frontend
 

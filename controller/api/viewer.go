@@ -1,3 +1,5 @@
+// This file contains handlers for viewer functionality api routes.
+
 package api
 
 import (

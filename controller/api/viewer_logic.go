@@ -1,3 +1,5 @@
+// This file contains logic for viewer functions.
+
 package api
 
 import (

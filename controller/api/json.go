@@ -1,3 +1,5 @@
+// This file contains structs used for json responses.
+
 package api
 
 // contentJSON is used for json response with generic key of "content".
