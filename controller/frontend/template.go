@@ -14,6 +14,8 @@ import (
 	"github.com/FriedPigeon/viewer-go/controller/api"
 )
 
+// TODO: funcMap not need anymore
+
 var (
 	tplDir      = path.Join("templates", "frontend")
 	baseTplPath = path.Join(tplDir, "base.gohtml")

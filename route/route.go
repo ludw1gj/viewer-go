@@ -22,7 +22,8 @@ func Load() {
 
 	// frontend
 	protected.HandleFunc("/", frontend.RedirectToViewer).Methods("GET")
-	protected.HandleFunc("/viewer/{path:.*}", frontend.ViewerPage).Methods("GET")
+	protected.HandleFunc("/viewer/", frontend.ViewerPage).Methods("GET")
+	protected.HandleFunc("/file/{path:.*}", frontend.SendFile).Methods("GET")
 	protected.HandleFunc("/about", frontend.AboutPage).Methods("GET")
 	protected.HandleFunc("/user", frontend.UserPage).Methods("GET")
 	protected.HandleFunc("/admin", frontend.AdminPage).Methods("GET")
@@ -30,6 +31,8 @@ func Load() {
 	protected.NotFoundHandler = http.HandlerFunc(frontend.NotFound)
 
 	// api
+	// TODO: change route name
+	protected.HandleFunc("/api/test", api.NewGetDirectoryList).Methods("POST")
 	protected.HandleFunc("/api/viewer/upload", api.Upload).Methods("POST")
 	protected.HandleFunc("/api/viewer/create", api.CreateFolder).Methods("POST")
 	protected.HandleFunc("/api/viewer/delete", api.Delete).Methods("POST")

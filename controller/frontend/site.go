@@ -19,6 +19,39 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// TODO: doc SendFile
+
+func SendFile(w http.ResponseWriter, r *http.Request) {
+	// get user from session
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	// path to file
+	filePath := path.Join(user.DirectoryRoot, mux.Vars(r)["path"])
+
+	// get file
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		renderErrorPage(w, r, err)
+		return
+	}
+	if fileInfo.IsDir() {
+		renderErrorPage(w, r, errors.New("Requested item is not a file."))
+		return
+	}
+
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		renderErrorPage(w, r, err)
+		return
+	}
+	w.Header().Add("Content-Type", contentType(filePath))
+	http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
+}
+
 // RedirectToViewer redirects users to the viewer page.
 func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
@@ -70,26 +103,27 @@ func ViewerPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isFile, err := renderIfFile(w, r, user)
-	if err != nil {
-		renderErrorPage(w, r, errors.New("There has been an error: "+err.Error()))
-		return
-	} else if isFile {
-		// if it is a file, it has already been rendered by renderIfFile.
-		return
-	}
+	//isFile, err := renderIfFile(w, r, user)
+	//if err != nil {
+	//	renderErrorPage(w, r, errors.New("There has been an error: "+err.Error()))
+	//	return
+	//} else if isFile {
+	//	// if it is a file, it has already been rendered by renderIfFile.
+	//	return
+	//}
 
-	urlPath := mux.Vars(r)["path"]
-	data := struct {
-		CurrentDir string
-		User       db.User
-	}{
-		urlPath,
-		user,
-	}
-	renderTemplate(w, r, viewerTpl, data)
+	//urlPath := mux.Vars(r)["path"]
+	//data := struct {
+	//	CurrentDir string
+	//	User       db.User
+	//}{
+	//	urlPath,
+	//	user,
+	//}
+	renderTemplate(w, r, viewerTpl, userInfo{user})
 }
 
+// TODO: delete this func
 // renderIfFile uses the path variable in the route to determine if path on disk is a file or a directory. If it is a
 // file it will write the file to the client, but if it is a directory it will return isFile is false.
 func renderIfFile(w http.ResponseWriter, r *http.Request, user db.User) (isFile bool, err error) {

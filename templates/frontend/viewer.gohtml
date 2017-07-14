@@ -36,7 +36,13 @@
 
     <!--Directory List-->
     <div class="column is-two-thirds">
-        {{genDirectoryList .User.DirectoryRoot .CurrentDir}}
+        <h2 class="title is-2">Files</h2>
+        <h4 id="current-dir" class="subtitle is-4 is-spaced">/</h4>
+
+        <ul id="dir-list"></ul>
+
+        <br>
+        <a id="back-index" class="hidden" href="/viewer/">Go To Index</a>
     </div>
 </div>
 {{end}}
