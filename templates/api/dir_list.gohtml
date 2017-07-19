@@ -4,7 +4,13 @@
     {{- end}}
 
     {{range .Entities}}
-    <li><a href="{{.URL}}">{{.Name}}{{if .IsDir}}/{{end}}</a></li>
+
+    {{if .IsDir}}
+    <li><a href="{{.URL}}">{{.Name}}/</a></li>
+    {{else}}
+    <li><a href="{{.URL}}" download>{{.Name}}</a></li>
+    {{end}}
+
     {{end}}
 </ul>
 

@@ -91,3 +91,29 @@ function submitAjaxFormData(url, uploadForm, errFunc, okFunc) {
     };
     xhr.send(formData);
 }
+
+/**
+ * This function displays error notification.
+ * @param {Object} notifElm
+ * The notification element
+ * @param {String} msg
+ * A message to display in the notification
+ */
+function displayErrorNotification(notifElm, msg) {
+    notifElm.classList.remove("is-success", "hidden");
+    notifElm.classList.add("is-danger");
+    notifElm.innerText = msg;
+}
+
+/**
+ * This function displays success notification.
+ * @param {Object} notifElm
+ * The notification element
+ * @param {String} msg
+ * A message to display in the notification
+ */
+function displaySuccessNotification(notifElm, msg) {
+    notifElm.classList.remove("is-danger", "hidden");
+    notifElm.classList.add("is-success");
+    notifElm.innerText = msg;
+}

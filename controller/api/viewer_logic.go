@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"io"
 	"mime/multipart"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -18,32 +19,32 @@ import (
 
 var dirListTpl = template.Must(template.ParseFiles(path.Join("templates", "api", "dir_list.gohtml")))
 
-// GetDirectoryList renders the directory list template according the directory path and returns the HTML document
+// GenDirectoryList renders the directory list template according the directory path and returns the HTML document
 // fragment.
-func GetDirectoryList(userDirRoot string, urlPath string) (list template.HTML, err error) {
+func GenDirectoryList(userDirRoot string, urlPath string) (list template.HTML, err error) {
+	// get items in directory
 	f, err := os.Open(path.Join(userDirRoot, urlPath))
 	if err != nil {
-		return
+		return list, err
 	}
 	defer f.Close()
-
-	files, err := f.Readdir(-1)
+	items, err := f.Readdir(-1)
 	if err != nil {
-		return
+		return list, err
 	}
 
-	// sort files by name
-	fileInfo := make(map[string]bool)
-	for _, file := range files {
-		fileInfo[file.Name()] = file.IsDir()
+	// sort items by name
+	itemInfo := make(map[string]bool)
+	for _, item := range items {
+		itemInfo[item.Name()] = item.IsDir()
 	}
-	fileNamesSorted := make([]string, len(fileInfo))
+	itemNamesSorted := make([]string, len(itemInfo))
 	i := 0
-	for fileName := range fileInfo {
-		fileNamesSorted[i] = fileName
+	for itemName := range itemInfo {
+		itemNamesSorted[i] = itemName
 		i++
 	}
-	sort.Strings(fileNamesSorted)
+	sort.Strings(itemNamesSorted)
 
 	// entity holds information of either a file or directory.
 	type entity struct {
@@ -54,16 +55,28 @@ func GetDirectoryList(userDirRoot string, urlPath string) (list template.HTML, e
 
 	// get directory list
 	var entities []entity
-	for _, fileName := range fileNamesSorted {
-		fileURL := "/viewer/" + urlPath + "/" + fileName
-		entities = append(entities, entity{fileURL, fileName, fileInfo[fileName]})
+	for _, itemName := range itemNamesSorted {
+		var rawUrl string
+		isDir := itemInfo[itemName]
+
+		switch isDir {
+		case true:
+			rawUrl = "/viewer/" + urlPath + "/" + itemName
+		case false:
+			rawUrl = "/file/" + urlPath + "/" + itemName
+		}
+		itemURL, err := url.Parse(rawUrl)
+		if err != nil {
+			return list, err
+		}
+		entities = append(entities, entity{itemURL.String(), itemName, isDir})
 	}
 
+	// previous link
 	index := true
 	var previous bytes.Buffer
 	fmt.Fprint(&previous, "/viewer/")
-
-	// get previous link if not at index
+	// previous link if not at index
 	if urlPath != "" {
 		index = false
 
@@ -75,8 +88,8 @@ func GetDirectoryList(userDirRoot string, urlPath string) (list template.HTML, e
 			}
 			fmt.Fprintf(&previous, "%s/", segment)
 		}
+		// if previous url is not the index remove trailing slash
 		if previous.String() != "/viewer/" {
-			// remove trailing slash
 			previous.Truncate(len(previous.String()) - 1)
 		}
 	}
@@ -89,10 +102,11 @@ func GetDirectoryList(userDirRoot string, urlPath string) (list template.HTML, e
 		CurrentDir  string
 	}
 
+	// execute and return the template
 	var tplBuf bytes.Buffer
 	err = dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, urlPath})
 	if err != nil {
-		return
+		return list, err
 	}
 	return template.HTML(tplBuf.String()), nil
 }
@@ -135,7 +149,7 @@ func createFolder(dirPath string) error {
 
 // deleteFile deletes the file at file path.
 func deleteFile(filePath string) (err error) {
-	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return errors.New("File or Folder does not exist.")
 	}
 

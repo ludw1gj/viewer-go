@@ -19,8 +19,28 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO: doc SendFile
+// ViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's
+// directory in the filesystem to display a directory list for.
+func ViewerPage(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 
+	// urlPath should not contain a leading /
+	urlPath := strings.TrimPrefix(mux.Vars(r)["path"], "/")
+	data := struct {
+		CurrentDir string
+		User       db.User
+	}{
+		urlPath,
+		user,
+	}
+	renderTemplate(w, r, viewerTpl, data)
+}
+
+// SendFile sends file to client.
 func SendFile(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := session.GetUserFromSession(r)
@@ -92,57 +112,6 @@ func UserPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	renderTemplate(w, r, userTpl, userInfo{user})
-}
-
-// ViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's
-// directory in the filesystem to display a directory list for.
-func ViewerPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	//isFile, err := renderIfFile(w, r, user)
-	//if err != nil {
-	//	renderErrorPage(w, r, errors.New("There has been an error: "+err.Error()))
-	//	return
-	//} else if isFile {
-	//	// if it is a file, it has already been rendered by renderIfFile.
-	//	return
-	//}
-
-	//urlPath := mux.Vars(r)["path"]
-	//data := struct {
-	//	CurrentDir string
-	//	User       db.User
-	//}{
-	//	urlPath,
-	//	user,
-	//}
-	renderTemplate(w, r, viewerTpl, userInfo{user})
-}
-
-// TODO: delete this func
-// renderIfFile uses the path variable in the route to determine if path on disk is a file or a directory. If it is a
-// file it will write the file to the client, but if it is a directory it will return isFile is false.
-func renderIfFile(w http.ResponseWriter, r *http.Request, user db.User) (isFile bool, err error) {
-	filePath := path.Join(user.DirectoryRoot, mux.Vars(r)["path"])
-
-	fileInfo, err := os.Stat(filePath)
-	if err != nil {
-		return
-	}
-
-	if !fileInfo.IsDir() {
-		isFile = true
-
-		data, _ := ioutil.ReadFile(filePath)
-		w.Header().Add("Content-Type", contentType(filePath))
-		http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
-		return
-	}
-	return
 }
 
 // contentType determines the content-type by the file extension of the file at the path.

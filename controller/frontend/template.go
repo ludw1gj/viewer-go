@@ -14,8 +14,6 @@ import (
 	"github.com/FriedPigeon/viewer-go/controller/api"
 )
 
-// TODO: funcMap not need anymore
-
 var (
 	tplDir      = path.Join("templates", "frontend")
 	baseTplPath = path.Join(tplDir, "base.gohtml")
@@ -66,7 +64,7 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Templa
 
 var funcMap = template.FuncMap{
 	"genDirectoryList": func(userDirRoot string, urlPath string) template.HTML {
-		list, err := api.GetDirectoryList(userDirRoot, urlPath)
+		list, err := api.GenDirectoryList(userDirRoot, urlPath)
 		if err != nil {
 			errMsg := fmt.Sprintf("There has been an error getting directory list: %s", err.Error())
 			return template.HTML(errMsg)
