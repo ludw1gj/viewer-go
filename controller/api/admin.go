@@ -17,13 +17,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 	if !user.Admin {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -31,20 +29,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&u)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	err = db.CreateUser(u)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Successfully created user."})
+	sendSuccessResponse(w, "Successfully created user.")
 }
 
 // DeleteUser receives user information via json and deletes the user. Client must be admin.
@@ -53,13 +47,11 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 	if !user.Admin {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -69,26 +61,21 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&data)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// check if use exists
 	_, err = db.GetUser(data.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	err = db.DeleteUser(data.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Successfully deleted user."})
+	sendSuccessResponse(w, "Successfully deleted user.")
 }

@@ -17,8 +17,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != "POST" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(errorJSON{"Method must be POST."})
+		sendErrorResponse(w, http.StatusBadRequest, "Method must be POST.")
 		return
 	}
 	loginCredentials := struct {
@@ -27,15 +26,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}{}
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&loginCredentials)
+	if err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+	}
 
 	err = session.NewUserSession(w, r, loginCredentials.Username, loginCredentials.Password)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusUnauthorized, err.Error()) //"Unauthorized."
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Login Successful."})
+	sendSuccessResponse(w, "Login successful.")
 }
 
 // Logout will logout the user by changing the session value "authenticated" to false.
@@ -44,12 +44,10 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 	err := session.RemoveUserAuthFromSession(w, r)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{fmt.Sprintf("Logout error: %s", err.Error())})
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Logout error: %s", err.Error()))
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Successfully logged out."})
+	sendSuccessResponse(w, "Logout successful.")
 }
 
 // DeleteAccount will process the delete user form, if password is correct the user's account will be deleted and the
@@ -59,8 +57,7 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -69,20 +66,16 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err = json.NewDecoder(r.Body).Decode(&password)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	err = db.DeleteUserPasswordValidated(user, password.Password)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Successfully logged out."})
+	sendSuccessResponse(w, "Account deletion successful.")
 }
 
 // ChangePassword will process a json post request, comparing password sent with current password and if they match, the
@@ -92,8 +85,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -105,23 +97,18 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&passwords)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err = db.ChangeUserPassword(user, passwords.OldPassword, passwords.NewPassword)
 	if err != nil {
 		if err.Error() == "Incorrect password." {
-			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(errorJSON{err.Error()})
+			sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 			return
 		}
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Password changed successfully."})
+	sendSuccessResponse(w, "Password changed successfully.")
 }

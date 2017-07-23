@@ -18,8 +18,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -28,21 +27,17 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err = json.NewDecoder(r.Body).Decode(&folderPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, folderPath.Path)
 	err = createFolder(dirPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{fmt.Sprintf("Could not create directory: %s", err.Error())})
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Could not create directory: %s", err.Error()))
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Successfully created folder."})
+	sendSuccessResponse(w, "Successfully created folder.")
 }
 
 // Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
@@ -52,8 +47,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -62,21 +56,17 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	filePath := path.Join(user.DirectoryRoot, data.Path)
 	err = deleteFile(filePath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Successfully deleted file/folder."})
+	sendSuccessResponse(w, "Successfully deleted file/folder.")
 }
 
 // DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the viewer
@@ -86,8 +76,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -96,21 +85,17 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, data.Path)
 	err = deleteAllFiles(dirPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"Successfully deleted all contents."})
+	sendSuccessResponse(w, "Successfully deleted all contents.")
 }
 
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
@@ -120,8 +105,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errorJSON{"Unauthorised."})
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
@@ -129,19 +113,15 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	const _24K = (1 << 10) * 24
 	err = r.ParseMultipartForm(_24K)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, r.FormValue("path"))
 	err = uploadFiles(dirPath, r.MultipartForm.File)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(errorJSON{err.Error()})
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(contentJSON{"File upload success."})
+	sendSuccessResponse(w, "File upload success.")
 }

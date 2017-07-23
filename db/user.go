@@ -139,7 +139,6 @@ func CheckUserValidation(username string, password string) (userID int, err erro
 	if err != nil {
 		return userID, errors.New("There is no user by that username.")
 	}
-
 	err = comparePasswords(user.Password, password)
 	return user.ID, err
 }

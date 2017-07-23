@@ -77,6 +77,7 @@ func GetUserFromSession(r *http.Request) (user db.User, err error) {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
 		log.Println(err)
+		return user, err
 	}
 
 	id := session.Values["id"].(int)

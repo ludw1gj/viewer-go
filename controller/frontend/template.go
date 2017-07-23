@@ -44,7 +44,8 @@ func init() {
 // initTemplate creates new template.Template and parses files of tplName in the template directory (tplDir).
 func initTemplate(tplName string, withBase bool) *template.Template {
 	if withBase {
-		return template.Must(template.New(tplName).Funcs(funcMap).ParseFiles(baseTplPath, path.Join(tplDir, tplName+".gohtml")))
+		return template.Must(
+			template.New(tplName).Funcs(funcMap).ParseFiles(baseTplPath, path.Join(tplDir, tplName+".gohtml")))
 	}
 	return template.Must(template.New(tplName).Funcs(funcMap).ParseFiles(path.Join(tplDir, tplName+".gohtml")))
 }

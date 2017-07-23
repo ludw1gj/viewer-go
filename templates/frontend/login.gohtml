@@ -12,6 +12,9 @@
     <!--css-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
     <link rel="stylesheet" href="/static/style/login.css">
+
+    <!--js-->
+    <script defer src="/static/script/build/build.js"></script>
 </head>
 
 <body>
@@ -19,7 +22,7 @@
     <div class="container">
         <img src="/static/image/lock.png" width="300">
 
-        <div id="notification" class="notification hidden"></div>
+        <div id="login-error-notification" class="notification hidden"></div>
 
         <h3 class="title is-4">Login</h3>
         <form id="login-form">
@@ -31,8 +34,6 @@
         </form>
     </div>
 </section>
-
-<script src="/static/script/util.js"></script>
-<script src="/static/script/login.js"></script>
 </body>
+
 </html>

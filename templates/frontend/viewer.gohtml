@@ -15,14 +15,14 @@
         <br>
         <h3 class="subtitle is-5">Create Folder</h3>
         <form id="create-folder-form">
-            Folder Name: <input id="create-folder" class="input" type="text" name="folder-name" required><br>
+            Folder Name: <input id="create-folder" class="input" type="text" name="folder_name" required><br>
             <input class="button" type="submit" value="Create">
         </form>
 
         <br>
         <h3 class="subtitle is-5">Delete File or Folder</h3>
         <form id="delete-file-folder-form">
-            File/Folder: <input class="input" id="delete" name="file-name" required>
+            File/Folder: <input class="input" id="delete" name="file_name" required>
             <input class="button" type="submit" value="Delete">
         </form>
 
@@ -41,8 +41,4 @@
         {{genDirectoryList .User.DirectoryRoot .CurrentDir}}
     </div>
 </div>
-{{end}}
-
-{{define "js"}}
-<script src="/static/script/viewer.js"></script>
 {{end}}
