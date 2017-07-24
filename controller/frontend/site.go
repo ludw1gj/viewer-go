@@ -21,6 +21,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// RedirectToViewer redirects users to the viewer page.
+func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
+}
+
 // ViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's
 // directory in the filesystem to display a directory list for.
 func ViewerPage(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +45,45 @@ func ViewerPage(w http.ResponseWriter, r *http.Request) {
 		user,
 	}
 	renderTemplate(w, r, viewerTpl, data)
+}
+
+// LoginPage method renders the login page.
+func LoginPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	var tplBuf bytes.Buffer
+	err := loginTpl.Execute(&tplBuf, nil)
+	if err != nil {
+		log.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("500: Server error. %s", err.Error())))
+		return
+	}
+	w.Write(tplBuf.Bytes())
+}
+
+// UserPage renders the user page.
+func UserPage(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	renderTemplate(w, r, userTpl, userInfo{user})
+}
+
+// AboutPage handles the about page.
+func AboutPage(w http.ResponseWriter, r *http.Request) {
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	renderTemplate(w, r, aboutTpl, userInfo{user})
 }
 
 // SendFile sends file to client.
@@ -72,50 +116,6 @@ func SendFile(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Add("Content-Type", contentType(filePath))
 	http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
-}
-
-// RedirectToViewer redirects users to the viewer page.
-func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
-}
-
-// LoginPage method renders the login page.
-func LoginPage(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-
-	var tplBuf bytes.Buffer
-	err := loginTpl.Execute(&tplBuf, nil)
-	if err != nil {
-		log.Println(err)
-
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("500: Server error. %s", err.Error())))
-		return
-	}
-	w.Write(tplBuf.Bytes())
-}
-
-// AboutPage handles the about page.
-func AboutPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-	renderTemplate(w, r, aboutTpl, userInfo{user})
-}
-
-// UserPage renders the user page.
-func UserPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-	renderTemplate(w, r, userTpl, userInfo{user})
 }
 
 // contentType determines the content-type by the file extension of the file at the path.

@@ -3,15 +3,15 @@
     <li><a href="{{.PreviousURL}}">../</a></li>
     {{- end}}
 
-    {{range .Entities}}
+    {{range .Entities -}}
 
-    {{if .IsDir}}
+    {{if .IsDir -}}
     <li><a href="{{.URL}}">{{.Name}}/</a></li>
     {{else}}
-    <li><a href="{{.URL}}" download>{{.Name}}</a></li>
-    {{end}}
+    <li><a href="{{.URL}}">{{.Name}}</a></li>
+    {{- end}}
 
-    {{end}}
+    {{- end}}
 </ul>
 
 {{if not .Index -}}

@@ -155,28 +155,28 @@ func deleteFile(filePath string) (err error) {
 
 	err = os.RemoveAll(filePath)
 	if err != nil {
-		return
+		return err
 	}
-	return
+	return nil
 }
 
 // deleteAllFiles deletes all files in the directory oath.
 func deleteAllFiles(dirPath string) (err error) {
 	d, err := os.Open(dirPath)
 	if err != nil {
-		return
+		return err
 	}
 	defer d.Close()
 
 	names, err := d.Readdirnames(-1)
 	if err != nil {
-		return
+		return err
 	}
 	for _, name := range names {
 		err = os.RemoveAll(filepath.Join(dirPath, name))
 		if err != nil {
-			return
+			return err
 		}
 	}
-	return
+	return nil
 }
