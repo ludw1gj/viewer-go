@@ -3,31 +3,63 @@ package config
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
+
+	"github.com/gorilla/securecookie"
 )
 
-// Config is the required configuration information for database connection and session initialisation.
-type Config struct {
-	Database struct {
-		User     string `json:"user"`
-		Password string `json:"password"`
-		Name     string `json:"name"`
-	} `json:"database"`
-	Cookie struct {
-		CookieAuthKey       string `json:"cookie_auth_key"`
-		CookieEncryptionKey string `json:"cookie_encryption_key"`
-	}
+// Keys contain key types for session CookieStore.
+type Keys struct {
+	AuthKey       []byte `json:"auth_key"`
+	EncryptionKey []byte `json:"encryption_key"`
 }
 
-// Load reads a json file and returns the configuration values in config struct.
-func Load(filePath string) (c Config, err error) {
-	configFile, err := os.Open(filePath)
+// Config contains the required configuration information.
+type Config struct {
+	Cookie Keys `json:"cookie"`
+}
+
+// Load reads a json file and returns the configuration values in config struct. If the json does not exist, it will be
+// created.
+func Load(file string) (c Config, err error) {
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		// file does not exist
+		err = genCookieConfigJsonFile(file)
+		if err != nil {
+			return c, err
+		}
+	}
+
+	configFile, err := os.Open(file)
 	if err != nil {
 		return c, err
 	}
 	defer configFile.Close()
 
 	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&c)
+	err = jsonParser.Decode(&c)
+	if err != nil {
+		return c, err
+	}
 	return c, nil
+}
+
+// genCookieConfigJsonFile generates a json files containing cookie authorisation and encryption keys.
+func genCookieConfigJsonFile(file string) error {
+	c := Config{
+		Keys{
+			securecookie.GenerateRandomKey(32),
+			securecookie.GenerateRandomKey(32),
+		},
+	}
+	configJson, err := json.Marshal(c)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(file, configJson, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }

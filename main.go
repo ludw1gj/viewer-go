@@ -12,19 +12,25 @@ import (
 )
 
 func main() {
-	// load configuration, database, session, and routes
+	// load configuration file
 	c, err := config.Load("config.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = db.Load(c)
+
+	// load database
+	err = db.Load()
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	// load session, and routes
 	session.Load(c)
 	route.Load()
 
 	// listen and serve
-	log.Println("Viewer-go listening on port 3000...")
-	http.ListenAndServe(":3000", nil)
+	log.Println("viewer-go listening on port 3000...")
+	if err := http.ListenAndServe(":3000", nil); err != nil {
+		log.Fatalln(err)
+	}
 }

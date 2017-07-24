@@ -1,6 +1,10 @@
-
+# default
 .DS_Store
 .idea/
 test/
+
+# config, database and other files
 /config.json
-/notes.txt
+admin/
+viewer-go
+viewer.db
