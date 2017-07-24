@@ -13,8 +13,8 @@ interface deleteUserInput {
     user_id: number;
 }
 
-// initAdminPage function should be run at initialisation of admin page.
-function initAdminPage(): void {
+// addEventListenersAdminForms function should be run at initialisation of admin page.
+function addEventListenersAdminForms(): void {
     const adminApiRoute = "/api/admin/";
 
     // handle create user form logic

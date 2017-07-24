@@ -4,8 +4,8 @@ interface loginInput {
     password: string;
 }
 
-// initLoginPage function should be run at initialisation of login page.
-function initLoginPage(): void {
+// addEventListenersLoginForm function should be run at initialisation of login page.
+function addEventListenerLoginForm(): void {
     // handle login user form logic
     let loginForm = document.getElementById("login-form") as HTMLFormElement;
     loginForm.addEventListener("submit", (event: Event) => {
@@ -30,11 +30,11 @@ function initLoginPage(): void {
 }
 
 // loadLoginPage loads login page script if at login page.
-function loadLoginPage(): void {
+function loadLoginPageScript(): void {
     if (window.location.pathname === "/login") {
-        initLoginPage();
+        addEventListenerLoginForm();
     }
 }
 
 // run init.
-loadLoginPage();
+loadLoginPageScript();

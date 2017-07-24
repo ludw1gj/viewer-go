@@ -9,8 +9,8 @@ interface deleteAccountInput {
     password: string
 }
 
-// initUserPage function should be run at initialisation of user page.
-function initUserPage(): void {
+// addEventListenersUserForms function should be run at initialisation of user page.
+function addEventListenersUserForms(): void {
     const userApiRoute = "/api/user/";
 
     // handle change password form logic

@@ -1,5 +1,5 @@
-// initBasePage function should be run at initialisation of base page.
-function initBasePage(): void {
+// addEventListenersBaseNav function should be run at initialisation of base page.
+function addEventListenersBaseNav(): void {
     // extend and collapse navigation menu for mobile
     let mobileMenuButton = document.getElementById("mobile-menu-button") as HTMLElement;
     mobileMenuButton.addEventListener("click", () => {
@@ -49,18 +49,18 @@ function displaySuccessNotification(msg: string): void {
 function loadAuthorizedPages(): void {
     const page = window.location.pathname;
     if (page !== "/login") {
-        initBasePage();
+        addEventListenersBaseNav();
     }
     if (page.search("/viewer/") !== -1) {
-        initViewerPage();
+        addEventListenersViewerForms();
         return
     }
     switch (page) {
         case "/user":
-            initUserPage();
+            addEventListenersUserForms();
             break;
         case "/admin":
-            initAdminPage();
+            addEventListenersAdminForms();
             break;
     }
 }

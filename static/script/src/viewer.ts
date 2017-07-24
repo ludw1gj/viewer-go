@@ -3,8 +3,8 @@ interface pathInput {
     path: string;
 }
 
-// initViewerPage function should be run at initialisation of viewer page.
-function initViewerPage(): void {
+// addEventListenersViewerForms function should be run at initialisation of viewer page.
+function addEventListenersViewerForms(): void {
     const apiRoute: string = "/api/viewer/";
     const currentDir: string = (document.getElementById("current-dir")  as HTMLElement).innerText.slice(1);
 

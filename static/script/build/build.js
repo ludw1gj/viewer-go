@@ -1,6 +1,6 @@
 "use strict";
-// initAdminPage function should be run at initialisation of admin page.
-function initAdminPage() {
+// addEventListenersAdminForms function should be run at initialisation of admin page.
+function addEventListenersAdminForms() {
     var adminApiRoute = "/api/admin/";
     // handle create user form logic
     var adminCreateUserForm = document.getElementById("create-user-form");
@@ -89,8 +89,8 @@ function submitAjaxFormData(url, uploadForm, errFunc, okFunc) {
     };
     xhr.send(formData);
 }
-// initBasePage function should be run at initialisation of base page.
-function initBasePage() {
+// addEventListenersBaseNav function should be run at initialisation of base page.
+function addEventListenersBaseNav() {
     // extend and collapse navigation menu for mobile
     var mobileMenuButton = document.getElementById("mobile-menu-button");
     mobileMenuButton.addEventListener("click", function () {
@@ -135,25 +135,25 @@ function displaySuccessNotification(msg) {
 function loadAuthorizedPages() {
     var page = window.location.pathname;
     if (page !== "/login") {
-        initBasePage();
+        addEventListenersBaseNav();
     }
     if (page.search("/viewer/") !== -1) {
-        initViewerPage();
+        addEventListenersViewerForms();
         return;
     }
     switch (page) {
         case "/user":
-            initUserPage();
+            addEventListenersUserForms();
             break;
         case "/admin":
-            initAdminPage();
+            addEventListenersAdminForms();
             break;
     }
 }
 // run init.
 loadAuthorizedPages();
-// initLoginPage function should be run at initialisation of login page.
-function initLoginPage() {
+// addEventListenersLoginForm function should be run at initialisation of login page.
+function addEventListenerLoginForm() {
     // handle login user form logic
     var loginForm = document.getElementById("login-form");
     loginForm.addEventListener("submit", function (event) {
@@ -176,15 +176,15 @@ function initLoginPage() {
     });
 }
 // loadLoginPage loads login page script if at login page.
-function loadLoginPage() {
+function loadLoginPageScript() {
     if (window.location.pathname === "/login") {
-        initLoginPage();
+        addEventListenerLoginForm();
     }
 }
 // run init.
-loadLoginPage();
-// initUserPage function should be run at initialisation of user page.
-function initUserPage() {
+loadLoginPageScript();
+// addEventListenersUserForms function should be run at initialisation of user page.
+function addEventListenersUserForms() {
     var userApiRoute = "/api/user/";
     // handle change password form logic
     var userChangePasswordForm = document.getElementById("change-password-form");
@@ -225,8 +225,8 @@ function initUserPage() {
         submitAjaxJson(url, data, errFunc, okFunc);
     });
 }
-// initViewerPage function should be run at initialisation of viewer page.
-function initViewerPage() {
+// addEventListenersViewerForms function should be run at initialisation of viewer page.
+function addEventListenersViewerForms() {
     var apiRoute = "/api/viewer/";
     var currentDir = document.getElementById("current-dir").innerText.slice(1);
     // handle upload form logic
