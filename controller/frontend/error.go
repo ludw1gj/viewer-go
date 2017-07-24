@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	"fmt"
+
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/FriedPigeon/viewer-go/session"
 )
@@ -18,13 +20,14 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	var buf bytes.Buffer
-	err = notFoundTpl.ExecuteTemplate(&buf, "base.gohtml", userInfo{user})
+	var tplBuf bytes.Buffer
+	err = notFoundTpl.ExecuteTemplate(&tplBuf, "base.gohtml", userInfo{user})
 	if err != nil {
-		log.Println(err)
+		renderErrorPage(w, r, err)
+		return
 	}
 	w.WriteHeader(http.StatusNotFound)
-	w.Write(buf.Bytes())
+	w.Write(tplBuf.Bytes())
 }
 
 // renderErrorPage renders the error page and sends status 500.
@@ -32,8 +35,11 @@ func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	user, err := session.GetUserFromSession(r)
 	if err != nil {
-		w.Write([]byte("500: Server error"))
-		log.Print("StatusInternalServerError failed to execute get user from session on error page.")
+		log.Printf("StatusInternalServerError failed to execute get user from session on error page: %s", err.Error())
+
+		resp := fmt.Sprintf("500: Server error. Two errors have occured.<br>First Error: %s<br>Second Error: %s",
+			pageErr.Error(), err.Error())
+		w.Write([]byte(resp))
 		return
 	}
 
@@ -45,13 +51,15 @@ func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 		user,
 	}
 
-	var buf bytes.Buffer
-	err = errorTpl.ExecuteTemplate(&buf, "base.gohtml", data)
+	var tplBuf bytes.Buffer
+	err = errorTpl.ExecuteTemplate(&tplBuf, "base.gohtml", data)
 	if err != nil {
-		w.Write([]byte("500: Server error"))
 		log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
+
+		resp := fmt.Sprintf("500: Server error. Two errors have occured.<br>First Error: %s<br>Second Error: %s",
+			pageErr.Error(), err.Error())
+		w.Write([]byte(resp))
 		return
 	}
-
-	w.Write(buf.Bytes())
+	w.Write(tplBuf.Bytes())
 }

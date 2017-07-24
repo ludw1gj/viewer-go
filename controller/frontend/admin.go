@@ -36,6 +36,7 @@ func AdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := db.GetAllUsers()
 	if err != nil {
 		renderErrorPage(w, r, err)
+		return
 	}
 
 	data := struct {

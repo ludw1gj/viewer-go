@@ -51,16 +51,16 @@ func initTemplate(tplName string, withBase bool) *template.Template {
 }
 
 func renderTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Template, data interface{}) {
-	var buf bytes.Buffer
-	err := tpl.ExecuteTemplate(&buf, "base.gohtml", data)
+	var tplBuf bytes.Buffer
+	err := tpl.ExecuteTemplate(&tplBuf, "base.gohtml", data)
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+
 		renderErrorPage(w, r, err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write(buf.Bytes())
+	w.Write(tplBuf.Bytes())
 }
 
 var funcMap = template.FuncMap{

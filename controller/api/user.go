@@ -28,11 +28,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&loginCredentials)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	err = session.NewUserSession(w, r, loginCredentials.Username, loginCredentials.Password)
 	if err != nil {
-		sendErrorResponse(w, http.StatusUnauthorized, err.Error()) //"Unauthorized."
+		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 	sendSuccessResponse(w, "Login successful.")

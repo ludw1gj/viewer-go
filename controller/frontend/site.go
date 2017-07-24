@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"fmt"
+
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/FriedPigeon/viewer-go/session"
 	"github.com/gorilla/mux"
@@ -84,14 +86,16 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var buf bytes.Buffer
-	err := loginTpl.Execute(&buf, nil)
+	var tplBuf bytes.Buffer
+	err := loginTpl.Execute(&tplBuf, nil)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500: Server error"))
 		log.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("500: Server error. %s", err.Error())))
+		return
 	}
-	w.Write(buf.Bytes())
+	w.Write(tplBuf.Bytes())
 }
 
 // AboutPage handles the about page.

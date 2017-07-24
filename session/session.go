@@ -2,7 +2,6 @@
 package session
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/FriedPigeon/viewer-go/config"
@@ -21,7 +20,6 @@ func Load(c config.Config) {
 func CheckIfAuth(r *http.Request) bool {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
-		// user doesn't exist in session
 		return false
 	}
 
@@ -76,7 +74,6 @@ func RemoveUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
 func GetUserFromSession(r *http.Request) (user db.User, err error) {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
-		log.Println(err)
 		return user, err
 	}
 

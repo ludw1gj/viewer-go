@@ -3,8 +3,6 @@
 package db
 
 import (
-	"log"
-
 	"os"
 
 	"database/sql"
@@ -28,7 +26,6 @@ type User struct {
 func GetAllUsers() (users []User, err error) {
 	rows, err := db.Query("SELECT * FROM users")
 	if err != nil {
-		log.Println(err)
 		return users, err
 	}
 	defer rows.Close()
@@ -38,7 +35,6 @@ func GetAllUsers() (users []User, err error) {
 
 		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
 		if err != nil {
-			log.Println(err)
 			return users, err
 		}
 		users = append(users, user)
@@ -118,7 +114,6 @@ func ChangeUserPassword(user User, oldPassword string, newPassword string) error
 	// generate hash of new password
 	newHashPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
