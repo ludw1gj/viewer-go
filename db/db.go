@@ -10,7 +10,7 @@ import (
 
 var db *sql.DB
 
-// Load initialises a connection to a postgres database using the values from config.Config type.
+// Load initialises connection to sqlite3 database.
 func Load() (err error) {
 	db, err = sql.Open("sqlite3", "viewer.db")
 	if err != nil {
@@ -29,7 +29,7 @@ func initUsersTable() error {
 	row := db.QueryRow("SELECT COUNT(name) FROM sqlite_master WHERE type=$1 AND name=$2;", "table", "users")
 	row.Scan(&count)
 	if count != 1 {
-		createDB := `
+		sqlCreateUsersTable := `
 		CREATE TABLE users (
 			id INTEGER PRIMARY KEY,
 			username TEXT UNIQUE NOT NULL,
@@ -39,7 +39,7 @@ func initUsersTable() error {
 			directory_root TEXT NOT NULL,
 			admin BOOLEAN NOT NULL
 		);`
-		_, err := db.Exec(createDB)
+		_, err := db.Exec(sqlCreateUsersTable)
 		if err != nil {
 			return err
 		}

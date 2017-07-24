@@ -11,8 +11,8 @@ import (
 
 // Keys contain key types for session CookieStore.
 type Keys struct {
-	AuthKey       []byte `json:"auth_key"`
-	EncryptionKey []byte `json:"encryption_key"`
+	AuthorisationKey []byte `json:"authorisation_key"`
+	EncryptionKey    []byte `json:"encryption_key"`
 }
 
 // Config contains the required configuration information.
@@ -20,8 +20,8 @@ type Config struct {
 	Cookie Keys `json:"cookie"`
 }
 
-// Load reads a json file and returns the configuration values in config struct. If the json does not exist, it will be
-// created.
+// Load reads a json file and returns the configuration values in config struct. If the json file does not exist, it
+// will be created.
 func Load(file string) (c Config, err error) {
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		// file does not exist
@@ -45,7 +45,7 @@ func Load(file string) (c Config, err error) {
 	return c, nil
 }
 
-// genCookieConfigJsonFile generates a json files containing cookie authorisation and encryption keys.
+// genCookieConfigJsonFile generates a json file containing cookie authorisation and encryption keys.
 func genCookieConfigJsonFile(file string) error {
 	c := Config{
 		Keys{

@@ -13,7 +13,7 @@ var store *sessions.CookieStore
 
 // Load returns a new CookieStore with key from config.Config type.
 func Load(c config.Config) {
-	store = sessions.NewCookieStore(c.Cookie.AuthKey, c.Cookie.EncryptionKey)
+	store = sessions.NewCookieStore(c.Cookie.AuthorisationKey, c.Cookie.EncryptionKey)
 }
 
 // CheckIfAuth checks if user is authenticated.
