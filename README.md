@@ -34,10 +34,10 @@ git clone github.com/FriedPigeon/viewer-go
 `./viewer-go`
 
 ## Notes
-#### Static Files - /static/*  
+### Static Files - /static/*  
 A static file handler is included and can be used when invoking the dev flag set to true: `-dev=true`
 
-#### Database - viewer.db
+### Database - viewer.db
 This project uses SQLite database. When the app is run it will check for a viewer.db, and if not found the file will 
 automatically be created which includes the users table and a default user.  
 
@@ -52,7 +52,7 @@ The default user has these values:
 As a result of creating the default user, a folder named "admin" will be created in the current directory. You may want
 to delete this folder and change the Username, Directory Root and other values of this user.
 
-#### Configuration File - config.json  
+### Configuration File - config.json  
 The file is a JSON file which contains two 32 byte length keys used for cookies.  
 
 Example config.json:   
