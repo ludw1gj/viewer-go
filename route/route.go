@@ -39,9 +39,12 @@ func Load() {
 	protected.HandleFunc("/api/user/logout", api.Logout).Methods("POST")
 	protected.HandleFunc("/api/user/delete", api.DeleteAccount).Methods("POST")
 	protected.HandleFunc("/api/user/change-password", api.ChangePassword).Methods("POST")
+	protected.HandleFunc("/api/user/change-name", api.ChangeName).Methods("POST")
 
+	protected.HandleFunc("/api/admin/change-username", api.ChangeUsername).Methods("POST")
 	protected.HandleFunc("/api/admin/create-user", api.CreateUser).Methods("POST")
 	protected.HandleFunc("/api/admin/delete-user", api.DeleteUser).Methods("POST")
+	protected.HandleFunc("/api/admin/change-dir-root", api.ChangeDirRoot).Methods("POST")
 
 	// static file controller in dev mode
 	dev := flag.Bool("dev", false, "Use in development")

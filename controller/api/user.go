@@ -102,7 +102,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.ChangeUserPassword(user, passwords.OldPassword, passwords.NewPassword)
+	err = db.UpdateUserPassword(user, passwords.OldPassword, passwords.NewPassword)
 	if err != nil {
 		if err.Error() == "Incorrect password." {
 			sendErrorResponse(w, http.StatusUnauthorized, err.Error())
@@ -112,4 +112,34 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sendSuccessResponse(w, "Password changed successfully.")
+}
+
+// ChangeName will change the user's first/last name.
+func ChangeName(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	data := struct {
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+	}{}
+
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&data)
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = db.UpdateUserName(user.ID, data.FirstName, data.LastName)
+	if err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	sendSuccessResponse(w, "Name changed successfully.")
 }

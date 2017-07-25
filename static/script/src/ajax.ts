@@ -17,7 +17,7 @@ function submitAjaxJson(url: string, data: object | undefined, errFunc: (resp: J
                         okFunc: (resp: JsonDataResponse) => void) {
     let xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = () => {
         const DONE = 4;
         if (xhr.readyState === DONE) {

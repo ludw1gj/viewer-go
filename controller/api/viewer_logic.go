@@ -140,6 +140,10 @@ func uploadFiles(dirPath string, file map[string][]*multipart.FileHeader) error 
 
 // createFolder creates a folder in the directory path.
 func createFolder(dirPath string) error {
+	if _, err := os.Stat(dirPath); !os.IsNotExist(err) {
+		return errors.New("Folder already exists.")
+	}
+
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
 		return err

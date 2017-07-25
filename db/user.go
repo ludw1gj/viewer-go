@@ -60,7 +60,7 @@ func CreateUser(u User) error {
 	var count int
 	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", u.Username)
 	row.Scan(&count)
-	if count > 0 {
+	if count == 1 {
 		return errors.New("Username is taken.")
 	}
 
@@ -103,8 +103,8 @@ func DeleteUserPasswordValidated(user User, password string) error {
 	return err
 }
 
-// ChangeUserPassword changes a user's password in the database, if the provided password is valid.
-func ChangeUserPassword(user User, oldPassword string, newPassword string) error {
+// UpdateUserPassword updates a user's password in the database, if the provided password is valid.
+func UpdateUserPassword(user User, oldPassword string, newPassword string) error {
 	// check if oldPassword is valid
 	err := comparePasswords(user.Password, oldPassword)
 	if err != nil {
@@ -119,6 +119,45 @@ func ChangeUserPassword(user User, oldPassword string, newPassword string) error
 
 	// store new password
 	_, err = db.Exec("UPDATE users SET password = $1 WHERE id = $2;", newHashPassword, user.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateUserName updates a user's first name and last name, given the user's ID.
+func UpdateUserName(id int, firstName string, lastName string) error {
+	_, err := db.Exec("UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3;", firstName, lastName, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateUserUsername updates a user's username, given the user's ID.
+func UpdateUserUsername(username string, newUsername string) error {
+	// check if username exists
+	var count int
+	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", username)
+	row.Scan(&count)
+	if count != 1 {
+		return errors.New("Username does not exist.")
+	}
+
+	_, err := db.Exec("UPDATE users SET username = $1 WHERE username = $2;", newUsername, username)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateUserDirRoot updates a user's directory root, given the user's ID.
+func UpdateUserDirRoot(id int, dirRoot string) error {
+	if _, err := os.Stat(dirRoot); os.IsNotExist(err) {
+		return errors.New("Directory does not exist.")
+	}
+
+	_, err := db.Exec("UPDATE users SET directory_root = $1 WHERE id = $2;", dirRoot, id)
 	if err != nil {
 		return err
 	}

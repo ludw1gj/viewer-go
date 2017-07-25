@@ -4,7 +4,6 @@ function addEventListenersBaseNav(): void {
     let mobileMenuButton = document.getElementById("mobile-menu-button") as HTMLElement;
     mobileMenuButton.addEventListener("click", () => {
         let mobileMenu = document.getElementById("mobile-menu") as HTMLElement;
-
         if (mobileMenuButton.classList.contains("is-active") || mobileMenuButton.classList.contains("is-active")) {
             mobileMenu.classList.remove("is-active");
             mobileMenuButton.classList.remove("is-active");
@@ -15,17 +14,15 @@ function addEventListenersBaseNav(): void {
     });
 
     // handle logout user
-    let baseLogoutButton = document.getElementById("logout-button") as HTMLElement;
-    baseLogoutButton.addEventListener('click', () => {
-        const url = "/api/user/logout";
-
+    let logoutButton = document.getElementById("logout-button") as HTMLElement;
+    logoutButton.addEventListener('click', () => {
         const errFunc = (resp: JsonErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
         const okFunc = () => {
             window.location.href = "/login";
         };
-        submitAjaxJson(url, undefined, errFunc, okFunc);
+        submitAjaxJson("/api/user/logout", undefined, errFunc, okFunc);
     });
 }
 

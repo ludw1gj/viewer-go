@@ -3,10 +3,26 @@
 {{define "content"}}
 <h3 class="title is-3">Admin Information:</h3>
 <p>
-    Username: {{.User.Username}}<br>
+    Username: <span id="username">{{.User.Username}}</span><br>
     Name: {{.User.FirstName}} {{.User.LastName}}
 </p>
 <a class="button" href="/admin/users">View All Users</a><br>
+
+<br>
+<h3 class="subtitle is-5">Change Username</h3>
+<form id="change-username-form" method="post">
+    Username: <input class="input" type="text" name="current_username" required><br>
+    New Username: <input class="input" type="text" name="new_username" required><br>
+    <input class="button is-warning" type="submit" value="Change">
+</form>
+
+
+<br>
+<h3 class="subtitle is-5">Change Directory Root</h3>
+<form id="change-dir-root-form" method="post">
+    Directory: <input class="input" type="text" name="dir_root" required><br>
+    <input class="button is-warning" type="submit" value="Change">
+</form>
 
 <br>
 <h3 class="subtitle is-5">Create User</h3>
@@ -29,7 +45,7 @@
 <br>
 <h3 class="subtitle is-5">Delete User</h3>
 <form id="delete-user-form" method="post">
-    User ID: <input class="input" type="number" name="id" required><br>
+    User ID: <input class="input" type="number" name="user_id" required><br>
     <input class="button is-danger" type="submit" value="Delete">
 </form>
 {{end}}

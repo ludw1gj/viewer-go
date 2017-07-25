@@ -1,3 +1,9 @@
+// changeNameInput contains the required data structure.
+interface changeNameInput {
+    first_name: string;
+    last_name: string
+}
+
 // changePasswordInput contains the required data structure.
 interface changePasswordInput {
     old_password: string;
@@ -13,45 +19,73 @@ interface deleteAccountInput {
 function addEventListenersUserForms(): void {
     const userApiRoute = "/api/user/";
 
-    // handle change password form logic
-    let userChangePasswordForm = document.getElementById("change-password-form") as HTMLFormElement;
-    userChangePasswordForm.addEventListener('submit', (event: Event) => {
+    // handle change name form logic
+    let changeNameForm = document.getElementById("change-name-form") as HTMLFormElement;
+    changeNameForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        const url: string = userApiRoute + "change-password";
-        const oldPw = userChangePasswordForm.elements.item(0) as HTMLInputElement;
-        const newPw = userChangePasswordForm.elements.item(1) as HTMLInputElement;
-        const data: changePasswordInput = {
-            old_password: oldPw.value,
-            new_password: newPw.value
+        const firstName: HTMLInputElement = changeNameForm.first_name;
+        const lastName: HTMLInputElement = changeNameForm.last_name;
+
+        const data: changeNameInput = {
+            first_name: firstName.value,
+            last_name: lastName.value
         };
+
         const errFunc = (resp: JsonErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
+
         const okFunc = (resp: JsonDataResponse) => {
             displaySuccessNotification(resp.data.content);
-            oldPw.value = "";
-            newPw.value = "";
+            location.reload(true);
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(userApiRoute + "change-name", data, errFunc, okFunc);
+    });
+
+    // handle change password form logic
+    let changePasswordForm = document.getElementById("change-password-form") as HTMLFormElement;
+    changePasswordForm.addEventListener("submit", (event: Event) => {
+        event.preventDefault();
+
+        const oldPassword: HTMLInputElement = changePasswordForm.old_password;
+        const newPassword: HTMLInputElement = changePasswordForm.new_password;
+
+        const data: changePasswordInput = {
+            old_password: oldPassword.value,
+            new_password: newPassword.value
+        };
+
+        const errFunc = (resp: JsonErrorResponse) => {
+            displayErrorNotification(resp.error.message);
+        };
+
+        const okFunc = (resp: JsonDataResponse) => {
+            displaySuccessNotification(resp.data.content);
+            changePasswordForm.reset();
+        };
+        submitAjaxJson(userApiRoute + "change-password", data, errFunc, okFunc);
     });
 
     // handle delete user form logic
-    let userDeleteAccountForm = document.getElementById("delete-account-form") as HTMLFormElement;
-    userDeleteAccountForm.addEventListener('submit', (event: Event) => {
+    let deleteAccountForm = document.getElementById("delete-account-form") as HTMLFormElement;
+    deleteAccountForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        const url: string = userApiRoute + "delete";
-        const pw = userDeleteAccountForm.elements.item(0) as HTMLInputElement;
+        const password: HTMLInputElement = deleteAccountForm.password;
+
         const data: deleteAccountInput = {
-            password: pw.value
+            password: password.value
         };
+
         const errFunc = function (resp: JsonErrorResponse) {
             displayErrorNotification(resp.error.message);
+            deleteAccountForm.reset();
         };
+
         const okFunc = function () {
             window.location.href = "/login";
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(userApiRoute + "delete", data, errFunc, okFunc);
     });
 }

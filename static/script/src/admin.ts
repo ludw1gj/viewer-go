@@ -1,3 +1,14 @@
+// changeDirRootInput contains the required data structure.
+interface changeUsernameInput {
+    current_username: string;
+    new_username: string
+}
+
+// changeDirRootInput contains the required data structure.
+interface changeDirRootInput {
+    dir_root: string;
+}
+
 // createUserInput contains the required data structure.
 interface createUserInput {
     username: string;
@@ -17,45 +28,107 @@ interface deleteUserInput {
 function addEventListenersAdminForms(): void {
     const adminApiRoute = "/api/admin/";
 
-    // handle create user form logic
-    let adminCreateUserForm = document.getElementById("create-user-form") as HTMLFormElement;
-    adminCreateUserForm.addEventListener('submit', (event: Event) => {
+    // handle change directory root form logic
+    let changeUsernameForm = document.getElementById("change-username-form") as HTMLFormElement;
+    changeUsernameForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        const url = adminApiRoute + "create-user";
-        const data: createUserInput = {
-            username: adminCreateUserForm.username.value as string,
-            password: adminCreateUserForm.password.value as string,
-            first_name: adminCreateUserForm.first_name.value as string,
-            last_name: adminCreateUserForm.last_name.value as string,
-            directory_root: adminCreateUserForm.directory_root.value as string,
-            is_admin: adminCreateUserForm.is_admin.checked as boolean
+        const currentUsername: HTMLInputElement = changeUsernameForm.current_username;
+        const newUsername: HTMLInputElement = changeUsernameForm.new_username;
+
+        const data: changeUsernameInput = {
+            current_username: currentUsername.value,
+            new_username: newUsername.value
         };
+
         const errFunc = (resp: JsonErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
+
         const okFunc = (resp: JsonDataResponse) => {
+            let username = document.getElementById("username") as HTMLSpanElement;
+            if (data.current_username === username.innerText) {
+                location.reload(true);
+                return
+            }
             displaySuccessNotification(resp.data.content);
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(adminApiRoute + "change-username", data, errFunc, okFunc)
+    });
+
+    // handle change directory root form logic
+    let changeDirForm = document.getElementById("change-dir-root-form") as HTMLFormElement;
+    changeDirForm.addEventListener("submit", (event: Event) => {
+        event.preventDefault();
+
+        const dirRoot: HTMLInputElement = changeDirForm.dir_root;
+
+        const data: changeDirRootInput = {
+            dir_root: dirRoot.value
+        };
+
+        const errFunc = (resp: JsonErrorResponse) => {
+            displayErrorNotification(resp.error.message);
+        };
+
+        const okFunc = (resp: JsonDataResponse) => {
+            displaySuccessNotification(resp.data.content);
+            changeDirForm.reset();
+        };
+        submitAjaxJson(adminApiRoute + "change-dir-root", data, errFunc, okFunc)
+    });
+
+    // handle create user form logic
+    let createUserForm = document.getElementById("create-user-form") as HTMLFormElement;
+    createUserForm.addEventListener("submit", (event: Event) => {
+        event.preventDefault();
+
+        const username: HTMLInputElement = createUserForm.username;
+        const password: HTMLInputElement = createUserForm.password;
+        const firstName: HTMLInputElement = createUserForm.first_name;
+        const lastName: HTMLInputElement = createUserForm.last_name;
+        const DirRoot: HTMLInputElement = createUserForm.directory_root;
+        const isAdmin: HTMLInputElement = createUserForm.is_admin;
+
+        const data: createUserInput = {
+            username: username.value,
+            password: password.value,
+            first_name: firstName.value,
+            last_name: lastName.value,
+            directory_root: DirRoot.value,
+            is_admin: isAdmin.checked
+        };
+
+        const errFunc = (resp: JsonErrorResponse) => {
+            displayErrorNotification(resp.error.message);
+        };
+
+        const okFunc = (resp: JsonDataResponse) => {
+            displaySuccessNotification(resp.data.content);
+            createUserForm.reset();
+        };
+        submitAjaxJson(adminApiRoute + "create-user", data, errFunc, okFunc);
     });
 
     // handle delete user form logic
-    let adminDeleteUserForm = document.getElementById("delete-user-form") as HTMLFormElement;
-    adminDeleteUserForm.addEventListener('submit', (event: Event) => {
+    let deleteUserForm = document.getElementById("delete-user-form") as HTMLFormElement;
+    deleteUserForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        const url = adminApiRoute + "delete-user";
+        const userID: HTMLInputElement = deleteUserForm.user_id;
+
         const data: deleteUserInput = {
-            user_id: parseInt(adminDeleteUserForm.user_id.value)
+            user_id: parseInt(userID.value)
         };
+
         const errFunc = (resp: JsonErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
+
         const okFunc = (resp: JsonDataResponse) => {
             displaySuccessNotification(resp.data.content);
-            adminDeleteUserForm.user_id.value = "";
+            createUserForm.reset();
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(adminApiRoute + "delete-user", data, errFunc, okFunc);
     });
 }

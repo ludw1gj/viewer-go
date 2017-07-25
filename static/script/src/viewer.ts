@@ -16,6 +16,7 @@ function addEventListenersViewerForms(): void {
         const errFunc = (resp: JsonErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
+
         const okFunc = () => {
             location.reload(true);
         };
@@ -27,9 +28,10 @@ function addEventListenersViewerForms(): void {
     createFolderForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        const folderName = (createFolderForm.folder_name as HTMLInputElement).value;
+        const folderName: HTMLInputElement = createFolderForm.folder_name;
+
         const data: pathInput = {
-            path: makePath(currentDir, folderName)
+            path: makePath(currentDir, folderName.value)
         };
         viewerAjaxHelper(apiRoute + "create", data);
     });
@@ -39,9 +41,10 @@ function addEventListenersViewerForms(): void {
     deleteFileFolderForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        const fileName = (deleteFileFolderForm.file_name as HTMLInputElement).value;
+        const fileName: HTMLInputElement = deleteFileFolderForm.file_name;
+
         const data: pathInput = {
-            path: makePath(currentDir, fileName)
+            path: makePath(currentDir, fileName.value)
         };
         viewerAjaxHelper(apiRoute + "delete", data);
     });

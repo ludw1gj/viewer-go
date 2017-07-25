@@ -2,61 +2,107 @@
 // addEventListenersAdminForms function should be run at initialisation of admin page.
 function addEventListenersAdminForms() {
     var adminApiRoute = "/api/admin/";
-    // handle create user form logic
-    var adminCreateUserForm = document.getElementById("create-user-form");
-    adminCreateUserForm.addEventListener('submit', function (event) {
+    // handle change directory root form logic
+    var changeUsernameForm = document.getElementById("change-username-form");
+    changeUsernameForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        var url = adminApiRoute + "create-user";
+        var currentUsername = changeUsernameForm.current_username;
+        var newUsername = changeUsernameForm.new_username;
         var data = {
-            username: adminCreateUserForm.username.value,
-            password: adminCreateUserForm.password.value,
-            first_name: adminCreateUserForm.first_name.value,
-            last_name: adminCreateUserForm.last_name.value,
-            directory_root: adminCreateUserForm.directory_root.value,
-            is_admin: adminCreateUserForm.is_admin.checked
+            current_username: currentUsername.value,
+            new_username: newUsername.value
+        };
+        var errFunc = function (resp) {
+            displayErrorNotification(resp.error.message);
+        };
+        var okFunc = function (resp) {
+            var username = document.getElementById("username");
+            if (data.current_username === username.innerText) {
+                location.reload(true);
+                return;
+            }
+            displaySuccessNotification(resp.data.content);
+        };
+        submitAjaxJson(adminApiRoute + "change-username", data, errFunc, okFunc);
+    });
+    // handle change directory root form logic
+    var changeDirForm = document.getElementById("change-dir-root-form");
+    changeDirForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var dirRoot = changeDirForm.dir_root;
+        var data = {
+            dir_root: dirRoot.value
         };
         var errFunc = function (resp) {
             displayErrorNotification(resp.error.message);
         };
         var okFunc = function (resp) {
             displaySuccessNotification(resp.data.content);
+            changeDirForm.reset();
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(adminApiRoute + "change-dir-root", data, errFunc, okFunc);
+    });
+    // handle create user form logic
+    var createUserForm = document.getElementById("create-user-form");
+    createUserForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var username = createUserForm.username;
+        var password = createUserForm.password;
+        var firstName = createUserForm.first_name;
+        var lastName = createUserForm.last_name;
+        var DirRoot = createUserForm.directory_root;
+        var isAdmin = createUserForm.is_admin;
+        var data = {
+            username: username.value,
+            password: password.value,
+            first_name: firstName.value,
+            last_name: lastName.value,
+            directory_root: DirRoot.value,
+            is_admin: isAdmin.checked
+        };
+        var errFunc = function (resp) {
+            displayErrorNotification(resp.error.message);
+        };
+        var okFunc = function (resp) {
+            displaySuccessNotification(resp.data.content);
+            createUserForm.reset();
+        };
+        submitAjaxJson(adminApiRoute + "create-user", data, errFunc, okFunc);
     });
     // handle delete user form logic
-    var adminDeleteUserForm = document.getElementById("delete-user-form");
-    adminDeleteUserForm.addEventListener('submit', function (event) {
+    var deleteUserForm = document.getElementById("delete-user-form");
+    deleteUserForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        var url = adminApiRoute + "delete-user";
+        var userID = deleteUserForm.user_id;
         var data = {
-            user_id: parseInt(adminDeleteUserForm.user_id.value)
+            user_id: parseInt(userID.value)
         };
         var errFunc = function (resp) {
             displayErrorNotification(resp.error.message);
         };
         var okFunc = function (resp) {
             displaySuccessNotification(resp.data.content);
-            adminDeleteUserForm.user_id.value = "";
+            createUserForm.reset();
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(adminApiRoute + "delete-user", data, errFunc, okFunc);
     });
 }
 // submitAjaxJson submits an AJAX POST request.
 function submitAjaxJson(url, data, errFunc, okFunc) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function () {
         var DONE = 4;
         if (xhr.readyState === DONE) {
             var resp = JSON.parse(xhr.responseText);
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp);
-
+                return;
             }
             else if ("data" in resp) {
                 okFunc(resp);
-
+                return;
             }
             else {
                 displayErrorNotification("There has been an error.");
@@ -76,11 +122,11 @@ function submitAjaxFormData(url, uploadForm, errFunc, okFunc) {
             var resp = JSON.parse(xhr.responseText);
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp);
-
+                return;
             }
             else if ("data" in resp) {
                 okFunc(resp);
-
+                return;
             }
             else {
                 displayErrorNotification("There has been an error.");
@@ -105,16 +151,15 @@ function addEventListenersBaseNav() {
         }
     });
     // handle logout user
-    var baseLogoutButton = document.getElementById("logout-button");
-    baseLogoutButton.addEventListener('click', function () {
-        var url = "/api/user/logout";
+    var logoutButton = document.getElementById("logout-button");
+    logoutButton.addEventListener('click', function () {
         var errFunc = function (resp) {
             displayErrorNotification(resp.error.message);
         };
         var okFunc = function () {
             window.location.href = "/login";
         };
-        submitAjaxJson(url, undefined, errFunc, okFunc);
+        submitAjaxJson("/api/user/logout", undefined, errFunc, okFunc);
     });
 }
 // displayErrorNotification displays error notification.
@@ -158,10 +203,11 @@ function addEventListenerLoginForm() {
     var loginForm = document.getElementById("login-form");
     loginForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        var url = "/api/user/login";
+        var username = loginForm.username;
+        var password = loginForm.password;
         var data = {
-            username: loginForm.username.value,
-            password: loginForm.password.value
+            username: username.value,
+            password: password.value
         };
         var errFunc = function (resp) {
             var notification = document.getElementById("login-error-notification");
@@ -172,7 +218,7 @@ function addEventListenerLoginForm() {
         var okFunc = function () {
             window.location.href = "/viewer/";
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson("/api/user/login", data, errFunc, okFunc);
     });
 }
 // loadLoginPage loads login page script if at login page.
@@ -186,43 +232,60 @@ loadLoginPageScript();
 // addEventListenersUserForms function should be run at initialisation of user page.
 function addEventListenersUserForms() {
     var userApiRoute = "/api/user/";
-    // handle change password form logic
-    var userChangePasswordForm = document.getElementById("change-password-form");
-    userChangePasswordForm.addEventListener('submit', function (event) {
+    // handle change name form logic
+    var changeNameForm = document.getElementById("change-name-form");
+    changeNameForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        var url = userApiRoute + "change-password";
-        var oldPw = userChangePasswordForm.elements.item(0);
-        var newPw = userChangePasswordForm.elements.item(1);
+        var firstName = changeNameForm.first_name;
+        var lastName = changeNameForm.last_name;
         var data = {
-            old_password: oldPw.value,
-            new_password: newPw.value
+            first_name: firstName.value,
+            last_name: lastName.value
         };
         var errFunc = function (resp) {
             displayErrorNotification(resp.error.message);
         };
         var okFunc = function (resp) {
             displaySuccessNotification(resp.data.content);
-            oldPw.value = "";
-            newPw.value = "";
+            location.reload(true);
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(userApiRoute + "change-name", data, errFunc, okFunc);
     });
-    // handle delete user form logic
-    var userDeleteAccountForm = document.getElementById("delete-account-form");
-    userDeleteAccountForm.addEventListener('submit', function (event) {
+    // handle change password form logic
+    var changePasswordForm = document.getElementById("change-password-form");
+    changePasswordForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        var url = userApiRoute + "delete";
-        var pw = userDeleteAccountForm.elements.item(0);
+        var oldPassword = changePasswordForm.old_password;
+        var newPassword = changePasswordForm.new_password;
         var data = {
-            password: pw.value
+            old_password: oldPassword.value,
+            new_password: newPassword.value
         };
         var errFunc = function (resp) {
             displayErrorNotification(resp.error.message);
         };
+        var okFunc = function (resp) {
+            displaySuccessNotification(resp.data.content);
+            changePasswordForm.reset();
+        };
+        submitAjaxJson(userApiRoute + "change-password", data, errFunc, okFunc);
+    });
+    // handle delete user form logic
+    var deleteAccountForm = document.getElementById("delete-account-form");
+    deleteAccountForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var password = deleteAccountForm.password;
+        var data = {
+            password: password.value
+        };
+        var errFunc = function (resp) {
+            displayErrorNotification(resp.error.message);
+            deleteAccountForm.reset();
+        };
         var okFunc = function () {
             window.location.href = "/login";
         };
-        submitAjaxJson(url, data, errFunc, okFunc);
+        submitAjaxJson(userApiRoute + "delete", data, errFunc, okFunc);
     });
 }
 // addEventListenersViewerForms function should be run at initialisation of viewer page.
@@ -245,9 +308,9 @@ function addEventListenersViewerForms() {
     var createFolderForm = document.getElementById("create-folder-form");
     createFolderForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        var folderName = createFolderForm.folder_name.value;
+        var folderName = createFolderForm.folder_name;
         var data = {
-            path: makePath(currentDir, folderName)
+            path: makePath(currentDir, folderName.value)
         };
         viewerAjaxHelper(apiRoute + "create", data);
     });
@@ -255,9 +318,9 @@ function addEventListenersViewerForms() {
     var deleteFileFolderForm = document.getElementById("delete-file-folder-form");
     deleteFileFolderForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        var fileName = deleteFileFolderForm.file_name.value;
+        var fileName = deleteFileFolderForm.file_name;
         var data = {
-            path: makePath(currentDir, fileName)
+            path: makePath(currentDir, fileName.value)
         };
         viewerAjaxHelper(apiRoute + "delete", data);
     });

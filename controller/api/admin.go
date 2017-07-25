@@ -56,7 +56,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		ID int `json:"id"`
+		UserID int `json:"user_id"`
 	}{}
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&data)
@@ -65,17 +65,84 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if use exists
-	_, err = db.GetUser(data.ID)
+	// check if user exists
+	_, err = db.GetUser(data.UserID)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	err = db.DeleteUser(data.ID)
+	err = db.DeleteUser(data.UserID)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, "Successfully deleted user.")
+}
+
+// ChangeDirRoot receives new directory root via json and updates it in the database. Client must be admin.
+func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+	if !user.Admin {
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	data := struct {
+		DirRoot string `json:"dir_root"`
+	}{}
+
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&data)
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = db.UpdateUserDirRoot(user.ID, data.DirRoot)
+	if err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	sendSuccessResponse(w, "Changed directory root successfully.")
+}
+
+// ChangeUsername receives new username root via json and updates it in the database. Client must be admin.
+func ChangeUsername(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	user, err := session.GetUserFromSession(r)
+	if err != nil {
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+	if !user.Admin {
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	data := struct {
+		CurrentUsername string `json:"current_username"`
+		NewUsername     string `json:"new_username"`
+	}{}
+
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&data)
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = db.UpdateUserUsername(data.CurrentUsername, data.NewUsername)
+	if err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	sendSuccessResponse(w, "Changed user's username successfully.")
 }
