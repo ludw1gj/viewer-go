@@ -17,9 +17,9 @@ mattn/go-sqlite3
 go get github.com/gorilla/mux
 go get github.com/gorilla/sessions
 go get github.com/gorilla/securecookie
+go get golang.org/x/crypto/bcrypt
 go get github.com/lib/pq
 go get github.com/mattn/go-sqlite3
-go get golang.org/x/crypto/bcrypt
 
 git clone github.com/FriedPigeon/viewer-go
 ```
