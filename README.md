@@ -34,7 +34,7 @@ git clone github.com/FriedPigeon/viewer-go
 `./viewer-go`
 
 ## Notes
-* Static Files (/static)  
+* Static Files - /static/*  
 A static file handler is included and can be used when invoking the dev flag set to true: `-dev=true`
 
 * Database - viewer.db  
@@ -48,8 +48,9 @@ Password: "password"
 Directory Root: "./admin"  
 As a result, a folder named "admin" will be created in the current directory. 
 
-* Configuration File (config.json)  
+* Configuration File - config.json  
 The file is a JSON file which contains two 32 byte length keys used for cookies.  
+
 Example config.json:   
 ```
 {
