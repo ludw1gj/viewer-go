@@ -1,4 +1,4 @@
-# Viewer
+# Viewer-Go
 Viewer is a small application written in go. It is a web interface for browsing a given directory of a server, which 
 includes easy uploading and simple file management.
 
@@ -7,9 +7,9 @@ Golang >=1.8
 gorilla/mux  
 gorilla/sessions  
 gorilla/securecookie  
+crypto/bcrypt  
 lib/pq  
 mattn/go-sqlite3  
-crypto/bcrypt  
 
 ## Setup
 * Get the code and dependencies:
