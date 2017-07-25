@@ -46,7 +46,7 @@ func Load() {
 	protected.HandleFunc("/api/admin/delete-user", api.DeleteUser).Methods("POST")
 	protected.HandleFunc("/api/admin/change-dir-root", api.ChangeDirRoot).Methods("POST")
 
-	// static file controller in dev mode
+	// static file handler in dev mode
 	dev := flag.Bool("dev", false, "Use in development")
 	flag.Parse()
 	if *dev {
