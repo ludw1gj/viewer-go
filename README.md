@@ -40,20 +40,17 @@ A static file handler is included and can be used when invoking the dev flag set
 * Database - viewer.db  
 This project uses SQLite database. When the app is run it will check for a viewer.db, and if not found the file will 
 automatically be created which includes the users table and a **default admin**.  
-<br>
 The **default admin** has these values:  
 Username: "admin"  
 First Name: "John"  
 Last Name: "Smith"  
 Password: "password"  
 Directory Root: "./admin"  
-<br>
 As a result, a folder named "admin" will be created in the current directory. 
 
 * Configuration File (config.json)  
 The file is a JSON file which contains two 32 byte length keys used for cookies.  
-<br>
-Example config.json: 
+Example config.json:   
 ```
 {
   "cookie": {
