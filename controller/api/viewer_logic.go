@@ -94,17 +94,24 @@ func GenDirectoryList(userDirRoot string, urlPath string) (list template.HTML, e
 		}
 	}
 
+	// check if directory is empty
+	isEmpty := false
+	if len(items) == 0 {
+		isEmpty = true
+	}
+
 	// directoryList holds information needed for executing the directory list template.
 	type directoryList struct {
 		Index       bool
 		PreviousURL string
 		Entities    []entity
 		CurrentDir  string
+		IsEmpty     bool
 	}
 
 	// execute and return the template
 	var tplBuf bytes.Buffer
-	err = dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, urlPath})
+	err = dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, urlPath, isEmpty})
 	if err != nil {
 		return list, err
 	}

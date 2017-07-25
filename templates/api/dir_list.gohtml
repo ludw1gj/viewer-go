@@ -3,14 +3,17 @@
     <li><a href="{{.PreviousURL}}">../</a></li>
     {{- end}}
 
-    {{range .Entities -}}
+    {{if .IsEmpty -}}
+    <br>
+    <li>- Directory is empty -</li>
+    {{- end}}
 
+    {{range .Entities -}}
     {{if .IsDir -}}
     <li><a href="{{.URL}}">{{.Name}}/</a></li>
     {{else}}
     <li><a href="{{.URL}}">{{.Name}}</a></li>
     {{- end}}
-
     {{- end}}
 </ul>
 
