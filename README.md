@@ -21,10 +21,10 @@ go get golang.org/x/crypto/bcrypt
 go get github.com/lib/pq
 go get github.com/mattn/go-sqlite3
 
-git clone github.com/FriedPigeon/viewer-go
+go get github.com/FriedPigeon/viewer-go
 ```
 * Go to viewer-go directory:  
-`cd viewer-go`
+`cd {Your GOPATH}/src/github.com/FriedPigeon/viewer-go`
 * To run in development:  
 `go run main.go -dev=true`
 * Access via:  
@@ -34,6 +34,10 @@ git clone github.com/FriedPigeon/viewer-go
 `./viewer-go`
 
 ## Notes
+### Cross Compile
+This will not cross compile with ease as the project is using mattn/go-sqlite3. You you want to save the trouble, 
+build on the platform you're targeting.   
+
 ### Static Files - /static/*  
 A static file handler is included and can be used when invoking the dev flag set to true: `-dev=true`.
 
