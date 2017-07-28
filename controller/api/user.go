@@ -8,7 +8,7 @@ import (
 
 	"fmt"
 
-	"github.com/FriedPigeon/viewer-go/controller"
+	"github.com/FriedPigeon/viewer-go/common"
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/FriedPigeon/viewer-go/session"
 )
@@ -29,6 +29,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&loginCredentials)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if err := common.ValidateJSONInput(loginCredentials); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -62,7 +66,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -75,6 +79,9 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
+	}
+	if err := common.ValidateJSONInput(password); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
 	err = db.DeleteUserPasswordValidated(user, password.Password)
@@ -90,7 +97,7 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -106,6 +113,9 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
+	}
+	if err := common.ValidateJSONInput(passwords); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
 	err = db.UpdateUserPassword(user, passwords.OldPassword, passwords.NewPassword)
@@ -124,7 +134,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 func ChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -140,6 +150,9 @@ func ChangeName(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
+	}
+	if err := common.ValidateJSONInput(data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
 	err = db.UpdateUserName(user.ID, data.FirstName, data.LastName)

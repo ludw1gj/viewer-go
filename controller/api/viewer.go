@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/FriedPigeon/viewer-go/controller"
+	"github.com/FriedPigeon/viewer-go/common"
 )
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
@@ -16,7 +16,7 @@ import (
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -28,6 +28,10 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&folderPath)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if err := common.ValidateJSONInput(folderPath); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -45,7 +49,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -57,6 +61,10 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if err := common.ValidateJSONInput(data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -74,7 +82,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -86,6 +94,10 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if err := common.ValidateJSONInput(data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -103,7 +115,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 func Upload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

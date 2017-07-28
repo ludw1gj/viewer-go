@@ -7,7 +7,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/FriedPigeon/viewer-go/controller"
+	"github.com/FriedPigeon/viewer-go/common"
 	"github.com/FriedPigeon/viewer-go/db"
 )
 
@@ -15,7 +15,7 @@ import (
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -32,6 +32,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	// number cannot be 0 as validation will fail
+	u.ID = 1
+	if err := common.ValidateJSONInput(u); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	err = db.CreateUser(u)
 	if err != nil {
@@ -45,7 +51,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -62,6 +68,10 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(&data)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if err := common.ValidateJSONInput(data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -84,7 +94,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -104,6 +114,10 @@ func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	if err := common.ValidateJSONInput(data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	err = db.UpdateUserDirRoot(user.ID, data.DirRoot)
 	if err != nil {
@@ -117,7 +131,7 @@ func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := controller.ValidateUser(r)
+	user, err := common.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -135,6 +149,10 @@ func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&data)
 	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := common.ValidateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

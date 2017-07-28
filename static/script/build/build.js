@@ -328,8 +328,15 @@ function addEventListenersViewerForms() {
     var deleteAllForm = document.getElementById("delete-all-form");
     deleteAllForm.addEventListener("submit", function (event) {
         event.preventDefault();
+        var path;
+        if (currentDir == "") {
+            path = "/";
+        }
+        else {
+            path = currentDir;
+        }
         var data = {
-            path: currentDir
+            path: path
         };
         viewerAjaxHelper(apiRoute + "delete-all", data);
     });

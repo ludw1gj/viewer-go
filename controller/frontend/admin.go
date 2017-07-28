@@ -3,12 +3,12 @@ package frontend
 import (
 	"net/http"
 
-	"github.com/FriedPigeon/viewer-go/controller"
+	"github.com/FriedPigeon/viewer-go/common"
 	"github.com/FriedPigeon/viewer-go/db"
 )
 
 func validateAdmin(r *http.Request) (user db.User, err error) {
-	user, err = controller.ValidateUser(r)
+	user, err = common.ValidateUser(r)
 	if err != nil {
 		return
 	}

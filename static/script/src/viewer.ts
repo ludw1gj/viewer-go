@@ -54,8 +54,15 @@ function addEventListenersViewerForms(): void {
     deleteAllForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
+        let path: string;
+        if (currentDir == "") {
+            path = "/";
+        } else {
+            path = currentDir;
+        }
+
         const data: pathInput = {
-            path: currentDir
+            path: path
         };
         viewerAjaxHelper(apiRoute + "delete-all", data);
     });
