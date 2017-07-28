@@ -7,15 +7,15 @@ import (
 
 	"encoding/json"
 
+	"github.com/FriedPigeon/viewer-go/controller"
 	"github.com/FriedPigeon/viewer-go/db"
-	"github.com/FriedPigeon/viewer-go/session"
 )
 
 // CreateUser receives new user information via json and creates the user. Client must be admin.
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -45,7 +45,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -84,7 +84,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -117,7 +117,7 @@ func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

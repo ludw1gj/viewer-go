@@ -10,12 +10,12 @@ import (
 	"fmt"
 
 	"github.com/FriedPigeon/viewer-go/db"
-	"github.com/FriedPigeon/viewer-go/session"
+	"github.com/FriedPigeon/viewer-go/controller"
 )
 
 // NotFound renders the not found page and sends status 404.
 func NotFound(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -33,7 +33,7 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 // renderErrorPage renders the error page and sends status 500.
 func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	w.WriteHeader(http.StatusInternalServerError)
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		log.Printf("StatusInternalServerError failed to execute get user from session on error page: %s", err.Error())
 

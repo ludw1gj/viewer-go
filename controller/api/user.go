@@ -8,6 +8,7 @@ import (
 
 	"fmt"
 
+	"github.com/FriedPigeon/viewer-go/controller"
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/FriedPigeon/viewer-go/session"
 )
@@ -31,7 +32,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = session.NewUserSession(w, r, loginCredentials.Username, loginCredentials.Password)
+	userID, err := db.ValidateUser(loginCredentials.Username, loginCredentials.Password)
+	if err != nil {
+		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	err = session.NewUserSession(w, r, userID)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
@@ -56,7 +62,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -84,7 +90,7 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -118,7 +124,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 func ChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

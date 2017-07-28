@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/FriedPigeon/viewer-go/session"
+	"github.com/FriedPigeon/viewer-go/controller"
 )
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
@@ -16,7 +16,7 @@ import (
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -45,7 +45,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -74,7 +74,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -103,7 +103,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 func Upload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

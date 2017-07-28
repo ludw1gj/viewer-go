@@ -16,8 +16,8 @@ import (
 
 	"fmt"
 
+	"github.com/FriedPigeon/viewer-go/controller"
 	"github.com/FriedPigeon/viewer-go/db"
-	"github.com/FriedPigeon/viewer-go/session"
 	"github.com/gorilla/mux"
 )
 
@@ -29,7 +29,7 @@ func RedirectToViewer(w http.ResponseWriter, r *http.Request) {
 // ViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's
 // directory in the filesystem to display a directory list for.
 func ViewerPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -68,7 +68,7 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 
 // UserPage renders the user page.
 func UserPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -78,7 +78,7 @@ func UserPage(w http.ResponseWriter, r *http.Request) {
 
 // AboutPage handles the about page.
 func AboutPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -89,7 +89,7 @@ func AboutPage(w http.ResponseWriter, r *http.Request) {
 // SendFile sends file to client.
 func SendFile(w http.ResponseWriter, r *http.Request) {
 	// get user from session
-	user, err := session.GetUserFromSession(r)
+	user, err := controller.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return

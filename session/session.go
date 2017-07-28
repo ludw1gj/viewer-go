@@ -4,16 +4,22 @@ package session
 import (
 	"net/http"
 
-	"github.com/FriedPigeon/viewer-go/config"
-	"github.com/FriedPigeon/viewer-go/db"
+	"errors"
+	"fmt"
+
 	"github.com/gorilla/sessions"
 )
 
 var store *sessions.CookieStore
 
-// Load returns a new CookieStore with key from config.Config type.
-func Load(c config.Config) {
-	store = sessions.NewCookieStore(c.Cookie.AuthorisationKey, c.Cookie.EncryptionKey)
+// Load returns a new CookieStore.
+func Load(configFile string) error {
+	ck, err := loadCookieConfig(configFile)
+	if err != nil {
+		return err
+	}
+	store = sessions.NewCookieStore(ck.Cookie.AuthorisationKey, ck.Cookie.EncryptionKey)
+	return nil
 }
 
 // CheckIfAuth checks if user is authenticated.
@@ -32,21 +38,15 @@ func CheckIfAuth(r *http.Request) bool {
 }
 
 // NewUserSession creates a new user session and authenticates the user.
-func NewUserSession(w http.ResponseWriter, r *http.Request, username string, password string) error {
+func NewUserSession(w http.ResponseWriter, r *http.Request, userID int) error {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
-		return err
-	}
-
-	// validate and get user's id
-	userID, err := db.CheckUserValidation(username, password)
-	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("Cookie is invalid, clearing cookies may help. Error: \"%s\"", err.Error()))
 	}
 
 	// Set user as authenticated
-	session.Values["authenticated"] = true
 	session.Values["id"] = userID
+	session.Values["authenticated"] = true
 	err = session.Save(r, w)
 	if err != nil {
 		return err
@@ -70,17 +70,16 @@ func RemoveUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// GetUserFromSession returns a user identified by the user's session.
-func GetUserFromSession(r *http.Request) (user db.User, err error) {
+// GetUserIDFromSession returns a user's associated with a session.
+func GetUserIDFromSession(r *http.Request) (id int, err error) {
 	session, err := store.Get(r, "viewer-session")
 	if err != nil {
-		return user, err
+		return id, err
 	}
 
-	id := session.Values["id"].(int)
-	user, err = db.GetUser(id)
-	if err != nil {
-		return user, err
+	id, ok := session.Values["id"].(int)
+	if !ok {
+		return id, err
 	}
-	return user, nil
+	return id, nil
 }

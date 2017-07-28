@@ -5,27 +5,22 @@ import (
 
 	"log"
 
-	"github.com/FriedPigeon/viewer-go/config"
 	"github.com/FriedPigeon/viewer-go/db"
 	"github.com/FriedPigeon/viewer-go/route"
 	"github.com/FriedPigeon/viewer-go/session"
 )
 
 func main() {
-	// load configuration file
-	c, err := config.Load("config.json")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	// load database
-	err = db.Load()
+	err := db.Load()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// load session, and routes
-	session.Load(c)
+	if err = session.Load("config.json"); err != nil {
+		log.Fatalln(err)
+	}
 	route.Load()
 
 	// listen and serve

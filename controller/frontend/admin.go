@@ -3,19 +3,26 @@ package frontend
 import (
 	"net/http"
 
+	"github.com/FriedPigeon/viewer-go/controller"
 	"github.com/FriedPigeon/viewer-go/db"
-	"github.com/FriedPigeon/viewer-go/session"
 )
 
-// AdminPage renders the Administration page. Client must be admin.
-func AdminPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
+func validateAdmin(r *http.Request) (user db.User, err error) {
+	user, err = controller.ValidateUser(r)
 	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 	if !user.Admin {
-		http.Redirect(w, r, "/viewer", http.StatusForbidden)
+		return
+	}
+	return
+}
+
+// AdminPage renders the Administration page. Client must be admin.
+func AdminPage(w http.ResponseWriter, r *http.Request) {
+	user, err := validateAdmin(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 	renderTemplate(w, r, adminTpl, userInfo{user})
@@ -23,13 +30,9 @@ func AdminPage(w http.ResponseWriter, r *http.Request) {
 
 // AdminDisplayAllUsers render a sub administration page which displays all users in database. Client must be admin.
 func AdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
-	user, err := session.GetUserFromSession(r)
+	user, err := validateAdmin(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-	if !user.Admin {
-		http.Redirect(w, r, "/viewer", http.StatusForbidden)
 		return
 	}
 

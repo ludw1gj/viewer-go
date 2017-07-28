@@ -164,9 +164,9 @@ func UpdateUserDirRoot(id int, dirRoot string) error {
 	return nil
 }
 
-// CheckUserValidation validates a user with username and password. It will check if the username exists in the database
+// ValidateUser validates a user with username and password. It will check if the username exists in the database
 // and checks if the password is valid, then returning the user's id.
-func CheckUserValidation(username string, password string) (userID int, err error) {
+func ValidateUser(username string, password string) (userID int, err error) {
 	var user User
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
 	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
