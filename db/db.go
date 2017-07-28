@@ -17,19 +17,20 @@ func Load() (err error) {
 		return err
 	}
 
-	if err := initUsersTable(); err != nil {
-		return err
+	var count int
+	row := db.QueryRow("SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name='users';")
+	row.Scan(&count)
+	if count != 1 {
+		if err := createUsersTable(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-// initUsersTable initialises the user table if not already present and creates a default admin.
-func initUsersTable() error {
-	var count int
-	row := db.QueryRow("SELECT COUNT(name) FROM sqlite_master WHERE type=$1 AND name=$2;", "table", "users")
-	row.Scan(&count)
-	if count != 1 {
-		sqlCreateUsersTable := `
+// createUsersTable initialises the user table if not already present and creates a default admin.
+func createUsersTable() error {
+	sqlCreateUsersTable := `
 		CREATE TABLE users (
 			id INTEGER PRIMARY KEY,
 			username TEXT UNIQUE NOT NULL,
@@ -39,14 +40,13 @@ func initUsersTable() error {
 			directory_root TEXT NOT NULL,
 			admin BOOLEAN NOT NULL
 		);`
-		_, err := db.Exec(sqlCreateUsersTable)
-		if err != nil {
-			return err
-		}
+	_, err := db.Exec(sqlCreateUsersTable)
+	if err != nil {
+		return err
+	}
 
-		if err := createDefaultAdmin(); err != nil {
-			return err
-		}
+	if err := createDefaultAdmin(); err != nil {
+		return err
 	}
 	return nil
 }
