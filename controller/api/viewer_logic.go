@@ -10,33 +10,6 @@ import (
 	"path/filepath"
 )
 
-// uploadFiles opens the FileHeader's associated Files, creates the destinations at the directory path and saves the
-// files.
-func uploadFiles(dirPath string, file map[string][]*multipart.FileHeader) error {
-	for _, fileHeaders := range file {
-		for _, hdr := range fileHeaders {
-			// open uploaded files
-			inFile, err := hdr.Open()
-			if err != nil {
-				return err
-			}
-
-			// open destination
-			outFile, err := os.Create(dirPath + "/" + hdr.Filename)
-			if err != nil {
-				return err
-			}
-
-			// 32K buffer copy
-			_, err = io.Copy(outFile, inFile)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 // createFolder creates a folder in the directory path.
 func createFolder(dirPath string) error {
 	if _, err := os.Stat(dirPath); !os.IsNotExist(err) {
@@ -79,6 +52,33 @@ func deleteAllFiles(dirPath string) (err error) {
 		err = os.RemoveAll(filepath.Join(dirPath, name))
 		if err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// uploadFiles opens the FileHeader's associated Files, creates the destinations at the directory path and saves the
+// files.
+func uploadFiles(dirPath string, file map[string][]*multipart.FileHeader) error {
+	for _, fileHeaders := range file {
+		for _, hdr := range fileHeaders {
+			// open uploaded files
+			inFile, err := hdr.Open()
+			if err != nil {
+				return err
+			}
+
+			// open destination
+			outFile, err := os.Create(dirPath + "/" + hdr.Filename)
+			if err != nil {
+				return err
+			}
+
+			// 32K buffer copy
+			_, err = io.Copy(outFile, inFile)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
