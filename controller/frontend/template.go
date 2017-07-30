@@ -21,13 +21,13 @@ var (
 	dirListTpl = template.Must(template.ParseFiles(path.Join(tplDir, "dir_list.gohtml")))
 
 	// templates that require base template
-	viewerTpl     = initTemplate("viewer", tplDir, baseTplPath)
-	aboutTpl      = initTemplate("about", tplDir, baseTplPath)
-	userTpl       = initTemplate("user", tplDir, baseTplPath)
-	adminTpl      = initTemplate("admin", tplDir, baseTplPath)
-	adminUsersTpl = initTemplate("admin_users", tplDir, baseTplPath)
-	errorTpl      = initTemplate("error", tplDir, baseTplPath)
-	notFoundTpl   = initTemplate("not_found", tplDir, baseTplPath)
+	viewerTpl     = initTplExtendsBaseTpl("viewer")
+	aboutTpl      = initTplExtendsBaseTpl("about")
+	userTpl       = initTplExtendsBaseTpl("user")
+	adminTpl      = initTplExtendsBaseTpl("admin")
+	adminUsersTpl = initTplExtendsBaseTpl("admin_users")
+	errorTpl      = initTplExtendsBaseTpl("error")
+	notFoundTpl   = initTplExtendsBaseTpl("not_found")
 
 	// function map for use in templates.
 	funcMap = template.FuncMap{
@@ -42,8 +42,9 @@ var (
 	}
 )
 
-// initTemplate creates new template.Template and parses files of tplName in the given template directory (tplDir).
-func initTemplate(tplName string, tplDir string, baseTplPath string) *template.Template {
+// initTplExtendsBaseTpl returns new template.Template and parses files of tplName in the template directory with base
+// template.
+func initTplExtendsBaseTpl(tplName string) *template.Template {
 	return template.Must(template.New(tplName).Funcs(funcMap).
 		ParseFiles(baseTplPath, path.Join(tplDir, tplName+".gohtml")))
 }
