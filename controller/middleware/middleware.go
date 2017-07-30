@@ -1,4 +1,4 @@
-// TODO: doc
+// Package middleware contains middleware for routes.
 package middleware
 
 import (

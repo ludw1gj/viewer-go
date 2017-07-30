@@ -1,4 +1,4 @@
-// TODO: write doc
+// Package common has functions used commonly by package api and frontend.
 package common
 
 import (
@@ -13,7 +13,7 @@ import (
 	"github.com/FriedPigeon/viewer-go/session"
 )
 
-// TODO: write doc
+// ValidateUser checks if user's session is valid and then returns the user's information.
 func ValidateUser(r *http.Request) (user db.User, err error) {
 	userId, err := session.GetUserID(r)
 	if err != nil {
@@ -26,7 +26,8 @@ func ValidateUser(r *http.Request) (user db.User, err error) {
 	return
 }
 
-// TODO: write doc
+// genJSONError when passed a struct object with json tags generates an error which includes json structure (keys and
+// key's types).
 func genJSONError(a interface{}) error {
 	val := reflect.ValueOf(a)
 	v := reflect.Indirect(val)
@@ -44,7 +45,7 @@ func genJSONError(a interface{}) error {
 	return errors.New(buf.String())
 }
 
-// TODO: write doc
+// ValidateJSONInput checks of a passed struct object with json tags has no empty values.
 func ValidateJSONInput(a interface{}) error {
 	val := reflect.ValueOf(a)
 	v := reflect.Indirect(val)
