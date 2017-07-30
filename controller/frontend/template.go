@@ -15,9 +15,6 @@ import (
 )
 
 var (
-	tplDir      = path.Join("templates", "frontend")
-	baseTplPath = path.Join(tplDir, "base.gohtml")
-
 	// frontend templates
 	loginTpl,
 	viewerTpl,
@@ -29,27 +26,41 @@ var (
 	notFoundTpl *template.Template
 )
 
+// function map for use in templates.
+var funcMap = template.FuncMap{
+	"genDirectoryList": func(userDirRoot string, urlPath string) template.HTML {
+		list, err := api.GenDirectoryList(userDirRoot, urlPath)
+		if err != nil {
+			errMsg := fmt.Sprintf("There has been an error getting directory list: %s", err.Error())
+			return template.HTML(errMsg)
+		}
+		return list
+	},
+}
+
+// init initialises template variables.
 func init() {
+	tplDir := path.Join("templates", "frontend")
+	baseTplPath := path.Join(tplDir, "base.gohtml")
+
 	loginTpl = template.Must(template.ParseFiles(path.Join(tplDir, "login.gohtml")))
 
-	viewerTpl = initTemplate("viewer", true)
-	aboutTpl = initTemplate("about", true)
-	userTpl = initTemplate("user", true)
-	adminTpl = initTemplate("admin", true)
-	adminUsersTpl = initTemplate("admin_users", true)
-	errorTpl = initTemplate("error", true)
-	notFoundTpl = initTemplate("not_found", true)
+	viewerTpl = initTemplate("viewer", tplDir, baseTplPath)
+	aboutTpl = initTemplate("about", tplDir, baseTplPath)
+	userTpl = initTemplate("user", tplDir, baseTplPath)
+	adminTpl = initTemplate("admin", tplDir, baseTplPath)
+	adminUsersTpl = initTemplate("admin_users", tplDir, baseTplPath)
+	errorTpl = initTemplate("error", tplDir, baseTplPath)
+	notFoundTpl = initTemplate("not_found", tplDir, baseTplPath)
 }
 
-// initTemplate creates new template.Template and parses files of tplName in the template directory (tplDir).
-func initTemplate(tplName string, withBase bool) *template.Template {
-	if withBase {
-		return template.Must(
-			template.New(tplName).Funcs(funcMap).ParseFiles(baseTplPath, path.Join(tplDir, tplName+".gohtml")))
-	}
-	return template.Must(template.New(tplName).Funcs(funcMap).ParseFiles(path.Join(tplDir, tplName+".gohtml")))
+// initTemplate creates new template.Template and parses files of tplName in the given template directory (tplDir).
+func initTemplate(tplName string, tplDir string, baseTplPath string) *template.Template {
+	return template.Must(template.New(tplName).Funcs(funcMap).
+		ParseFiles(baseTplPath, path.Join(tplDir, tplName+".gohtml")))
 }
 
+// renderTemplate executes a templates and sends it to the client.
 func renderTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Template, data interface{}) {
 	var tplBuf bytes.Buffer
 	err := tpl.ExecuteTemplate(&tplBuf, "base.gohtml", data)
@@ -61,15 +72,4 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Templa
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(tplBuf.Bytes())
-}
-
-var funcMap = template.FuncMap{
-	"genDirectoryList": func(userDirRoot string, urlPath string) template.HTML {
-		list, err := api.GenDirectoryList(userDirRoot, urlPath)
-		if err != nil {
-			errMsg := fmt.Sprintf("There has been an error getting directory list: %s", err.Error())
-			return template.HTML(errMsg)
-		}
-		return list
-	},
 }

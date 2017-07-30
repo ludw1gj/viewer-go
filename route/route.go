@@ -12,8 +12,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Load initialises routes and a static file controller if dev flag is used.
-func Load() {
+// init initialises routes and a static file controller if dev flag is used.
+func init() {
 	protected := mux.NewRouter()
 
 	http.HandleFunc("/login", frontend.LoginPage)
