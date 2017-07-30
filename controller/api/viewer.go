@@ -130,7 +130,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, r.FormValue("path"))
-	err = uploadFiles(dirPath, r.MultipartForm.File)
+	err = saveFiles(dirPath, r.MultipartForm.File)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

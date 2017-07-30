@@ -57,12 +57,12 @@ func deleteAllFiles(dirPath string) (err error) {
 	return nil
 }
 
-// uploadFiles opens the FileHeader's associated Files, creates the destinations at the directory path and saves the
+// saveFiles opens the FileHeader's associated Files, creates the destinations at the directory path and saves the
 // files.
-func uploadFiles(dirPath string, file map[string][]*multipart.FileHeader) error {
+func saveFiles(dirPath string, file map[string][]*multipart.FileHeader) error {
 	for _, fileHeaders := range file {
 		for _, hdr := range fileHeaders {
-			// open uploaded files
+			// open files
 			inFile, err := hdr.Open()
 			if err != nil {
 				return err
