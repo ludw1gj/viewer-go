@@ -55,7 +55,7 @@ function addEventListenersViewerForms(): void {
         event.preventDefault();
 
         let path: string;
-        if (currentDir == "") {
+        if (currentDir === "") {
             path = "/";
         } else {
             path = currentDir;

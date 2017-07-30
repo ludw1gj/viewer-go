@@ -8,7 +8,7 @@ import (
 
 	"github.com/FriedPigeon/viewer-go/controller/api"
 	"github.com/FriedPigeon/viewer-go/controller/frontend"
-	"github.com/FriedPigeon/viewer-go/session"
+	"github.com/FriedPigeon/viewer-go/controller/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -18,7 +18,7 @@ func Load() {
 
 	http.HandleFunc("/login", frontend.LoginPage)
 	http.HandleFunc("/api/user/login", api.Login)
-	http.Handle("/", authenticateRoute(protected))
+	http.Handle("/", middleware.AuthenticateRoute(protected))
 
 	// frontend
 	protected.HandleFunc("/", frontend.RedirectToViewer).Methods("GET")
@@ -53,17 +53,4 @@ func Load() {
 		fs := http.FileServer(http.Dir("./static"))
 		http.Handle("/static/", http.StripPrefix("/static", fs))
 	}
-}
-
-// authenticateRoute is middleware that checks if users are authenticated.
-func authenticateRoute(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuth := session.CheckIfAuth(r)
-		// if user is authenticated, proceed to route
-		if !isAuth {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-		h.ServeHTTP(w, r)
-	})
 }

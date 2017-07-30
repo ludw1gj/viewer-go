@@ -8,17 +8,17 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
+var sqlDB *sql.DB
 
 // Load initialises connection to sqlite3 database.
 func Load() (err error) {
-	db, err = sql.Open("sqlite3", "viewer.db")
+	sqlDB, err = sql.Open("sqlite3", "viewer.db")
 	if err != nil {
 		return err
 	}
 
 	var count int
-	row := db.QueryRow("SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name='users';")
+	row := sqlDB.QueryRow("SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name='users';")
 	row.Scan(&count)
 	if count != 1 {
 		if err := createUsersTable(); err != nil {
@@ -40,7 +40,7 @@ func createUsersTable() error {
 			directory_root TEXT NOT NULL,
 			admin BOOLEAN NOT NULL
 		);`
-	_, err := db.Exec(sqlCreateUsersTable)
+	_, err := sqlDB.Exec(sqlCreateUsersTable)
 	if err != nil {
 		return err
 	}

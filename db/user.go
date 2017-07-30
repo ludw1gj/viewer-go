@@ -24,7 +24,7 @@ type User struct {
 
 // GetAllUsers returns all users in the database.
 func GetAllUsers() (users []User, err error) {
-	rows, err := db.Query("SELECT * FROM users")
+	rows, err := sqlDB.Query("SELECT * FROM users")
 	if err != nil {
 		return users, err
 	}
@@ -33,7 +33,8 @@ func GetAllUsers() (users []User, err error) {
 	for rows.Next() {
 		user := User{}
 
-		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
+		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
+			&user.Admin)
 		if err != nil {
 			return users, err
 		}
@@ -44,8 +45,9 @@ func GetAllUsers() (users []User, err error) {
 
 // GetUser returns a single user from the database that matches the provided id.
 func GetUser(id int) (user User, err error) {
-	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
-	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
+	row := sqlDB.QueryRow("SELECT * FROM users WHERE id = $1", id)
+	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
+		&user.Admin)
 	switch err {
 	case sql.ErrNoRows:
 		return user, errors.New("There is no user by that ID.")
@@ -58,7 +60,7 @@ func GetUser(id int) (user User, err error) {
 func CreateUser(u User) error {
 	// check if username is taken
 	var count int
-	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", u.Username)
+	row := sqlDB.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", u.Username)
 	row.Scan(&count)
 	if count == 1 {
 		return errors.New("Username is taken.")
@@ -77,7 +79,8 @@ func CreateUser(u User) error {
 	}
 
 	// store user in db
-	_, err = db.Exec("INSERT INTO users (username, first_name, last_name, password, directory_root, admin) VALUES ($1, $2, $3, $4, $5, $6)",
+	_, err = sqlDB.Exec("INSERT INTO users (username, first_name, last_name, password, directory_root, admin) "+
+		"VALUES ($1, $2, $3, $4, $5, $6)",
 		u.Username, u.FirstName, u.LastName, string(hashPassword), u.DirectoryRoot, u.Admin)
 	if err != nil {
 		return err
@@ -87,7 +90,7 @@ func CreateUser(u User) error {
 
 // DeleteUser deletes a user from the database that matches the provided id.
 func DeleteUser(id int) error {
-	_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
+	_, err := sqlDB.Exec("DELETE FROM users WHERE id = $1", id)
 	return err
 }
 
@@ -99,7 +102,7 @@ func DeleteUserPasswordValidated(user User, password string) error {
 		return err
 	}
 
-	_, err = db.Exec("DELETE FROM users WHERE id = $1", user.ID)
+	_, err = sqlDB.Exec("DELETE FROM users WHERE id = $1", user.ID)
 	return err
 }
 
@@ -118,7 +121,7 @@ func UpdateUserPassword(user User, oldPassword string, newPassword string) error
 	}
 
 	// store new password
-	_, err = db.Exec("UPDATE users SET password = $1 WHERE id = $2;", newHashPassword, user.ID)
+	_, err = sqlDB.Exec("UPDATE users SET password = $1 WHERE id = $2;", newHashPassword, user.ID)
 	if err != nil {
 		return err
 	}
@@ -127,7 +130,7 @@ func UpdateUserPassword(user User, oldPassword string, newPassword string) error
 
 // UpdateUserName updates a user's first name and last name, given the user's ID.
 func UpdateUserName(id int, firstName string, lastName string) error {
-	_, err := db.Exec("UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3;", firstName, lastName, id)
+	_, err := sqlDB.Exec("UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3;", firstName, lastName, id)
 	if err != nil {
 		return err
 	}
@@ -138,13 +141,13 @@ func UpdateUserName(id int, firstName string, lastName string) error {
 func UpdateUserUsername(username string, newUsername string) error {
 	// check if username exists
 	var count int
-	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", username)
+	row := sqlDB.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", username)
 	row.Scan(&count)
 	if count != 1 {
 		return errors.New("Username does not exist.")
 	}
 
-	_, err := db.Exec("UPDATE users SET username = $1 WHERE username = $2;", newUsername, username)
+	_, err := sqlDB.Exec("UPDATE users SET username = $1 WHERE username = $2;", newUsername, username)
 	if err != nil {
 		return err
 	}
@@ -157,7 +160,7 @@ func UpdateUserDirRoot(id int, dirRoot string) error {
 		return errors.New("Directory does not exist.")
 	}
 
-	_, err := db.Exec("UPDATE users SET directory_root = $1 WHERE id = $2;", dirRoot, id)
+	_, err := sqlDB.Exec("UPDATE users SET directory_root = $1 WHERE id = $2;", dirRoot, id)
 	if err != nil {
 		return err
 	}
@@ -168,8 +171,9 @@ func UpdateUserDirRoot(id int, dirRoot string) error {
 // and checks if the password is valid, then returning the user's id.
 func ValidateUser(username string, password string) (userID int, err error) {
 	var user User
-	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
-	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot, &user.Admin)
+	row := sqlDB.QueryRow("SELECT * FROM users WHERE username = $1", username)
+	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
+		&user.Admin)
 	if err != nil {
 		return userID, errors.New("There is no user by that username.")
 	}

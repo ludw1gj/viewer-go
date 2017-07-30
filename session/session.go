@@ -22,15 +22,15 @@ func Load(configFile string) error {
 	return nil
 }
 
-// CheckIfAuth checks if user is authenticated.
-func CheckIfAuth(r *http.Request) bool {
-	session, err := store.Get(r, "viewer-session")
+// CheckUserAuth checks if user is authenticated.
+func CheckUserAuth(r *http.Request) bool {
+	s, err := store.Get(r, "viewer-session")
 	if err != nil {
 		return false
 	}
 
 	// check if user is authenticated
-	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+	if auth, ok := s.Values["authenticated"].(bool); !ok || !auth {
 		// user is not auth
 		return false
 	}
@@ -39,15 +39,15 @@ func CheckIfAuth(r *http.Request) bool {
 
 // NewUserSession creates a new user session and authenticates the user.
 func NewUserSession(w http.ResponseWriter, r *http.Request, userID int) error {
-	session, err := store.Get(r, "viewer-session")
+	s, err := store.Get(r, "viewer-session")
 	if err != nil {
 		return errors.New(fmt.Sprintf("Cookie is invalid, clearing cookies may help. Error: \"%s\"", err.Error()))
 	}
 
 	// Set user as authenticated
-	session.Values["id"] = userID
-	session.Values["authenticated"] = true
-	err = session.Save(r, w)
+	s.Values["id"] = userID
+	s.Values["authenticated"] = true
+	err = s.Save(r, w)
 	if err != nil {
 		return err
 	}
@@ -56,28 +56,28 @@ func NewUserSession(w http.ResponseWriter, r *http.Request, userID int) error {
 
 // RemoveUserAuthFromSession removes user's session authentication.
 func RemoveUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
-	session, err := store.Get(r, "viewer-session")
+	s, err := store.Get(r, "viewer-session")
 	if err != nil {
 		return err
 	}
 
 	// revoke user's authentication
-	session.Values["authenticated"] = false
-	err = session.Save(r, w)
+	s.Values["authenticated"] = false
+	err = s.Save(r, w)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// GetUserIDFromSession returns a user's associated with a session.
-func GetUserIDFromSession(r *http.Request) (id int, err error) {
-	session, err := store.Get(r, "viewer-session")
+// GetUserID returns a user's associated with a session.
+func GetUserID(r *http.Request) (id int, err error) {
+	s, err := store.Get(r, "viewer-session")
 	if err != nil {
 		return id, err
 	}
 
-	id, ok := session.Values["id"].(int)
+	id, ok := s.Values["id"].(int)
 	if !ok {
 		return id, err
 	}

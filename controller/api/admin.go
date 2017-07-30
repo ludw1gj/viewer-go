@@ -7,7 +7,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/FriedPigeon/viewer-go/common"
+	"github.com/FriedPigeon/viewer-go/controller/common"
 	"github.com/FriedPigeon/viewer-go/db"
 )
 

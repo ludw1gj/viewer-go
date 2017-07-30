@@ -98,11 +98,11 @@ function submitAjaxJson(url, data, errFunc, okFunc) {
             var resp = JSON.parse(xhr.responseText);
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp);
-                return;
+
             }
             else if ("data" in resp) {
                 okFunc(resp);
-                return;
+
             }
             else {
                 displayErrorNotification("There has been an error.");
@@ -122,11 +122,11 @@ function submitAjaxFormData(url, uploadForm, errFunc, okFunc) {
             var resp = JSON.parse(xhr.responseText);
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp);
-                return;
+
             }
             else if ("data" in resp) {
                 okFunc(resp);
-                return;
+
             }
             else {
                 displayErrorNotification("There has been an error.");
@@ -329,7 +329,7 @@ function addEventListenersViewerForms() {
     deleteAllForm.addEventListener("submit", function (event) {
         event.preventDefault();
         var path;
-        if (currentDir == "") {
+        if (currentDir === "") {
             path = "/";
         }
         else {

@@ -13,7 +13,9 @@ interface JsonDataResponse {
 }
 
 // submitAjaxJson submits an AJAX POST request.
-function submitAjaxJson(url: string, data: object | undefined, errFunc: (resp: JsonErrorResponse) => void,
+function submitAjaxJson(url: string,
+                        data: object | undefined,
+                        errFunc: (resp: JsonErrorResponse) => void,
                         okFunc: (resp: JsonDataResponse) => void) {
     let xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
@@ -37,7 +39,9 @@ function submitAjaxJson(url: string, data: object | undefined, errFunc: (resp: J
 }
 
 // submitAjaxFormData uploads files via AJAX.
-function submitAjaxFormData(url: string, uploadForm: HTMLFormElement, errFunc: (resp: JsonErrorResponse) => void,
+function submitAjaxFormData(url: string,
+                            uploadForm: HTMLFormElement,
+                            errFunc: (resp: JsonErrorResponse) => void,
                             okFunc: (resp: JsonDataResponse) => void): void {
     const formData = new FormData(uploadForm);
     let xhr = new XMLHttpRequest();

@@ -15,7 +15,7 @@ import (
 
 // TODO: write doc
 func ValidateUser(r *http.Request) (user db.User, err error) {
-	userId, err := session.GetUserIDFromSession(r)
+	userId, err := session.GetUserID(r)
 	if err != nil {
 		return
 	}
@@ -39,10 +39,8 @@ func genJSONError(a interface{}) error {
 			v.Type().Field(i).Tag.Get("json"),
 			v.Type().Field(i).Type)
 	}
-
 	buf.Truncate(len(buf.String()) - 2)
 	fmt.Fprint(&buf, "}")
-
 	return errors.New(buf.String())
 }
 
