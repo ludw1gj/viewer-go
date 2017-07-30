@@ -5,18 +5,18 @@ package db
 import (
 	"database/sql"
 
-	"log"
+	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var sqlDB *sql.DB
 
-// init initialises connection to sqlite3 database.
-func init() {
-	sqlDB, err := sql.Open("sqlite3", "viewer.db")
+// Load initialises connection to sqlite3 database.
+func Load(dbFile string) (err error) {
+	sqlDB, err = sql.Open("sqlite3", dbFile)
 	if err != nil {
-		log.Fatalln("Failed to initialise a connection to sqlite3 database:", err.Error())
+		return errors.New("Failed to initialise a connection to sqlite3 database: " + err.Error())
 	}
 
 	var count int
@@ -24,9 +24,10 @@ func init() {
 	row.Scan(&count)
 	if count != 1 {
 		if err := createUsersTable(); err != nil {
-			log.Fatalln("Failed to create user's table in sqlite3 database:", err.Error())
+			return errors.New("Failed to create user's table in sqlite3 database: " + err.Error())
 		}
 	}
+	return nil
 }
 
 // createUsersTable initialises the user table if not already present and creates a default admin.

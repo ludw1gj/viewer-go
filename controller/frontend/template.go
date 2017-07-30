@@ -10,13 +10,14 @@ import (
 	"path"
 
 	"fmt"
-
-	"github.com/FriedPigeon/viewer-go/controller/api"
 )
 
 var (
-	// frontend templates
+	// templates
 	loginTpl,
+	dirListTpl *template.Template
+
+	// templates that require base template
 	viewerTpl,
 	aboutTpl,
 	userTpl,
@@ -29,7 +30,7 @@ var (
 // function map for use in templates.
 var funcMap = template.FuncMap{
 	"genDirectoryList": func(userDirRoot string, urlPath string) template.HTML {
-		list, err := api.GenDirectoryList(userDirRoot, urlPath)
+		list, err := genDirectoryList(userDirRoot, urlPath)
 		if err != nil {
 			errMsg := fmt.Sprintf("There has been an error getting directory list: %s", err.Error())
 			return template.HTML(errMsg)
@@ -44,6 +45,7 @@ func init() {
 	baseTplPath := path.Join(tplDir, "base.gohtml")
 
 	loginTpl = template.Must(template.ParseFiles(path.Join(tplDir, "login.gohtml")))
+	dirListTpl = template.Must(template.ParseFiles(path.Join(tplDir, "dir_list.gohtml")))
 
 	viewerTpl = initTemplate("viewer", tplDir, baseTplPath)
 	aboutTpl = initTemplate("about", tplDir, baseTplPath)

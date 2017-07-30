@@ -7,20 +7,19 @@ import (
 	"errors"
 	"fmt"
 
-	"log"
-
 	"github.com/gorilla/sessions"
 )
 
 var store *sessions.CookieStore
 
-// init initialises CookieStore.
-func init() {
-	ck, err := loadCookieConfig("config.json")
+// Load initialises CookieStore.
+func Load(configJSONFile string) (err error) {
+	ck, err := loadCookieConfig(configJSONFile)
 	if err != nil {
-		log.Fatalln("Failed to initialise a CookieStore:", err.Error())
+		return errors.New("Failed to initialise a CookieStore: " + err.Error())
 	}
 	store = sessions.NewCookieStore(ck.Cookie.AuthorisationKey, ck.Cookie.EncryptionKey)
+	return nil
 }
 
 // CheckUserAuth checks if user is authenticated.
