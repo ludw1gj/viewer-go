@@ -173,19 +173,21 @@ func SendFile(w http.ResponseWriter, r *http.Request) {
 
 // contentType determines the content-type by the file extension of the file at the path.
 func contentType(path string) (contentType string) {
-	if strings.HasSuffix(path, ".css") {
+	hasSuffix := func(suffix string) bool {
+		return strings.HasSuffix(path, suffix)
+	}
+
+	if hasSuffix(".css") {
 		return "text/css"
-	} else if strings.HasSuffix(path, ".html") {
-		return "text/html"
-	} else if strings.HasSuffix(path, ".js") {
+	} else if hasSuffix(".js") {
 		return "application/javascript"
-	} else if strings.HasSuffix(path, ".png") {
+	} else if hasSuffix(".png") {
 		return "image/png"
-	} else if strings.HasSuffix(path, ".jpg") {
+	} else if hasSuffix(".jpg") {
 		return "image/jpeg"
-	} else if strings.HasSuffix(path, ".jpeg") {
+	} else if hasSuffix(".jpeg") {
 		return "image/jpeg"
-	} else if strings.HasSuffix(path, ".mp4") {
+	} else if hasSuffix(".mp4") {
 		return "video/mp4"
 	}
 	return "text/plain"
