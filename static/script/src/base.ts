@@ -49,6 +49,7 @@ function loadAuthorizedPages(): void {
         addEventListenersBaseNav();
     }
     if (page.search("/viewer/") !== -1) {
+        // user is on the viewer page.
         addEventListenersViewerForms();
         return
     }
@@ -61,6 +62,3 @@ function loadAuthorizedPages(): void {
             break;
     }
 }
-
-// run init.
-loadAuthorizedPages();

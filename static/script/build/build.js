@@ -183,6 +183,7 @@ function loadAuthorizedPages() {
         addEventListenersBaseNav();
     }
     if (page.search("/viewer/") !== -1) {
+        // user is on the viewer page.
         addEventListenersViewerForms();
         return;
     }
@@ -195,8 +196,6 @@ function loadAuthorizedPages() {
             break;
     }
 }
-// run init.
-loadAuthorizedPages();
 // addEventListenersLoginForm function should be run at initialisation of login page.
 function addEventListenerLoginForm() {
     // handle login user form logic
@@ -227,8 +226,6 @@ function loadLoginPageScript() {
         addEventListenerLoginForm();
     }
 }
-// run init.
-loadLoginPageScript();
 // addEventListenersUserForms function should be run at initialisation of user page.
 function addEventListenersUserForms() {
     var userApiRoute = "/api/user/";
@@ -361,3 +358,6 @@ function makePath(currentDir, fileName) {
         return currentDir + "/" + fileName;
     }
 }
+// These functions will initialise appropriate scripts according to the page the user is currently on.
+loadLoginPageScript();
+loadAuthorizedPages();

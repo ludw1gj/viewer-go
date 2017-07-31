@@ -39,6 +39,3 @@ function loadLoginPageScript(): void {
         addEventListenerLoginForm();
     }
 }
-
-// run init.
-loadLoginPageScript();

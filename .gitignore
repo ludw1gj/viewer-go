@@ -8,3 +8,5 @@ test/
 admin/
 viewer-go
 viewer.db
+package-lock.json
+node_modules/
