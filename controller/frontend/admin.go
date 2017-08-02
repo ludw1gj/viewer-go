@@ -7,6 +7,7 @@ import (
 	"github.com/FriedPigeon/viewer-go/db"
 )
 
+// validateAdmin checks if the user is valid and is admin.
 func validateAdmin(r *http.Request) (user db.User, err error) {
 	user, err = common.ValidateUser(r)
 	if err != nil {
