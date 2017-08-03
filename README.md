@@ -35,7 +35,7 @@ go get github.com/FriedPigeon/viewer-go
 
 ## Notes
 ### Cross Compile
-This will not cross compile with ease as the project is using mattn/go-sqlite3. You you want to save the trouble, 
+This will not cross compile with ease as the project is using mattn/go-sqlite3. If you want to save the trouble, 
 build on the platform you're targeting.   
 
 ### Static Files - /static/*  
