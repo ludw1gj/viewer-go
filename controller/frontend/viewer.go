@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
-	"github.com/FriedPigeon/viewer-go/db"
+	"github.com/FriedPigeon/viewer-go/common"
+	"github.com/FriedPigeon/viewer-go/database"
 	"github.com/gorilla/mux"
 )
 
@@ -32,7 +32,7 @@ func ViewerPage(w http.ResponseWriter, r *http.Request) {
 	urlPath := strings.TrimPrefix(mux.Vars(r)["path"], "/")
 	data := struct {
 		CurrentDir string
-		User       db.User
+		User       database.User
 	}{
 		urlPath,
 		user,

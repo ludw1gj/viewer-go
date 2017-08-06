@@ -13,28 +13,13 @@ import (
 var store *sessions.CookieStore
 
 // Load initialises CookieStore.
-func Load(configJSONFile string) (err error) {
+func Load(configJSONFile string) error {
 	ck, err := loadCookieConfig(configJSONFile)
 	if err != nil {
 		return errors.New("Failed to initialise a CookieStore: " + err.Error())
 	}
 	store = sessions.NewCookieStore(ck.Cookie.AuthorisationKey, ck.Cookie.EncryptionKey)
 	return nil
-}
-
-// CheckUserAuth checks if user is authenticated.
-func CheckUserAuth(r *http.Request) bool {
-	s, err := store.Get(r, "viewer-session")
-	if err != nil {
-		return false
-	}
-
-	// check if user is authenticated
-	if auth, ok := s.Values["authenticated"].(bool); !ok || !auth {
-		// user is not auth
-		return false
-	}
-	return true
 }
 
 // NewUserSession creates a new user session and authenticates the user.
@@ -68,6 +53,21 @@ func RemoveUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return nil
+}
+
+// CheckUserAuth checks if user is authenticated.
+func CheckUserAuth(r *http.Request) bool {
+	s, err := store.Get(r, "viewer-session")
+	if err != nil {
+		return false
+	}
+
+	// check if user is authenticated
+	if auth, ok := s.Values["authenticated"].(bool); !ok || !auth {
+		// user is not auth
+		return false
+	}
+	return true
 }
 
 // GetUserID returns a user's associated with a session.

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
+	"github.com/FriedPigeon/viewer-go/common"
 )
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer
@@ -30,7 +30,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(folderPath); err != nil {
+	if err := common.ValidateJsonInput(folderPath); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -63,7 +63,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(data); err != nil {
+	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -96,7 +96,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(data); err != nil {
+	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

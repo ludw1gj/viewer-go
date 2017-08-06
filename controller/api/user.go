@@ -8,8 +8,8 @@ import (
 
 	"fmt"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
-	"github.com/FriedPigeon/viewer-go/db"
+	"github.com/FriedPigeon/viewer-go/common"
+	"github.com/FriedPigeon/viewer-go/database"
 	"github.com/FriedPigeon/viewer-go/session"
 )
 
@@ -31,12 +31,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(loginCredentials); err != nil {
+	if err := common.ValidateJsonInput(loginCredentials); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID, err := db.ValidateUser(loginCredentials.Username, loginCredentials.Password)
+	userID, err := database.ValidateUser(loginCredentials.Username, loginCredentials.Password)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
@@ -80,11 +80,11 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(password); err != nil {
+	if err := common.ValidateJsonInput(password); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
-	err = db.DeleteUserPasswordValidated(user, password.Password)
+	err = user.Delete(password.Password)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -114,11 +114,11 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(passwords); err != nil {
+	if err := common.ValidateJsonInput(passwords); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
-	err = db.UpdateUserPassword(user, passwords.OldPassword, passwords.NewPassword)
+	err = user.UpdatePassword(passwords.OldPassword, passwords.NewPassword)
 	if err != nil {
 		if err.Error() == "Incorrect password." {
 			sendErrorResponse(w, http.StatusUnauthorized, err.Error())
@@ -151,11 +151,11 @@ func ChangeName(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(data); err != nil {
+	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
-	err = db.UpdateUserName(user.ID, data.FirstName, data.LastName)
+	err = user.UpdateName(data.FirstName, data.LastName)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

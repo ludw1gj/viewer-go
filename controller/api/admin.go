@@ -7,8 +7,8 @@ import (
 
 	"encoding/json"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
-	"github.com/FriedPigeon/viewer-go/db"
+	"github.com/FriedPigeon/viewer-go/common"
+	"github.com/FriedPigeon/viewer-go/database"
 )
 
 // CreateUser receives new user information via json and creates the user. Client must be admin.
@@ -25,7 +25,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u := db.User{}
+	u := database.User{}
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&u)
 	if err != nil {
@@ -34,12 +34,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	// number cannot be 0 as validation will fail
 	u.ID = 1
-	if err := common.ValidateJSONInput(u); err != nil {
+	if err := common.ValidateJsonInput(u); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = db.CreateUser(u)
+	err = database.CreateUser(u)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -70,19 +70,19 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(data); err != nil {
+	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	// check if user exists
-	_, err = db.GetUser(data.UserID)
+	_, err = database.GetUser(data.UserID)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	err = db.DeleteUser(data.UserID)
+	err = database.DeleteUser(data.UserID)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -90,7 +90,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Successfully deleted user.")
 }
 
-// ChangeDirRoot receives new directory root via json and updates it in the database. Client must be admin.
+// ChangeDirRoot receives new directory root via json and updates it in the database.
 func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -114,12 +114,12 @@ func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(data); err != nil {
+	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = db.UpdateUserDirRoot(user.ID, data.DirRoot)
+	err = user.UpdateDirRoot(data.DirRoot)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -152,12 +152,12 @@ func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJSONInput(data); err != nil {
+	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = db.UpdateUserUsername(data.CurrentUsername, data.NewUsername)
+	err = database.ChangeUserUsername(data.CurrentUsername, data.NewUsername)
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

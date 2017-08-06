@@ -3,12 +3,13 @@ package frontend
 import (
 	"net/http"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
-	"github.com/FriedPigeon/viewer-go/db"
+	"github.com/FriedPigeon/viewer-go/common"
+
+	"github.com/FriedPigeon/viewer-go/database"
 )
 
 // validateAdmin checks if the user is valid and is admin.
-func validateAdmin(r *http.Request) (user db.User, err error) {
+func validateAdmin(r *http.Request) (user database.User, err error) {
 	user, err = common.ValidateUser(r)
 	if err != nil {
 		return
@@ -37,15 +38,15 @@ func AdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users, err := db.GetAllUsers()
+	users, err := database.GetAllUsers()
 	if err != nil {
 		renderErrorPage(w, r, err)
 		return
 	}
 
 	data := struct {
-		User  db.User
-		Users []db.User
+		User  database.User
+		Users []database.User
 	}{user, users}
 	renderTemplate(w, r, adminUsersTpl, data)
 }
