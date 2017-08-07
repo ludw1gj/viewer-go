@@ -42,6 +42,25 @@ function addEventListenersAdminForms() {
         };
         submitAjaxJson(adminApiRoute + "change-dir-root", data, errFunc, okFunc);
     });
+    // handle change admin status form logic
+    var changeAdminStatusForm = document.getElementById("change-admin-status-form");
+    changeAdminStatusForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var userID = changeAdminStatusForm.user_id;
+        var isAdmin = changeAdminStatusForm.is_admin;
+        var data = {
+            user_id: parseInt(userID.value),
+            is_admin: isAdmin.checked
+        };
+        var errFunc = function (resp) {
+            displayErrorNotification(resp.error.message);
+        };
+        var okFunc = function (resp) {
+            displaySuccessNotification(resp.data.content);
+            changeDirForm.reset();
+        };
+        submitAjaxJson(adminApiRoute + "change-admin-status", data, errFunc, okFunc);
+    });
     // handle create user form logic
     var createUserForm = document.getElementById("create-user-form");
     createUserForm.addEventListener("submit", function (event) {
@@ -196,6 +215,10 @@ function loadAuthorizedPages() {
             break;
     }
 }
+
+// These functions will initialise appropriate scripts according to the page the user is currently on.
+loadLoginPageScript();
+loadAuthorizedPages();
 // addEventListenersLoginForm function should be run at initialisation of login page.
 function addEventListenerLoginForm() {
     // handle login user form logic
@@ -358,6 +381,3 @@ function makePath(currentDir, fileName) {
         return currentDir + "/" + fileName;
     }
 }
-// These functions will initialise appropriate scripts according to the page the user is currently on.
-loadLoginPageScript();
-loadAuthorizedPages();

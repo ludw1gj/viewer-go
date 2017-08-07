@@ -74,6 +74,7 @@ func loadRoutes(dev bool) {
 	protected.HandleFunc("/api/admin/create-user", api.CreateUser).Methods("POST")
 	protected.HandleFunc("/api/admin/delete-user", api.DeleteUser).Methods("POST")
 	protected.HandleFunc("/api/admin/change-dir-root", api.ChangeDirRoot).Methods("POST")
+	protected.HandleFunc("/api/admin/change-admin-status", api.ChangeAdminStatus).Methods("POST")
 
 	// static file handler in dev mode
 	if dev {

@@ -9,6 +9,8 @@ import (
 
 	"os"
 
+	"fmt"
+
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -98,8 +100,10 @@ func CreateUser(u User) error {
 	// check if username is taken
 	var count int
 	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", u.Username)
-	row.Scan(&count)
-	if count == 1 {
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count != 0 {
 		return errors.New("Username is taken.")
 	}
 
@@ -123,12 +127,6 @@ func CreateUser(u User) error {
 		return err
 	}
 	return nil
-}
-
-// DeleteUser deletes the user from the database that corresponds to the given ID.
-func DeleteUser(id int) error {
-	_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
-	return err
 }
 
 // ValidateUser validates a user with username and password. It will check if the username exists in the database
@@ -165,4 +163,32 @@ func ChangeUserUsername(username string, newUsername string) error {
 	return nil
 }
 
-// TODO: func to change admin status by user ID
+func ChangeUserAdminStatus(id int, isAdmin bool) error {
+	if err := checkUserExists(id); err != nil {
+		return err
+	}
+	_, err := db.Exec("UPDATE users SET admin = $1 WHERE id = $2", id, isAdmin)
+	return err
+}
+
+// DeleteUser deletes the user from the database that corresponds to the given ID.
+func DeleteUser(id int) error {
+	if err := checkUserExists(id); err != nil {
+		return err
+	}
+	_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
+	return err
+}
+
+// checkUserExists checks if user does exist.
+func checkUserExists(id int) error {
+	var count int
+	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE id = $1", id)
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count != 1 {
+		return errors.New(fmt.Sprintf("User by id %d does not exist", id))
+	}
+	return nil
+}

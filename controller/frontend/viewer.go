@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FriedPigeon/viewer-go/common"
+	"github.com/FriedPigeon/viewer-go/controller/common"
 	"github.com/FriedPigeon/viewer-go/database"
 	"github.com/gorilla/mux"
 )

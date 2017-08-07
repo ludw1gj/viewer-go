@@ -11,8 +11,8 @@
 <br>
 <h3 class="subtitle is-5">Change Username</h3>
 <form id="change-username-form" method="post">
-    Username: <input class="input" type="text" name="current_username" required><br>
-    New Username: <input class="input" type="text" name="new_username" required><br>
+    Username: <input class="input" name="current_username" required><br>
+    New Username: <input class="input" name="new_username" required><br>
     <input class="button is-warning" type="submit" value="Change">
 </form>
 
@@ -20,23 +20,33 @@
 <br>
 <h3 class="subtitle is-5">Change Directory Root</h3>
 <form id="change-dir-root-form" method="post">
-    Directory: <input class="input" type="text" name="dir_root" required><br>
+    Directory: <input class="input" name="dir_root" required><br>
     <input class="button is-warning" type="submit" value="Change">
+</form>
+
+<br>
+<h3 class="subtitle is-5">Change Admin Status</h3>
+<form id="change-admin-status-form" method="post">
+    <label>User ID:</label>
+    <input class="input" type="number" name="user_id" required><br>
+    <label>Make Admin:</label>
+    <input type="checkbox" name="is_admin"><br>
+    <input class="button is-danger" type="submit" value="Change">
 </form>
 
 <br>
 <h3 class="subtitle is-5">Create User</h3>
 <form id="create-user-form" method="post">
     <label>Username:</label>
-    <input class="input" type="text" name="username" required><br>
+    <input class="input" name="username" required><br>
     <label>Password:</label>
     <input class="input" type="password" name="password" required><br>
     <label>First Name:</label>
-    <input class="input" type="text" name="first_name" required><br>
+    <input class="input" name="first_name" required><br>
     <label>Last Name:</label>
-    <input class="input" type="text" name="last_name" required><br>
+    <input class="input" name="last_name" required><br>
     <label>Directory:</label>
-    <input class="input" type="text" name="directory_root" required><br>
+    <input class="input" name="directory_root" required><br>
     <label>Make Admin: </label>
     <input type="checkbox" name="is_admin"><br>
     <input class="button" type="submit" value="Create">

@@ -7,7 +7,9 @@ import (
 
 	"encoding/json"
 
-	"github.com/FriedPigeon/viewer-go/common"
+	"fmt"
+
+	"github.com/FriedPigeon/viewer-go/controller/common"
 	"github.com/FriedPigeon/viewer-go/database"
 )
 
@@ -15,32 +17,27 @@ import (
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	_, err := common.ValidateAdmin(r)
 	if err != nil {
-		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
-		return
-	}
-	if !user.Admin {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
-	u := database.User{}
+	user := database.User{}
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&u)
-	if err != nil {
+	if err := decoder.Decode(&user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
 	// number cannot be 0 as validation will fail
-	u.ID = 1
-	if err := common.ValidateJsonInput(u); err != nil {
+	user.ID = 1
+	if err := common.ValidateJsonInput(user); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = database.CreateUser(u)
-	if err != nil {
+	if err := database.CreateUser(user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -51,12 +48,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	_, err := common.ValidateAdmin(r)
 	if err != nil {
-		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
-		return
-	}
-	if !user.Admin {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -65,20 +58,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		UserID int `json:"user_id"`
 	}{}
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&data)
-	if err != nil {
+	if err := decoder.Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	// check if user exists
-	_, err = database.GetUser(data.UserID)
-	if err != nil {
-		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -90,53 +75,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Successfully deleted user.")
 }
 
-// ChangeDirRoot receives new directory root via json and updates it in the database.
-func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	user, err := common.ValidateUser(r)
-	if err != nil {
-		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
-		return
-	}
-	if !user.Admin {
-		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
-		return
-	}
-
-	data := struct {
-		DirRoot string `json:"dir_root"`
-	}{}
-
-	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&data)
-	if err != nil {
-		sendErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	if err := common.ValidateJsonInput(data); err != nil {
-		sendErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	err = user.UpdateDirRoot(data.DirRoot)
-	if err != nil {
-		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	sendSuccessResponse(w, "Changed directory root successfully.")
-}
-
 // ChangeUsername receives new username root via json and updates it in the database. Client must be admin.
 func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	_, err := common.ValidateAdmin(r)
 	if err != nil {
-		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
-		return
-	}
-	if !user.Admin {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -163,4 +107,70 @@ func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sendSuccessResponse(w, "Changed user's username successfully.")
+}
+
+// ChangeAdminStatus changes a user's admin status via the provided ID and updates it in the database. Client must be
+// admin.
+func ChangeAdminStatus(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	_, err := common.ValidateAdmin(r)
+	if err != nil {
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	data := struct {
+		UserID  int  `json:"user_id"`
+		IsAdmin bool `json:"is_admin"`
+	}{}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := common.ValidateJsonInput(data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := database.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	sendSuccessResponse(w, fmt.Sprintf("Changed admin status of user of id %d to %t", data.UserID, data.IsAdmin))
+}
+
+// ChangeDirRoot changes the directory root of the client and updates it in the database. Client must be admin.
+func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	u, err := common.ValidateAdmin(r)
+	if err != nil {
+		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	data := struct {
+		DirRoot string `json:"dir_root"`
+	}{}
+
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&data)
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := common.ValidateJsonInput(data); err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = u.UpdateDirRoot(data.DirRoot)
+	if err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	sendSuccessResponse(w, "Changed directory root successfully.")
 }

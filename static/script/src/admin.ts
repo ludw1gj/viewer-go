@@ -9,6 +9,12 @@ interface changeDirRootInput {
     dir_root: string;
 }
 
+// changeAdminStatusInput contains the required data structure.
+interface changeAdminStatusInput {
+    user_id: number;
+    is_admin: boolean;
+}
+
 // createUserInput contains the required data structure.
 interface createUserInput {
     username: string;
@@ -76,6 +82,30 @@ function addEventListenersAdminForms(): void {
             changeDirForm.reset();
         };
         submitAjaxJson(adminApiRoute + "change-dir-root", data, errFunc, okFunc)
+    });
+
+    // handle change admin status form logic
+    let changeAdminStatusForm = document.getElementById("change-admin-status-form") as HTMLFormElement;
+    changeAdminStatusForm.addEventListener("submit", (event: Event) => {
+        event.preventDefault();
+
+        const userID: HTMLInputElement = changeAdminStatusForm.user_id;
+        const isAdmin: HTMLInputElement = changeAdminStatusForm.is_admin;
+
+        const data: changeAdminStatusInput = {
+            user_id: parseInt(userID.value),
+            is_admin: isAdmin.checked
+        };
+
+        const errFunc = (resp: JsonErrorResponse) => {
+            displayErrorNotification(resp.error.message);
+        };
+
+        const okFunc = (resp: JsonDataResponse) => {
+            displaySuccessNotification(resp.data.content);
+            changeDirForm.reset();
+        };
+        submitAjaxJson(adminApiRoute + "change-admin-status", data, errFunc, okFunc)
     });
 
     // handle create user form logic
