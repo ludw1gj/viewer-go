@@ -26,7 +26,7 @@ go get github.com/FriedPigeon/viewer-go
 * Go to viewer-go directory:  
 `cd {Your GOPATH}/src/github.com/FriedPigeon/viewer-go`
 * To run in development:  
-`go run main.go -dev=true`
+`go run main.go -dev=true -port=3000 -dbFile=viewer.db -configFile=config.json`
 * Access via:  
 `http://localhost:3000`
 * To build and run:  
@@ -42,8 +42,9 @@ build on the platform you're targeting.
 A static file handler is included and can be used when invoking the dev flag set to true: `-dev=true`.
 
 ### Database - viewer.db
-This project uses SQLite database. When the app is run it will check for a viewer.db file in the current directory, and 
-if not found, the file will automatically be created which includes the users table and a default user.  
+This project uses SQLite database. When the app is run it will check for viewer.db (or whatever you have inputted
+via the `-dbFile` flag, viewer.db is the default) file in the current directory, and if not found, the file will 
+automatically be created which includes the users table and a default user.  
 
 The default user has these values:  
 **Username:** admin  
@@ -58,7 +59,8 @@ to delete this folder and change the Username, Directory Root and other values o
 
 ### Configuration File - config.json  
 The file is a JSON file which contains two 32 byte length keys used for cookies. If not found on app startup, it will be
-created automatically in the current directory.  
+created automatically in the current directory. The default file is config.json unless you used the `-configFile` flag 
+to specify a different value.  
 
 Example config.json:   
 ```
