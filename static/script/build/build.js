@@ -117,11 +117,9 @@ function submitAjaxJson(url, data, errFunc, okFunc) {
             var resp = JSON.parse(xhr.responseText);
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp);
-
             }
             else if ("data" in resp) {
                 okFunc(resp);
-
             }
             else {
                 displayErrorNotification("There has been an error.");
@@ -141,11 +139,9 @@ function submitAjaxFormData(url, uploadForm, errFunc, okFunc) {
             var resp = JSON.parse(xhr.responseText);
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp);
-
             }
             else if ("data" in resp) {
                 okFunc(resp);
-
             }
             else {
                 displayErrorNotification("There has been an error.");
@@ -198,6 +194,7 @@ function displaySuccessNotification(msg) {
 // load authorized page's script.
 function loadAuthorizedPages() {
     var page = window.location.pathname;
+    // check if not on login page, as it does not have the navigation menu
     if (page !== "/login") {
         addEventListenersBaseNav();
     }

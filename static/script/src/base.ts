@@ -4,6 +4,7 @@ function addEventListenersBaseNav(): void {
     let mobileMenuButton = document.getElementById("mobile-menu-button") as HTMLElement;
     mobileMenuButton.addEventListener("click", () => {
         let mobileMenu = document.getElementById("mobile-menu") as HTMLElement;
+
         if (mobileMenuButton.classList.contains("is-active") || mobileMenuButton.classList.contains("is-active")) {
             mobileMenu.classList.remove("is-active");
             mobileMenuButton.classList.remove("is-active");
@@ -45,6 +46,7 @@ function displaySuccessNotification(msg: string): void {
 // load authorized page's script.
 function loadAuthorizedPages(): void {
     const page = window.location.pathname;
+    // check if not on login page, as it does not have the navigation menu
     if (page !== "/login") {
         addEventListenersBaseNav();
     }

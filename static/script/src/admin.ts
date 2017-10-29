@@ -55,7 +55,7 @@ function addEventListenersAdminForms(): void {
             let username = document.getElementById("username") as HTMLSpanElement;
             if (data.current_username === username.innerText) {
                 location.reload(true);
-                return
+                return;
             }
             displaySuccessNotification(resp.data.content);
         };

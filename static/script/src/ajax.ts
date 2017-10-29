@@ -26,10 +26,8 @@ function submitAjaxJson(url: string,
             const resp = JSON.parse(xhr.responseText) as JsonDataResponse | JsonErrorResponse;
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp as JsonErrorResponse);
-                return;
             } else if ("data" in resp) {
                 okFunc(resp as JsonDataResponse);
-                return;
             } else {
                 displayErrorNotification("There has been an error.");
             }
@@ -52,10 +50,8 @@ function submitAjaxFormData(url: string,
             const resp = JSON.parse(xhr.responseText) as JsonDataResponse | JsonErrorResponse;
             if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
                 errFunc(resp as JsonErrorResponse);
-                return;
             } else if ("data" in resp) {
                 okFunc(resp as JsonDataResponse);
-                return;
             } else {
                 displayErrorNotification("There has been an error.");
             }
