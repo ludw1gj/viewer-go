@@ -52,8 +52,7 @@ func initTplExtendsBaseTpl(tplName string) *template.Template {
 // renderTemplate executes a templates and sends it to the client.
 func renderTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Template, data interface{}) {
 	var tplBuf bytes.Buffer
-	err := tpl.ExecuteTemplate(&tplBuf, "base.gohtml", data)
-	if err != nil {
+	if err := tpl.ExecuteTemplate(&tplBuf, "base.gohtml", data); err != nil {
 		log.Println(err)
 
 		renderErrorPage(w, r, err)

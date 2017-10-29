@@ -26,8 +26,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}{}
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&loginCredentials)
-	if err != nil {
+	if err := decoder.Decode(&loginCredentials); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -41,8 +40,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
-	err = session.NewUserSession(w, r, userID)
-	if err != nil {
+	if err := session.NewUserSession(w, r, userID); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
@@ -53,8 +51,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	err := session.RemoveUserAuthFromSession(w, r)
-	if err != nil {
+	if err := session.RemoveUserAuthFromSession(w, r); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Logout error: %s", err.Error()))
 		return
 	}
@@ -75,17 +72,16 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	password := struct {
 		Password string `json:"password"`
 	}{}
-	err = json.NewDecoder(r.Body).Decode(&password)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&password); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if err := common.ValidateJsonInput(password); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
-	err = user.Delete(password.Password)
-	if err != nil {
+	if err := user.Delete(password.Password); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -109,23 +105,24 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}{}
 
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&passwords)
-	if err != nil {
+	if err := decoder.Decode(&passwords); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := common.ValidateJsonInput(passwords); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
-	err = user.UpdatePassword(passwords.OldPassword, passwords.NewPassword)
-	if err != nil {
-		if err.Error() == "Incorrect password." {
+	if err := user.UpdatePassword(passwords.OldPassword, passwords.NewPassword); err != nil {
+		switch err.(type) {
+		case *database.ErrInvalidPassword:
 			sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 			return
+		default:
+			sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
 		}
-		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
 	}
 	sendSuccessResponse(w, "Password changed successfully.")
 }
@@ -146,17 +143,16 @@ func ChangeName(w http.ResponseWriter, r *http.Request) {
 	}{}
 
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&data)
-	if err != nil {
+	if err := decoder.Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := common.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
-	err = user.UpdateName(data.FirstName, data.LastName)
-	if err != nil {
+	if err := user.UpdateName(data.FirstName, data.LastName); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

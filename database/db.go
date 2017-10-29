@@ -21,7 +21,7 @@ var db *sql.DB
 func Load(dbFile string) (err error) {
 	db, err = sql.Open("sqlite3", dbFile)
 	if err != nil {
-		return errors.New("Failed to initialise a connection to sqlite3 database: " + err.Error())
+		return errors.New("failed to initialise a connection to sqlite3 database: " + err.Error())
 	}
 
 	var count int
@@ -39,9 +39,8 @@ func Load(dbFile string) (err error) {
 			directory_root TEXT NOT NULL,
 			admin BOOLEAN NOT NULL
 		);`
-		_, err := db.Exec(sqlCreateUsersTable)
-		if err != nil {
-			return errors.New("Failed to create user's table in sqlite3 database: " + err.Error())
+		if _, err := db.Exec(sqlCreateUsersTable); err != nil {
+			return errors.New("failed to create user's table in sqlite3 database: " + err.Error())
 		}
 
 		// create a default admin user.
@@ -72,9 +71,8 @@ func GetAllUsers() (users []User, err error) {
 	for rows.Next() {
 		user := User{}
 
-		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
-			&user.Admin)
-		if err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
+			&user.Admin); err != nil {
 			return users, err
 		}
 		users = append(users, user)
@@ -85,14 +83,13 @@ func GetAllUsers() (users []User, err error) {
 // GetUser returns a single user from the database that matches the provided id.
 func GetUser(id int) (user User, err error) {
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
-	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
-		&user.Admin)
-	switch err {
-	case sql.ErrNoRows:
-		return user, errors.New("There is no user by that ID.")
-	default:
-		return user, err
+	if err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
+		&user.Admin); err != nil {
+		if err == sql.ErrNoRows {
+			return user, errors.New("there is no user by that ID")
+		}
 	}
+	return user, err
 }
 
 // CreateUser inserts a new user into the database.
@@ -104,12 +101,11 @@ func CreateUser(u User) error {
 		return err
 	}
 	if count != 0 {
-		return errors.New("Username is taken.")
+		return errors.New("username is taken")
 	}
 
 	// create user root directory on disk
-	err := os.MkdirAll(u.DirectoryRoot, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(u.DirectoryRoot, os.ModePerm); err != nil {
 		return err
 	}
 
@@ -120,10 +116,9 @@ func CreateUser(u User) error {
 	}
 
 	// store user in database
-	_, err = db.Exec("INSERT INTO users (username, first_name, last_name, password, directory_root, admin) "+
+	if _, err := db.Exec("INSERT INTO users (username, first_name, last_name, password, directory_root, admin) "+
 		"VALUES ($1, $2, $3, $4, $5, $6)",
-		u.Username, u.FirstName, u.LastName, string(hashPassword), u.DirectoryRoot, u.Admin)
-	if err != nil {
+		u.Username, u.FirstName, u.LastName, string(hashPassword), u.DirectoryRoot, u.Admin); err != nil {
 		return err
 	}
 	return nil
@@ -134,14 +129,13 @@ func CreateUser(u User) error {
 func ValidateUser(username string, password string) (userID int, err error) {
 	var user User
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
-	err = row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
-		&user.Admin)
-	if err != nil {
-		return userID, errors.New("There is no user by that username.")
+	if err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password, &user.DirectoryRoot,
+		&user.Admin); err != nil {
+		return userID, errors.New("there is no user by that username")
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return userID, errors.New("Password is invalid.")
+
+	if err := comparePasswords(user.Password, password); err != nil {
+		return userID, err
 	}
 	return user.ID, nil
 }
@@ -153,11 +147,10 @@ func ChangeUserUsername(username string, newUsername string) error {
 	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", username)
 	row.Scan(&count)
 	if count != 1 {
-		return errors.New("Username does not exist.")
+		return errors.New("username does not exist")
 	}
 
-	_, err := db.Exec("UPDATE users SET username = $1 WHERE username = $2;", newUsername, username)
-	if err != nil {
+	if _, err := db.Exec("UPDATE users SET username = $1 WHERE username = $2;", newUsername, username); err != nil {
 		return err
 	}
 	return nil
@@ -167,8 +160,10 @@ func ChangeUserAdminStatus(id int, isAdmin bool) error {
 	if err := checkUserExists(id); err != nil {
 		return err
 	}
-	_, err := db.Exec("UPDATE users SET admin = $1 WHERE id = $2", id, isAdmin)
-	return err
+	if _, err := db.Exec("UPDATE users SET admin = $1 WHERE id = $2", id, isAdmin); err != nil {
+		return err
+	}
+	return nil
 }
 
 // DeleteUser deletes the user from the database that corresponds to the given ID.
@@ -176,8 +171,10 @@ func DeleteUser(id int) error {
 	if err := checkUserExists(id); err != nil {
 		return err
 	}
-	_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
-	return err
+	if _, err := db.Exec("DELETE FROM users WHERE id = $1", id); err != nil {
+		return err
+	}
+	return nil
 }
 
 // checkUserExists checks if user does exist.
@@ -188,7 +185,7 @@ func checkUserExists(id int) error {
 		return err
 	}
 	if count != 1 {
-		return errors.New(fmt.Sprintf("User by id %d does not exist", id))
+		return errors.New(fmt.Sprintf("user by id %d does not exist", id))
 	}
 	return nil
 }

@@ -19,6 +19,7 @@ func ValidateUser(r *http.Request) (u database.User, err error) {
 	if err != nil {
 		return u, err
 	}
+
 	u, err = database.GetUser(userId)
 	if err != nil {
 		return u, err
@@ -33,7 +34,7 @@ func ValidateAdmin(r *http.Request) (u database.User, err error) {
 		return u, err
 	}
 	if !u.Admin {
-		return u, errors.New("User is not an admin.")
+		return u, errors.New("user is not an admin")
 	}
 	return u, nil
 }

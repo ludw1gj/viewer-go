@@ -17,8 +17,7 @@ import (
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	_, err := common.ValidateAdmin(r)
-	if err != nil {
+	if _, err := common.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -48,8 +47,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	_, err := common.ValidateAdmin(r)
-	if err != nil {
+	if _, err := common.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -67,8 +65,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.DeleteUser(data.UserID)
-	if err != nil {
+	if err := database.DeleteUser(data.UserID); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -79,8 +76,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	_, err := common.ValidateAdmin(r)
-	if err != nil {
+	if _, err := common.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -91,8 +87,7 @@ func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	}{}
 
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&data)
-	if err != nil {
+	if err := decoder.Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -101,8 +96,7 @@ func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.ChangeUserUsername(data.CurrentUsername, data.NewUsername)
-	if err != nil {
+	if err := database.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -114,8 +108,7 @@ func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 func ChangeAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	_, err := common.ValidateAdmin(r)
-	if err != nil {
+	if _, err := common.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -157,8 +150,7 @@ func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	}{}
 
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&data)
-	if err != nil {
+	if err := decoder.Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -167,8 +159,7 @@ func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = u.UpdateDirRoot(data.DirRoot)
-	if err != nil {
+	if err := u.UpdateDirRoot(data.DirRoot); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

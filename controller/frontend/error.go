@@ -21,9 +21,9 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+
 	var tplBuf bytes.Buffer
-	err = notFoundTpl.ExecuteTemplate(&tplBuf, "base.gohtml", userInfo{user})
-	if err != nil {
+	if err := notFoundTpl.ExecuteTemplate(&tplBuf, "base.gohtml", userInfo{user}); err != nil {
 		renderErrorPage(w, r, err)
 		return
 	}
@@ -53,8 +53,7 @@ func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	}
 
 	var tplBuf bytes.Buffer
-	err = errorTpl.ExecuteTemplate(&tplBuf, "base.gohtml", data)
-	if err != nil {
+	if err := errorTpl.ExecuteTemplate(&tplBuf, "base.gohtml", data); err != nil {
 		log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
 
 		resp := fmt.Sprintf("500: Server error. Two errors have occured.<br>First Error: %s<br>Second Error: %s",

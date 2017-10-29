@@ -26,8 +26,7 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tplBuf bytes.Buffer
-	err := loginTpl.Execute(&tplBuf, nil)
-	if err != nil {
+	if err := loginTpl.Execute(&tplBuf, nil); err != nil {
 		log.Println(err)
 
 		w.WriteHeader(http.StatusInternalServerError)

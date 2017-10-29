@@ -32,8 +32,7 @@ func NewUserSession(w http.ResponseWriter, r *http.Request, userID int) error {
 	// Set user as authenticated
 	s.Values["id"] = userID
 	s.Values["authenticated"] = true
-	err = s.Save(r, w)
-	if err != nil {
+	if err := s.Save(r, w); err != nil {
 		return err
 	}
 	return nil
@@ -48,8 +47,7 @@ func RemoveUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
 
 	// revoke user's authentication
 	s.Values["authenticated"] = false
-	err = s.Save(r, w)
-	if err != nil {
+	if err := s.Save(r, w); err != nil {
 		return err
 	}
 	return nil

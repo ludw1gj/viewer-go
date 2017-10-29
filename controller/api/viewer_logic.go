@@ -16,8 +16,7 @@ func createFolder(dirPath string) error {
 		return errors.New("Folder already exists.")
 	}
 
-	err := os.MkdirAll(dirPath, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		return err
 	}
 	return nil
@@ -29,8 +28,7 @@ func deleteFile(filePath string) (err error) {
 		return errors.New("File or Folder does not exist.")
 	}
 
-	err = os.RemoveAll(filePath)
-	if err != nil {
+	if err := os.RemoveAll(filePath); err != nil {
 		return err
 	}
 	return nil
@@ -49,8 +47,7 @@ func deleteAllFiles(dirPath string) (err error) {
 		return err
 	}
 	for _, name := range names {
-		err = os.RemoveAll(filepath.Join(dirPath, name))
-		if err != nil {
+		if err := os.RemoveAll(filepath.Join(dirPath, name)); err != nil {
 			return err
 		}
 	}
@@ -75,8 +72,7 @@ func saveFiles(dirPath string, file map[string][]*multipart.FileHeader) error {
 			}
 
 			// 32K buffer copy
-			_, err = io.Copy(outFile, inFile)
-			if err != nil {
+			if _, err = io.Copy(outFile, inFile); err != nil {
 				return err
 			}
 		}

@@ -10,12 +10,11 @@ import (
 // AuthenticateRoute is middleware that checks if users are authenticated.
 func AuthenticateRoute(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuth := session.CheckUserAuth(r)
-		// if user is authenticated, proceed to route
-		if !isAuth {
+		if isAuth := session.CheckUserAuth(r); !isAuth {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
+		// if user is authenticated, proceed to route
 		h.ServeHTTP(w, r)
 	})
 }

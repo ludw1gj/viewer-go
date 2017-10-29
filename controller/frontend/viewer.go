@@ -132,8 +132,7 @@ func genDirectoryList(userDirRoot string, urlPath string) (list template.HTML, e
 
 	// execute and return the template
 	var tplBuf bytes.Buffer
-	err = dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, urlPath, isEmpty})
-	if err != nil {
+	if err := dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, urlPath, isEmpty}); err != nil {
 		return list, err
 	}
 	return template.HTML(tplBuf.String()), nil
@@ -158,7 +157,7 @@ func SendFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if fileInfo.IsDir() {
-		renderErrorPage(w, r, errors.New("Requested item is not a file."))
+		renderErrorPage(w, r, errors.New("requested item is not a file"))
 		return
 	}
 

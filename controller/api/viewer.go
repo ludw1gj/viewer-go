@@ -25,8 +25,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	folderPath := struct {
 		Path string `json:"path"`
 	}{}
-	err = json.NewDecoder(r.Body).Decode(&folderPath)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&folderPath); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -36,8 +35,7 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, folderPath.Path)
-	err = createFolder(dirPath)
-	if err != nil {
+	if err := createFolder(dirPath); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Could not create directory: %s", err.Error()))
 		return
 	}
@@ -58,8 +56,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Path string `json:"path"`
 	}{}
-	err = json.NewDecoder(r.Body).Decode(&data)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -69,8 +66,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filePath := path.Join(user.DirectoryRoot, data.Path)
-	err = deleteFile(filePath)
-	if err != nil {
+	if err := deleteFile(filePath); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -91,8 +87,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Path string `json:"path"`
 	}{}
-	err = json.NewDecoder(r.Body).Decode(&data)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -102,8 +97,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, data.Path)
-	err = deleteAllFiles(dirPath)
-	if err != nil {
+	if err := deleteAllFiles(dirPath); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -123,15 +117,13 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 	// parse request
 	const _24K = (1 << 10) * 24
-	err = r.ParseMultipartForm(_24K)
-	if err != nil {
+	if err := r.ParseMultipartForm(_24K); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, r.FormValue("path"))
-	err = saveFiles(dirPath, r.MultipartForm.File)
-	if err != nil {
+	if err = saveFiles(dirPath, r.MultipartForm.File); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

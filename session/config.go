@@ -24,8 +24,7 @@ type cookieKeys struct {
 func loadCookieConfig(file string) (ck cookieKeys, err error) {
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		// file does not exist
-		err = genCookieConfigJsonFile(file)
-		if err != nil {
+		if err := genCookieConfigJsonFile(file); err != nil {
 			return ck, err
 		}
 	}
@@ -37,8 +36,7 @@ func loadCookieConfig(file string) (ck cookieKeys, err error) {
 	defer configFile.Close()
 
 	jsonParser := json.NewDecoder(configFile)
-	err = jsonParser.Decode(&ck)
-	if err != nil {
+	if err := jsonParser.Decode(&ck); err != nil {
 		return ck, err
 	}
 	return ck, nil
@@ -56,8 +54,7 @@ func genCookieConfigJsonFile(file string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(file, configJson, 0644)
-	if err != nil {
+	if err := ioutil.WriteFile(file, configJson, 0644); err != nil {
 		return err
 	}
 	return nil

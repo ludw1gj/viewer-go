@@ -10,6 +10,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// ErrInvalidPassword type conforms to error type.
+type ErrInvalidPassword struct {
+	message string
+}
+
+// Error returns the error message.
+func (e *ErrInvalidPassword) Error() string {
+	return e.message
+}
+
+// NewErrInvalidPassword returns a pointer to a ErrInvalidPassword type object.
+func NewErrInvalidPassword(message string) *ErrInvalidPassword {
+	return &ErrInvalidPassword{
+		message: message,
+	}
+}
+
 // User type contains user information.
 type User struct {
 	ID            int    `json:"id"`
@@ -24,20 +41,20 @@ type User struct {
 // Delete deletes a user from the database if the provided password is valid.
 func (u User) Delete(password string) error {
 	// check if password is valid
-	err := comparePasswords(u.Password, password)
-	if err != nil {
+	if err := comparePasswords(u.Password, password); err != nil {
 		return err
 	}
 
-	_, err = db.Exec("DELETE FROM users WHERE id = $1", u.ID)
-	return err
+	if _, err := db.Exec("DELETE FROM users WHERE id = $1", u.ID); err != nil {
+		return err
+	}
+	return nil
 }
 
 // UpdatePassword updates the user's password in the database, if the provided password is valid.
 func (u User) UpdatePassword(password string, newPassword string) error {
 	// check if oldPassword is valid
-	err := comparePasswords(u.Password, password)
-	if err != nil {
+	if err := comparePasswords(u.Password, password); err != nil {
 		return err
 	}
 
@@ -48,8 +65,7 @@ func (u User) UpdatePassword(password string, newPassword string) error {
 	}
 
 	// store new password
-	_, err = db.Exec("UPDATE users SET password = $1 WHERE id = $2;", newHashPassword, u.ID)
-	if err != nil {
+	if _, err := db.Exec("UPDATE users SET password = $1 WHERE id = $2;", newHashPassword, u.ID); err != nil {
 		return err
 	}
 	return nil
@@ -67,15 +83,14 @@ func (u User) UpdateName(firstName string, lastName string) error {
 // UpdateDirRoot updates the user's directory root.
 func (u User) UpdateDirRoot(dirRoot string) error {
 	if !u.Admin {
-		return errors.New("User must be admin.")
+		return errors.New("user must be admin")
 	}
 
 	if _, err := os.Stat(dirRoot); os.IsNotExist(err) {
-		return errors.New("Directory does not exist.")
+		return errors.New("directory does not exist")
 	}
 
-	_, err := db.Exec("UPDATE users SET directory_root = $1 WHERE id = $2;", dirRoot, u.ID)
-	if err != nil {
+	if _, err := db.Exec("UPDATE users SET directory_root = $1 WHERE id = $2;", dirRoot, u.ID); err != nil {
 		return err
 	}
 	return nil
@@ -83,9 +98,8 @@ func (u User) UpdateDirRoot(dirRoot string) error {
 
 // comparePasswords compares the hash string with a string to determine if it is equivalent.
 func comparePasswords(hashPW string, pw string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(hashPW), []byte(pw))
-	if err != nil {
-		return errors.New("Password is invalid.")
+	if err := bcrypt.CompareHashAndPassword([]byte(hashPW), []byte(pw)); err != nil {
+		return NewErrInvalidPassword("password is invalid")
 	}
 	return nil
 }
