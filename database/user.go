@@ -20,7 +20,7 @@ func (e *ErrInvalidPassword) Error() string {
 	return e.message
 }
 
-// NewErrInvalidPassword returns a pointer to a ErrInvalidPassword type object.
+// NewErrInvalidPassword returns a pointer to a ErrInvalidPassword type instance.
 func NewErrInvalidPassword(message string) *ErrInvalidPassword {
 	return &ErrInvalidPassword{
 		message: message,
