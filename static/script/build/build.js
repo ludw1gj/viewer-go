@@ -376,7 +376,5 @@ function makePath(currentDir, fileName) {
     if (index) {
         return fileName;
     }
-    else {
-        return currentDir + "/" + fileName;
-    }
+    return currentDir + "/" + fileName;
 }

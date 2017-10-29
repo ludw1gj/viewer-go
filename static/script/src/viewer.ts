@@ -84,7 +84,6 @@ function makePath(currentDir: string, fileName: string): string {
     const index: boolean = (currentDir === "");
     if (index) {
         return fileName;
-    } else {
-        return currentDir + "/" + fileName;
     }
+    return currentDir + "/" + fileName;
 }
