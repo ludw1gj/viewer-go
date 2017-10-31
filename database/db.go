@@ -1,5 +1,4 @@
-// TODO: package doc
-
+// Package database contains functions that load and manipulate an sqlite3 database.
 package database
 
 import (
@@ -11,7 +10,7 @@ import (
 
 	"fmt"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // only the driver is needed
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -89,7 +88,7 @@ func GetUser(id int) (user User, err error) {
 			return user, errors.New("there is no user by that ID")
 		}
 	}
-	return user, err
+	return user, nil
 }
 
 // CreateUser inserts a new user into the database.
@@ -156,6 +155,7 @@ func ChangeUserUsername(username string, newUsername string) error {
 	return nil
 }
 
+// ChangeUserAdminStatus updates the user's admin status.
 func ChangeUserAdminStatus(id int, isAdmin bool) error {
 	if err := checkUserExists(id); err != nil {
 		return err
@@ -185,7 +185,7 @@ func checkUserExists(id int) error {
 		return err
 	}
 	if count != 1 {
-		return errors.New(fmt.Sprintf("user by id %d does not exist", id))
+		return fmt.Errorf("user by id %d does not exist", id)
 	}
 	return nil
 }
