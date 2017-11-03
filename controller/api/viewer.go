@@ -116,8 +116,8 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse request
-	const _24K = (1 << 10) * 24
-	if err := r.ParseMultipartForm(_24K); err != nil {
+	const twentyFourK = (1 << 10) * 24
+	if err := r.ParseMultipartForm(twentyFourK); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

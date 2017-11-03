@@ -13,7 +13,7 @@ import (
 // createFolder creates a folder in the directory path.
 func createFolder(dirPath string) error {
 	if _, err := os.Stat(dirPath); !os.IsNotExist(err) {
-		return errors.New("Folder already exists.")
+		return errors.New("folder already exists")
 	}
 
 	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
@@ -25,7 +25,7 @@ func createFolder(dirPath string) error {
 // deleteFile deletes the file at file path.
 func deleteFile(filePath string) (err error) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return errors.New("File or Folder does not exist.")
+		return errors.New("file or Folder does not exist")
 	}
 
 	if err := os.RemoveAll(filePath); err != nil {
