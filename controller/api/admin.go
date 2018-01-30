@@ -9,7 +9,7 @@ import (
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/logic/common"
+	"github.com/robertjeffs/viewer-go/logic/validate"
 	"github.com/robertjeffs/viewer-go/model/database"
 )
 
@@ -17,7 +17,7 @@ import (
 func AdminCreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := common.ValidateAdmin(r); err != nil {
+	if _, err := validate.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -31,7 +31,7 @@ func AdminCreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// number cannot be 0 as validation will fail
 	user.ID = 1
-	if err := common.ValidateJsonInput(user); err != nil {
+	if err := validate.ValidateJsonInput(user); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -47,7 +47,7 @@ func AdminCreateUser(w http.ResponseWriter, r *http.Request) {
 func AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := common.ValidateAdmin(r); err != nil {
+	if _, err := validate.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -60,7 +60,7 @@ func AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(data); err != nil {
+	if err := validate.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -76,7 +76,7 @@ func AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
 func AdminChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := common.ValidateAdmin(r); err != nil {
+	if _, err := validate.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -91,7 +91,7 @@ func AdminChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(data); err != nil {
+	if err := validate.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -108,7 +108,7 @@ func AdminChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 func AdminChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := common.ValidateAdmin(r); err != nil {
+	if _, err := validate.ValidateAdmin(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -123,7 +123,7 @@ func AdminChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(data); err != nil {
+	if err := validate.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -139,7 +139,7 @@ func AdminChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 func AdminChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	u, err := common.ValidateAdmin(r)
+	u, err := validate.ValidateAdmin(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -154,7 +154,7 @@ func AdminChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(data); err != nil {
+	if err := validate.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

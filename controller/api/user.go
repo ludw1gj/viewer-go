@@ -8,8 +8,8 @@ import (
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/logic/common"
 	"github.com/robertjeffs/viewer-go/logic/session"
+	"github.com/robertjeffs/viewer-go/logic/validate"
 	"github.com/robertjeffs/viewer-go/model/database"
 )
 
@@ -30,7 +30,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(loginCredentials); err != nil {
+	if err := validate.ValidateJsonInput(loginCredentials); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -63,7 +63,7 @@ func UserLogout(w http.ResponseWriter, r *http.Request) {
 func UserDeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -76,7 +76,7 @@ func UserDeleteAccount(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(password); err != nil {
+	if err := validate.ValidateJsonInput(password); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -93,7 +93,7 @@ func UserDeleteAccount(w http.ResponseWriter, r *http.Request) {
 func UserChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -109,7 +109,7 @@ func UserChangePassword(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(passwords); err != nil {
+	if err := validate.ValidateJsonInput(passwords); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -131,7 +131,7 @@ func UserChangePassword(w http.ResponseWriter, r *http.Request) {
 func UserChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -147,7 +147,7 @@ func UserChangeName(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(data); err != nil {
+	if err := validate.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

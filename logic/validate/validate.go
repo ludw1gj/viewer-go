@@ -1,5 +1,4 @@
-// Package common has functions used commonly by package api and frontend.
-package common
+package validate
 
 import (
 	"errors"

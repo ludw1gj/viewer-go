@@ -18,7 +18,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robertjeffs/viewer-go/controller/templates"
-	"github.com/robertjeffs/viewer-go/logic/common"
+	"github.com/robertjeffs/viewer-go/logic/validate"
 	"github.com/robertjeffs/viewer-go/model/database"
 )
 
@@ -30,7 +30,7 @@ type userInfo struct {
 // GetErrorPage renders the error page and sends status 500.
 func GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	w.WriteHeader(http.StatusInternalServerError)
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		log.Printf("StatusInternalServerError failed to execute get user from session on error page: %s", err.Error())
 
@@ -53,7 +53,7 @@ func GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 // GetViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's
 // directory in the filesystem to display a directory list for.
 func GetViewerPage(w http.ResponseWriter, r *http.Request) {
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -83,7 +83,7 @@ func GetLoginPage(w http.ResponseWriter, r *http.Request) {
 
 // GetUserPage renders the user page.
 func GetUserPage(w http.ResponseWriter, r *http.Request) {
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -93,7 +93,7 @@ func GetUserPage(w http.ResponseWriter, r *http.Request) {
 
 // GetAboutPage handles the about page.
 func GetAboutPage(w http.ResponseWriter, r *http.Request) {
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -103,7 +103,7 @@ func GetAboutPage(w http.ResponseWriter, r *http.Request) {
 
 // GetNotFoundPage renders the not found page and sends status 404.
 func GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -114,7 +114,7 @@ func GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
 // SendFile sends file to client.
 func SendFile(w http.ResponseWriter, r *http.Request) {
 	// get user from session
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -168,7 +168,7 @@ func SendFile(w http.ResponseWriter, r *http.Request) {
 
 // GetAdminPage renders the Administration page. Client must be admin.
 func GetAdminPage(w http.ResponseWriter, r *http.Request) {
-	u, err := common.ValidateAdmin(r)
+	u, err := validate.ValidateAdmin(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -178,7 +178,7 @@ func GetAdminPage(w http.ResponseWriter, r *http.Request) {
 
 // GetAdminDisplayAllUsers render a sub administration page which displays all users in database. Client must be admin.
 func GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
-	u, err := common.ValidateAdmin(r)
+	u, err := validate.ValidateAdmin(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return

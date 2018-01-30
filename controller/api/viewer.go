@@ -13,7 +13,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/robertjeffs/viewer-go/logic/common"
+	"github.com/robertjeffs/viewer-go/logic/validate"
 )
 
 // ViewerCreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the
@@ -21,7 +21,7 @@ import (
 func ViewerCreateFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -34,7 +34,7 @@ func ViewerCreateFolder(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(folderPath); err != nil {
+	if err := validate.ValidateJsonInput(folderPath); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -64,7 +64,7 @@ func ViewerCreateFolder(w http.ResponseWriter, r *http.Request) {
 func ViewerDelete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -77,7 +77,7 @@ func ViewerDelete(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(data); err != nil {
+	if err := validate.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -107,7 +107,7 @@ func ViewerDelete(w http.ResponseWriter, r *http.Request) {
 func ViewerDeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -120,7 +120,7 @@ func ViewerDeleteAll(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := common.ValidateJsonInput(data); err != nil {
+	if err := validate.ValidateJsonInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -158,7 +158,7 @@ func ViewerDeleteAll(w http.ResponseWriter, r *http.Request) {
 func ViewerUpload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := common.ValidateUser(r)
+	user, err := validate.ValidateUser(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
