@@ -10,7 +10,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robertjeffs/viewer-go/controller/api"
-	"github.com/robertjeffs/viewer-go/controller/middleware"
 	"github.com/robertjeffs/viewer-go/controller/site"
 	"github.com/robertjeffs/viewer-go/logic/session"
 	"github.com/robertjeffs/viewer-go/model/database"
@@ -45,8 +44,8 @@ func loadRoutes() {
 	protected := mux.NewRouter()
 
 	http.HandleFunc("/login", site.GetLoginPage)
-	http.HandleFunc("/api/user/login", api.Login)
-	http.Handle("/", middleware.AuthenticateRoute(protected))
+	http.HandleFunc("/api/user/login", api.UserLogin)
+	http.Handle("/", authenticateRoute(protected))
 
 	// redirectToViewer redirects users to the viewer page.
 	redirectToViewer := func(w http.ResponseWriter, r *http.Request) {
@@ -64,22 +63,34 @@ func loadRoutes() {
 	protected.NotFoundHandler = http.HandlerFunc(site.GetNotFoundPage)
 
 	// api
-	protected.HandleFunc("/api/viewer/upload", api.Upload).Methods("POST")
-	protected.HandleFunc("/api/viewer/create", api.CreateFolder).Methods("POST")
-	protected.HandleFunc("/api/viewer/delete", api.Delete).Methods("POST")
-	protected.HandleFunc("/api/viewer/delete-all", api.DeleteAll).Methods("POST")
+	protected.HandleFunc("/api/viewer/upload", api.ViewerUpload).Methods("POST")
+	protected.HandleFunc("/api/viewer/create", api.ViewerCreateFolder).Methods("POST")
+	protected.HandleFunc("/api/viewer/delete", api.ViewerDelete).Methods("POST")
+	protected.HandleFunc("/api/viewer/delete-all", api.ViewerDeleteAll).Methods("POST")
 
-	protected.HandleFunc("/api/user/logout", api.Logout).Methods("POST")
-	protected.HandleFunc("/api/user/delete", api.DeleteAccount).Methods("POST")
-	protected.HandleFunc("/api/user/change-password", api.ChangePassword).Methods("POST")
-	protected.HandleFunc("/api/user/change-name", api.ChangeName).Methods("POST")
+	protected.HandleFunc("/api/user/logout", api.UserLogout).Methods("POST")
+	protected.HandleFunc("/api/user/delete", api.UserDeleteAccount).Methods("POST")
+	protected.HandleFunc("/api/user/change-password", api.UserChangePassword).Methods("POST")
+	protected.HandleFunc("/api/user/change-name", api.UserChangeName).Methods("POST")
 
-	protected.HandleFunc("/api/admin/change-username", api.ChangeUsername).Methods("POST")
-	protected.HandleFunc("/api/admin/create-user", api.CreateUser).Methods("POST")
-	protected.HandleFunc("/api/admin/delete-user", api.DeleteUser).Methods("POST")
-	protected.HandleFunc("/api/admin/change-dir-root", api.ChangeDirRoot).Methods("POST")
-	protected.HandleFunc("/api/admin/change-admin-status", api.ChangeAdminStatus).Methods("POST")
+	protected.HandleFunc("/api/admin/change-username", api.AdminChangeUserUsername).Methods("POST")
+	protected.HandleFunc("/api/admin/create-user", api.AdminCreateUser).Methods("POST")
+	protected.HandleFunc("/api/admin/delete-user", api.AdminDeleteUser).Methods("POST")
+	protected.HandleFunc("/api/admin/change-dir-root", api.AdminChangeDirRoot).Methods("POST")
+	protected.HandleFunc("/api/admin/change-admin-status", api.AdminChangeUserAdminStatus).Methods("POST")
 
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
+}
+
+// AuthenticateRoute is middleware that checks if users are authenticated.
+func authenticateRoute(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isAuth := session.CheckUserAuth(r); !isAuth {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		// if user is authenticated, proceed to route
+		h.ServeHTTP(w, r)
+	})
 }

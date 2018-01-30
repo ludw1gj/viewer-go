@@ -50,25 +50,45 @@ func initTemplate(templateName string) *template.Template {
 		ParseFiles(baseTemplatePath, path.Join(templateDir, templateName+".gohtml")))
 }
 
-// RenderTemplate executes a templates and sends it to the client.
-func RenderTemplate(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
-	runError := func(err error) {
-		log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
+func renderError(w http.ResponseWriter, err error) {
+	log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
 
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500: Server error"))
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("500: Server error"))
+}
+
+func RenderLoginTemplate(w http.ResponseWriter, r *http.Request) {
+	// Ensure the template exists in the map.
+	tpl, ok := templates["login"]
+	if !ok {
+		renderError(w, errors.New("template does not exist"))
+		return
 	}
 
+	var buf bytes.Buffer
+	err := tpl.Execute(&buf, nil)
+	if err != nil {
+		log.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("500: Server error. %s", err.Error())))
+		return
+	}
+	w.Write(buf.Bytes())
+}
+
+// RenderTemplate executes a templates and sends it to the client.
+func RenderTemplate(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
 	// Ensure the template exists in the map.
 	tpl, ok := templates[name]
 	if !ok {
-		runError(errors.New("template does not exist"))
+		renderError(w, errors.New("template does not exist"))
 		return
 	}
 
 	var buf bytes.Buffer
 	if err := tpl.ExecuteTemplate(&buf, "base.gohtml", data); err != nil {
-		runError(err)
+		renderError(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

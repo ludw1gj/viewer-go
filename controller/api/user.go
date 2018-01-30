@@ -13,8 +13,8 @@ import (
 	"github.com/robertjeffs/viewer-go/model/database"
 )
 
-// Login will process a user login.
-func Login(w http.ResponseWriter, r *http.Request) {
+// UserLogin will process a user login.
+func UserLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != "POST" {
@@ -47,8 +47,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Login successful.")
 }
 
-// Logout will logout the user by changing the session value "authenticated" to false.
-func Logout(w http.ResponseWriter, r *http.Request) {
+// UserLogout will logout the user by changing the session value "authenticated" to false.
+func UserLogout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := session.RemoveUserAuthFromSession(w, r); err != nil {
@@ -58,9 +58,9 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Logout successful.")
 }
 
-// DeleteAccount will process the delete user form, if password is correct the user's account will be deleted and the
-// user redirected to the login page.
-func DeleteAccount(w http.ResponseWriter, r *http.Request) {
+// UserDeleteAccount will process the delete user form, if password is correct the user's account will be deleted and
+// the user redirected to the login page.
+func UserDeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := common.ValidateUser(r)
@@ -88,9 +88,9 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Account deletion successful.")
 }
 
-// ChangePassword will process a json post request, comparing password sent with current password and if they match, the
-// current password will be changed to the new password.
-func ChangePassword(w http.ResponseWriter, r *http.Request) {
+// UserChangePassword will process a json post request, comparing password sent with current password and if they match,
+// the current password will be changed to the new password.
+func UserChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := common.ValidateUser(r)
@@ -127,8 +127,8 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Password changed successfully.")
 }
 
-// ChangeName will change the user's first/last name.
-func ChangeName(w http.ResponseWriter, r *http.Request) {
+// UserChangeName will change the user's first/last name.
+func UserChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := common.ValidateUser(r)

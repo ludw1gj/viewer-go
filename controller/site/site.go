@@ -22,6 +22,11 @@ import (
 	"github.com/robertjeffs/viewer-go/model/database"
 )
 
+// userInfo is used for data object of error for rendering templates.
+type userInfo struct {
+	User database.User
+}
+
 // GetErrorPage renders the error page and sends status 500.
 func GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	w.WriteHeader(http.StatusInternalServerError)
@@ -73,7 +78,7 @@ func GetLoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.RenderTemplate(w, r, "login", nil)
+	templates.RenderLoginTemplate(w, r)
 }
 
 // GetUserPage renders the user page.
@@ -159,4 +164,35 @@ func SendFile(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", contentType(filePath))
 	http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
+}
+
+// GetAdminPage renders the Administration page. Client must be admin.
+func GetAdminPage(w http.ResponseWriter, r *http.Request) {
+	u, err := common.ValidateAdmin(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	templates.RenderTemplate(w, r, "admin", userInfo{u})
+}
+
+// GetAdminDisplayAllUsers render a sub administration page which displays all users in database. Client must be admin.
+func GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
+	u, err := common.ValidateAdmin(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	users, err := database.GetAllUsers()
+	if err != nil {
+		GetErrorPage(w, r, err)
+		return
+	}
+
+	data := struct {
+		User  database.User
+		Users []database.User
+	}{u, users}
+	templates.RenderTemplate(w, r, "adminUsers", data)
 }

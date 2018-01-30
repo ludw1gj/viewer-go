@@ -13,8 +13,8 @@ import (
 	"github.com/robertjeffs/viewer-go/model/database"
 )
 
-// CreateUser receives new user information via json and creates the user. Client must be admin.
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+// AdminCreateUser receives new user information via json and creates the user. Client must be admin.
+func AdminCreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := common.ValidateAdmin(r); err != nil {
@@ -43,8 +43,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Successfully created user.")
 }
 
-// DeleteUser receives user information via json and deletes the user. Client must be admin.
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+// AdminDeleteUser receives user information via json and deletes the user. Client must be admin.
+func AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := common.ValidateAdmin(r); err != nil {
@@ -72,8 +72,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Successfully deleted user.")
 }
 
-// ChangeUsername receives new username root via json and updates it in the database. Client must be admin.
-func ChangeUsername(w http.ResponseWriter, r *http.Request) {
+// AdminChangeUserUsername changes a user's username. Client must be admin.
+func AdminChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := common.ValidateAdmin(r); err != nil {
@@ -103,9 +103,9 @@ func ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Changed user's username successfully.")
 }
 
-// ChangeAdminStatus changes a user's admin status via the provided ID and updates it in the database. Client must be
-// admin.
-func ChangeAdminStatus(w http.ResponseWriter, r *http.Request) {
+// AdminChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the database. Client must
+// be admin.
+func AdminChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := common.ValidateAdmin(r); err != nil {
@@ -135,8 +135,8 @@ func ChangeAdminStatus(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, fmt.Sprintf("Changed admin status of user of id %d to %t", data.UserID, data.IsAdmin))
 }
 
-// ChangeDirRoot changes the directory root of the client and updates it in the database. Client must be admin.
-func ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
+// AdminChangeDirRoot changes the directory root of the client and updates it in the database. Client must be admin.
+func AdminChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	u, err := common.ValidateAdmin(r)
