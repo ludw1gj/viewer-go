@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/FriedPigeon/viewer-go/database"
-	"github.com/FriedPigeon/viewer-go/session"
+	"github.com/robertjeffs/viewer-go/database"
+	"github.com/robertjeffs/viewer-go/session"
 )
 
 // ValidateUser checks if user's session is valid and then returns the user's information.

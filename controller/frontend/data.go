@@ -1,6 +1,6 @@
 package frontend
 
-import "github.com/FriedPigeon/viewer-go/database"
+import "github.com/robertjeffs/viewer-go/database"
 
 // userInfo is used for data object of error for rendering templates.
 type userInfo struct {

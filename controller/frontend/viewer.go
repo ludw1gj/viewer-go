@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
-	"github.com/FriedPigeon/viewer-go/database"
 	"github.com/gorilla/mux"
+	"github.com/robertjeffs/viewer-go/controller/common"
+	"github.com/robertjeffs/viewer-go/database"
 )
 
 // ViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's

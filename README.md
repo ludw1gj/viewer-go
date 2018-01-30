@@ -21,10 +21,10 @@ go get golang.org/x/crypto/bcrypt
 go get github.com/lib/pq
 go get github.com/mattn/go-sqlite3
 
-go get github.com/FriedPigeon/viewer-go
+go get github.com/robertjeffs/viewer-go
 ```
 * Go to viewer-go directory:  
-`cd {Your GOPATH}/src/github.com/FriedPigeon/viewer-go`
+`cd {Your GOPATH}/src/github.com/robertjeffs/viewer-go`
 * To run in development:  
 `go run main.go -dev=true -port=3000 -dbFile=viewer.db -configFile=config.json`
 * Access via:  
@@ -36,10 +36,7 @@ go get github.com/FriedPigeon/viewer-go
 ## Notes
 ### Cross Compile
 This will not cross compile with ease as the project is using mattn/go-sqlite3. If you want to save the trouble, 
-build on the platform you're targeting.   
-
-### Static Files - /static/*  
-A static file handler is included and can be used when invoking the dev flag set to true: `-dev=true`.
+build on the platform you're targeting.
 
 ### Database - viewer.db
 This project uses SQLite database. When the app is run it will check for viewer.db (or whatever you have inputted
@@ -71,7 +68,3 @@ Example config.json:
   }
 }
 ```
-
-## Authors
-* **FriedPigeon**
-

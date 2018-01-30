@@ -10,7 +10,7 @@ import (
 
 	"fmt"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
+	"github.com/robertjeffs/viewer-go/controller/common"
 )
 
 // RedirectToViewer redirects users to the viewer page.

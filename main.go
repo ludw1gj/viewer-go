@@ -8,16 +8,15 @@ import (
 
 	"fmt"
 
-	"github.com/FriedPigeon/viewer-go/controller/api"
-	"github.com/FriedPigeon/viewer-go/controller/frontend"
-	"github.com/FriedPigeon/viewer-go/controller/middleware"
-	"github.com/FriedPigeon/viewer-go/database"
-	"github.com/FriedPigeon/viewer-go/session"
 	"github.com/gorilla/mux"
+	"github.com/robertjeffs/viewer-go/controller/api"
+	"github.com/robertjeffs/viewer-go/controller/frontend"
+	"github.com/robertjeffs/viewer-go/controller/middleware"
+	"github.com/robertjeffs/viewer-go/database"
+	"github.com/robertjeffs/viewer-go/session"
 )
 
 func main() {
-	dev := flag.Bool("dev", true, "Use in development")
 	port := flag.Int("port", 3000, "Port number")
 	dbFile := flag.String("dbFile", "viewer.db", "Database File")
 	sessionConfigFile := flag.String("configFile", "config.json", "Session config json file")
@@ -32,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	loadRoutes(*dev)
+	loadRoutes()
 
 	// listen and serve
 	log.Printf("viewer-go listening on port %d...", *port)
@@ -42,7 +41,7 @@ func main() {
 }
 
 // loadRoutes initialises routes and a static file handler if dev is true.
-func loadRoutes(dev bool) {
+func loadRoutes() {
 	protected := mux.NewRouter()
 
 	http.HandleFunc("/login", frontend.LoginPage)
@@ -76,9 +75,6 @@ func loadRoutes(dev bool) {
 	protected.HandleFunc("/api/admin/change-dir-root", api.ChangeDirRoot).Methods("POST")
 	protected.HandleFunc("/api/admin/change-admin-status", api.ChangeAdminStatus).Methods("POST")
 
-	// static file handler in dev mode
-	if dev {
-		fs := http.FileServer(http.Dir("./static"))
-		http.Handle("/static/", http.StripPrefix("/static", fs))
-	}
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/static/", http.StripPrefix("/static", fs))
 }

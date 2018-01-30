@@ -3,8 +3,8 @@ package frontend
 import (
 	"net/http"
 
-	"github.com/FriedPigeon/viewer-go/controller/common"
-	"github.com/FriedPigeon/viewer-go/database"
+	"github.com/robertjeffs/viewer-go/controller/common"
+	"github.com/robertjeffs/viewer-go/database"
 )
 
 // AdminPage renders the Administration page. Client must be admin.
