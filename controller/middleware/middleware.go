@@ -4,7 +4,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/robertjeffs/viewer-go/session"
+	"github.com/robertjeffs/viewer-go/logic/session"
 )
 
 // AuthenticateRoute is middleware that checks if users are authenticated.

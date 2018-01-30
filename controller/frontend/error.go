@@ -9,9 +9,9 @@ import (
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/controller/common"
+	"github.com/robertjeffs/viewer-go/logic/common"
 
-	"github.com/robertjeffs/viewer-go/database"
+	"github.com/robertjeffs/viewer-go/model/database"
 )
 
 // NotFound renders the not found page and sends status 404.
@@ -22,13 +22,13 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var tplBuf bytes.Buffer
-	if err := notFoundTpl.ExecuteTemplate(&tplBuf, "base.gohtml", userInfo{user}); err != nil {
+	var templateBuf bytes.Buffer
+	if err := notFoundTemplate.ExecuteTemplate(&templateBuf, "base.gohtml", userInfo{user}); err != nil {
 		renderErrorPage(w, r, err)
 		return
 	}
 	w.WriteHeader(http.StatusNotFound)
-	w.Write(tplBuf.Bytes())
+	w.Write(templateBuf.Bytes())
 }
 
 // renderErrorPage renders the error page and sends status 500.
@@ -52,8 +52,8 @@ func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 		user,
 	}
 
-	var tplBuf bytes.Buffer
-	if err := errorTpl.ExecuteTemplate(&tplBuf, "base.gohtml", data); err != nil {
+	var templateBuf bytes.Buffer
+	if err := errorTemplate.ExecuteTemplate(&templateBuf, "base.gohtml", data); err != nil {
 		log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
 
 		resp := fmt.Sprintf("500: Server error. Two errors have occured.<br>First Error: %s<br>Second Error: %s",
@@ -61,5 +61,5 @@ func renderErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 		w.Write([]byte(resp))
 		return
 	}
-	w.Write(tplBuf.Bytes())
+	w.Write(templateBuf.Bytes())
 }

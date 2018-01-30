@@ -33,7 +33,7 @@ function addEventListenerLoginForm(): void {
     });
 }
 
-// loadLoginPage loads login page script if at login page.
+// loadLoginPage loads login page scripts if at login page.
 function loadLoginPageScript(): void {
     if (window.location.pathname === "/login") {
         addEventListenerLoginForm();

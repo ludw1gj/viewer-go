@@ -8,9 +8,9 @@ import (
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/controller/common"
-	"github.com/robertjeffs/viewer-go/database"
-	"github.com/robertjeffs/viewer-go/session"
+	"github.com/robertjeffs/viewer-go/logic/common"
+	"github.com/robertjeffs/viewer-go/logic/session"
+	"github.com/robertjeffs/viewer-go/model/database"
 )
 
 // Login will process a user login.

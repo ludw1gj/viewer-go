@@ -10,7 +10,7 @@ import (
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/controller/common"
+	"github.com/robertjeffs/viewer-go/logic/common"
 )
 
 // RedirectToViewer redirects users to the viewer page.
@@ -25,15 +25,15 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var tplBuf bytes.Buffer
-	if err := loginTpl.Execute(&tplBuf, nil); err != nil {
+	var templateBuf bytes.Buffer
+	if err := loginTemplate.Execute(&templateBuf, nil); err != nil {
 		log.Println(err)
 
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("500: Server error. %s", err.Error())))
 		return
 	}
-	w.Write(tplBuf.Bytes())
+	w.Write(templateBuf.Bytes())
 }
 
 // UserPage renders the user page.
@@ -43,7 +43,7 @@ func UserPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	renderTemplate(w, r, userTpl, userInfo{user})
+	renderTemplate(w, r, userTemplate, userInfo{user})
 }
 
 // AboutPage handles the about page.
@@ -53,5 +53,5 @@ func AboutPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	renderTemplate(w, r, aboutTpl, userInfo{user})
+	renderTemplate(w, r, aboutTemplate, userInfo{user})
 }

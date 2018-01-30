@@ -3,8 +3,8 @@ package frontend
 import (
 	"net/http"
 
-	"github.com/robertjeffs/viewer-go/controller/common"
-	"github.com/robertjeffs/viewer-go/database"
+	"github.com/robertjeffs/viewer-go/logic/common"
+	"github.com/robertjeffs/viewer-go/model/database"
 )
 
 // AdminPage renders the Administration page. Client must be admin.
@@ -14,7 +14,7 @@ func AdminPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	renderTemplate(w, r, adminTpl, userInfo{u})
+	renderTemplate(w, r, adminTemplate, userInfo{u})
 }
 
 // AdminDisplayAllUsers render a sub administration page which displays all users in database. Client must be admin.
@@ -35,5 +35,5 @@ func AdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
 		User  database.User
 		Users []database.User
 	}{u, users}
-	renderTemplate(w, r, adminUsersTpl, data)
+	renderTemplate(w, r, adminUsersTemplate, data)
 }

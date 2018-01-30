@@ -191,7 +191,8 @@ function displaySuccessNotification(msg) {
     notification.classList.add("is-success");
     notification.innerText = msg;
 }
-// load authorized page's script.
+
+// load authorized page's scripts.
 function loadAuthorizedPages() {
     var page = window.location.pathname;
     // check if not on login page, as it does not have the navigation menu
@@ -239,7 +240,8 @@ function addEventListenerLoginForm() {
         submitAjaxJson("/api/user/login", data, errFunc, okFunc);
     });
 }
-// loadLoginPage loads login page script if at login page.
+
+// loadLoginPage loads login page scripts if at login page.
 function loadLoginPageScript() {
     if (window.location.pathname === "/login") {
         addEventListenerLoginForm();

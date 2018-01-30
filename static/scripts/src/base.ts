@@ -43,7 +43,7 @@ function displaySuccessNotification(msg: string): void {
     notification.innerText = msg;
 }
 
-// load authorized page's script.
+// load authorized page's scripts.
 function loadAuthorizedPages(): void {
     const page = window.location.pathname;
     // check if not on login page, as it does not have the navigation menu

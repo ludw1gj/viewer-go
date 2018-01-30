@@ -9,8 +9,8 @@ import (
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/controller/common"
-	"github.com/robertjeffs/viewer-go/database"
+	"github.com/robertjeffs/viewer-go/logic/common"
+	"github.com/robertjeffs/viewer-go/model/database"
 )
 
 // CreateUser receives new user information via json and creates the user. Client must be admin.

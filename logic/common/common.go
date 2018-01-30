@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/robertjeffs/viewer-go/database"
-	"github.com/robertjeffs/viewer-go/session"
+	"github.com/robertjeffs/viewer-go/logic/session"
+	"github.com/robertjeffs/viewer-go/model/database"
 )
 
 // ValidateUser checks if user's session is valid and then returns the user's information.
@@ -48,24 +48,24 @@ func ValidateJsonInput(a interface{}) error {
 		switch v.Field(i).Type().Kind() {
 		case reflect.String:
 			if v.Field(i).String() == "" {
-				return genJsonError(a)
+				return generateJsonError(a)
 			}
 		case reflect.Int:
 			if v.Field(i).Int() == 0 {
-				return genJsonError(a)
+				return generateJsonError(a)
 			}
 		case reflect.Float64:
 			if v.Field(i).Float() == 0 {
-				return genJsonError(a)
+				return generateJsonError(a)
 			}
 		}
 	}
 	return nil
 }
 
-// genJsonError when passed a struct object with json tags generates an error which includes json structure (keys and
+// generateJsonError when passed a struct object with json tags generates an error which includes json structure (keys and
 // key's types).
-func genJsonError(a interface{}) error {
+func generateJsonError(a interface{}) error {
 	val := reflect.ValueOf(a)
 	v := reflect.Indirect(val)
 

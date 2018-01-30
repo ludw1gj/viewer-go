@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/robertjeffs/viewer-go/controller/common"
-	"github.com/robertjeffs/viewer-go/database"
+	"github.com/robertjeffs/viewer-go/logic/common"
+	"github.com/robertjeffs/viewer-go/model/database"
 )
 
 // ViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's
@@ -37,12 +37,12 @@ func ViewerPage(w http.ResponseWriter, r *http.Request) {
 		urlPath,
 		user,
 	}
-	renderTemplate(w, r, viewerTpl, data)
+	renderTemplate(w, r, viewerTemplate, data)
 }
 
-// genDirectoryList renders the directory list template according the directory path and returns the HTML document
+// generateDirectoryList renders the directory list template according the directory path and returns the HTML document
 // fragment.
-func genDirectoryList(userDirRoot string, urlPath string) (list template.HTML, err error) {
+func generateDirectoryList(userDirRoot string, urlPath string) (list template.HTML, err error) {
 	// get items in directory
 	f, err := os.Open(path.Join(userDirRoot, urlPath))
 	if err != nil {
@@ -131,11 +131,11 @@ func genDirectoryList(userDirRoot string, urlPath string) (list template.HTML, e
 	}
 
 	// execute and return the template
-	var tplBuf bytes.Buffer
-	if err := dirListTpl.Execute(&tplBuf, directoryList{index, previous.String(), entities, urlPath, isEmpty}); err != nil {
+	var templateBuf bytes.Buffer
+	if err := dirListTemplate.Execute(&templateBuf, directoryList{index, previous.String(), entities, urlPath, isEmpty}); err != nil {
 		return list, err
 	}
-	return template.HTML(tplBuf.String()), nil
+	return template.HTML(templateBuf.String()), nil
 }
 
 // SendFile sends file to client.
@@ -181,11 +181,11 @@ func contentType(path string) (contentType string) {
 	} else if hasSuffix(".js") {
 		return "application/javascript"
 	} else if hasSuffix(".png") {
-		return "image/png"
+		return "images/png"
 	} else if hasSuffix(".jpg") {
-		return "image/jpeg"
+		return "images/jpeg"
 	} else if hasSuffix(".jpeg") {
-		return "image/jpeg"
+		return "images/jpeg"
 	} else if hasSuffix(".mp4") {
 		return "video/mp4"
 	}

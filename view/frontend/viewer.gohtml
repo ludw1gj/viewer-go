@@ -38,7 +38,7 @@
     <div class="column is-two-thirds">
         <h2 class="title is-2">Files</h2>
         <h4 id="current-dir" class="subtitle is-4 is-spaced">/{{.CurrentDir}}</h4>
-        {{genDirectoryList .User.DirectoryRoot .CurrentDir}}
+    {{generateDirectoryList .User.DirectoryRoot .CurrentDir}}
     </div>
 </div>
 {{end}}

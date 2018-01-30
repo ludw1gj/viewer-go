@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/robertjeffs/viewer-go/controller/common"
+	"github.com/robertjeffs/viewer-go/logic/common"
 )
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the viewer

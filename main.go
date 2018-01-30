@@ -12,8 +12,8 @@ import (
 	"github.com/robertjeffs/viewer-go/controller/api"
 	"github.com/robertjeffs/viewer-go/controller/frontend"
 	"github.com/robertjeffs/viewer-go/controller/middleware"
-	"github.com/robertjeffs/viewer-go/database"
-	"github.com/robertjeffs/viewer-go/session"
+	"github.com/robertjeffs/viewer-go/logic/session"
+	"github.com/robertjeffs/viewer-go/model/database"
 )
 
 func main() {
