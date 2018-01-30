@@ -10,8 +10,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robertjeffs/viewer-go/controller/api"
-	"github.com/robertjeffs/viewer-go/controller/frontend"
 	"github.com/robertjeffs/viewer-go/controller/middleware"
+	"github.com/robertjeffs/viewer-go/controller/site"
 	"github.com/robertjeffs/viewer-go/logic/session"
 	"github.com/robertjeffs/viewer-go/model/database"
 )
@@ -44,19 +44,24 @@ func main() {
 func loadRoutes() {
 	protected := mux.NewRouter()
 
-	http.HandleFunc("/login", frontend.LoginPage)
+	http.HandleFunc("/login", site.GetLoginPage)
 	http.HandleFunc("/api/user/login", api.Login)
 	http.Handle("/", middleware.AuthenticateRoute(protected))
 
-	// frontend
-	protected.HandleFunc("/", frontend.RedirectToViewer).Methods("GET")
-	protected.HandleFunc("/viewer/{path:.*}", frontend.ViewerPage).Methods("GET")
-	protected.HandleFunc("/file/{path:.*}", frontend.SendFile).Methods("GET")
-	protected.HandleFunc("/about", frontend.AboutPage).Methods("GET")
-	protected.HandleFunc("/user", frontend.UserPage).Methods("GET")
-	protected.HandleFunc("/admin", frontend.AdminPage).Methods("GET")
-	protected.HandleFunc("/admin/users", frontend.AdminDisplayAllUsers).Methods("GET")
-	protected.NotFoundHandler = http.HandlerFunc(frontend.NotFound)
+	// redirectToViewer redirects users to the viewer page.
+	redirectToViewer := func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/viewer/", http.StatusMovedPermanently)
+	}
+
+	// site
+	protected.HandleFunc("/", redirectToViewer).Methods("GET")
+	protected.HandleFunc("/viewer/{path:.*}", site.GetViewerPage).Methods("GET")
+	protected.HandleFunc("/file/{path:.*}", site.SendFile).Methods("GET")
+	protected.HandleFunc("/about", site.GetAboutPage).Methods("GET")
+	protected.HandleFunc("/user", site.GetUserPage).Methods("GET")
+	protected.HandleFunc("/admin", site.GetAdminPage).Methods("GET")
+	protected.HandleFunc("/admin/users", site.GetAdminDisplayAllUsers).Methods("GET")
+	protected.NotFoundHandler = http.HandlerFunc(site.GetNotFoundPage)
 
 	// api
 	protected.HandleFunc("/api/viewer/upload", api.Upload).Methods("POST")

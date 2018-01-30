@@ -1,4 +1,4 @@
-package frontend
+package site
 
 import "github.com/robertjeffs/viewer-go/model/database"
 
