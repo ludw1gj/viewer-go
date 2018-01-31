@@ -24,7 +24,7 @@ type cookieKeys struct {
 func loadCookieConfig(file string) (ck cookieKeys, err error) {
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		// file does not exist
-		if err := generateCookieConfigJsonFile(file); err != nil {
+		if err := generateCookieConfigJSONFile(file); err != nil {
 			return ck, err
 		}
 	}
@@ -42,19 +42,19 @@ func loadCookieConfig(file string) (ck cookieKeys, err error) {
 	return ck, nil
 }
 
-// generateCookieConfigJsonFile generates a json file containing cookie authorisation and encryption keys.
-func generateCookieConfigJsonFile(file string) error {
+// generateCookieConfigJSONFile generates a json file containing cookie authorisation and encryption keys.
+func generateCookieConfigJSONFile(file string) error {
 	c := cookieKeys{
 		keys{
 			securecookie.GenerateRandomKey(32),
 			securecookie.GenerateRandomKey(32),
 		},
 	}
-	configJson, err := json.Marshal(c)
+	configJSON, err := json.Marshal(c)
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(file, configJson, 0644); err != nil {
+	if err := ioutil.WriteFile(file, configJSON, 0644); err != nil {
 		return err
 	}
 	return nil

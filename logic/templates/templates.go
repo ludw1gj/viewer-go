@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	templateDir      = "view"
+	templateDir      = "views"
 	baseTemplatePath = path.Join(templateDir, "base.gohtml")
 
 	directoryListTemplate = template.Must(template.ParseFiles(path.Join(templateDir, "dir_list.gohtml")))
@@ -57,7 +57,8 @@ func renderError(w http.ResponseWriter, err error) {
 	w.Write([]byte("500: Server error"))
 }
 
-func RenderLoginTemplate(w http.ResponseWriter, r *http.Request) {
+// RenderLoginTemplate renders the login template.
+func RenderLoginTemplate(w http.ResponseWriter) {
 	// Ensure the template exists in the map.
 	tpl, ok := templates["login"]
 	if !ok {
@@ -78,7 +79,7 @@ func RenderLoginTemplate(w http.ResponseWriter, r *http.Request) {
 }
 
 // RenderTemplate executes a templates and sends it to the client.
-func RenderTemplate(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
+func RenderTemplate(w http.ResponseWriter, name string, data interface{}) {
 	// Ensure the template exists in the map.
 	tpl, ok := templates[name]
 	if !ok {

@@ -1,6 +1,6 @@
 // This file contains handlers for admin api routes.
 
-package api
+package controllers
 
 import (
 	"net/http"
@@ -9,20 +9,26 @@ import (
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/logic/validate"
-	"github.com/robertjeffs/viewer-go/model/database"
+	"github.com/robertjeffs/viewer-go/logic/session"
+	"github.com/robertjeffs/viewer-go/models"
 )
 
-// AdminCreateUser receives new user information via json and creates the user. Client must be admin.
-func AdminCreateUser(w http.ResponseWriter, r *http.Request) {
+type AdminController struct{}
+
+func NewAdminController() *AdminController {
+	return &AdminController{}
+}
+
+// CreateUser receives new user information via json and creates the user. Client must be admin.
+func (AdminController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := validate.ValidateAdmin(r); err != nil {
+	if _, err := session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
-	user := database.User{}
+	user := models.User{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -31,23 +37,23 @@ func AdminCreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// number cannot be 0 as validation will fail
 	user.ID = 1
-	if err := validate.ValidateJsonInput(user); err != nil {
+	if err := validateJSONInput(user); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := database.CreateUser(user); err != nil {
+	if err := models.CreateUser(user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, "Successfully created user.")
 }
 
-// AdminDeleteUser receives user information via json and deletes the user. Client must be admin.
-func AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
+// DeleteUser receives user information via json and deletes the user. Client must be admin.
+func (AdminController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := validate.ValidateAdmin(r); err != nil {
+	if _, err := session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -60,23 +66,23 @@ func AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(data); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := database.DeleteUser(data.UserID); err != nil {
+	if err := models.DeleteUser(data.UserID); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, "Successfully deleted user.")
 }
 
-// AdminChangeUserUsername changes a user's username. Client must be admin.
-func AdminChangeUserUsername(w http.ResponseWriter, r *http.Request) {
+// ChangeUserUsername changes a user's username. Client must be admin.
+func (AdminController) ChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := validate.ValidateAdmin(r); err != nil {
+	if _, err := session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -91,24 +97,24 @@ func AdminChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(data); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := database.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
+	if err := models.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, "Changed user's username successfully.")
 }
 
-// AdminChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the database. Client must
+// ChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the models. Client must
 // be admin.
-func AdminChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
+func (AdminController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := validate.ValidateAdmin(r); err != nil {
+	if _, err := session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -123,23 +129,23 @@ func AdminChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(data); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := database.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
+	if err := models.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, fmt.Sprintf("Changed admin status of user of id %d to %t", data.UserID, data.IsAdmin))
 }
 
-// AdminChangeDirRoot changes the directory root of the client and updates it in the database. Client must be admin.
-func AdminChangeDirRoot(w http.ResponseWriter, r *http.Request) {
+// ChangeDirRoot changes the directory root of the client and updates it in the models. Client must be admin.
+func (AdminController) ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	u, err := validate.ValidateAdmin(r)
+	u, err := session.ValidateAdminSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -154,7 +160,7 @@ func AdminChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(data); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

@@ -1,6 +1,6 @@
 // This file contains functions for rendering standard site pages.
 
-package site
+package controllers
 
 import (
 	"errors"
@@ -17,20 +17,26 @@ import (
 	"fmt"
 
 	"github.com/gorilla/mux"
-	"github.com/robertjeffs/viewer-go/controller/templates"
-	"github.com/robertjeffs/viewer-go/logic/validate"
-	"github.com/robertjeffs/viewer-go/model/database"
+	"github.com/robertjeffs/viewer-go/logic/session"
+	"github.com/robertjeffs/viewer-go/logic/templates"
+	"github.com/robertjeffs/viewer-go/models"
 )
+
+type SiteController struct{}
+
+func NewSiteController() *SiteController {
+	return &SiteController{}
+}
 
 // userInfo is used for data object of error for rendering templates.
 type userInfo struct {
-	User database.User
+	User models.User
 }
 
 // GetErrorPage renders the error page and sends status 500.
-func GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
+func (SiteController) GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	w.WriteHeader(http.StatusInternalServerError)
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		log.Printf("StatusInternalServerError failed to execute get user from session on error page: %s", err.Error())
 
@@ -42,18 +48,18 @@ func GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 
 	data := struct {
 		Error string
-		User  database.User
+		User  models.User
 	}{
 		pageErr.Error(),
 		user,
 	}
-	templates.RenderTemplate(w, r, "error", data)
+	templates.RenderTemplate(w, "error", data)
 }
 
-// GetViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the user's
-// directory in the filesystem to display a directory list for.
-func GetViewerPage(w http.ResponseWriter, r *http.Request) {
-	user, err := validate.ValidateUser(r)
+// GetViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the
+// user's directory in the filesystem to display a directory list for.
+func (SiteController) GetViewerPage(w http.ResponseWriter, r *http.Request) {
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -63,58 +69,58 @@ func GetViewerPage(w http.ResponseWriter, r *http.Request) {
 	urlPath := strings.TrimPrefix(mux.Vars(r)["path"], "/")
 	data := struct {
 		CurrentDir string
-		User       database.User
+		User       models.User
 	}{
 		urlPath,
 		user,
 	}
-	templates.RenderTemplate(w, r, "viewer", data)
+	templates.RenderTemplate(w, "viewer", data)
 }
 
 // GetLoginPage method renders the login page.
-func GetLoginPage(w http.ResponseWriter, r *http.Request) {
+func (SiteController) GetLoginPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
-	templates.RenderLoginTemplate(w, r)
+	templates.RenderLoginTemplate(w)
 }
 
 // GetUserPage renders the user page.
-func GetUserPage(w http.ResponseWriter, r *http.Request) {
-	user, err := validate.ValidateUser(r)
+func (SiteController) GetUserPage(w http.ResponseWriter, r *http.Request) {
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, r, "user", userInfo{user})
+	templates.RenderTemplate(w, "user", userInfo{user})
 }
 
 // GetAboutPage handles the about page.
-func GetAboutPage(w http.ResponseWriter, r *http.Request) {
-	user, err := validate.ValidateUser(r)
+func (SiteController) GetAboutPage(w http.ResponseWriter, r *http.Request) {
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, r, "about", userInfo{user})
+	templates.RenderTemplate(w, "about", userInfo{user})
 }
 
 // GetNotFoundPage renders the not found page and sends status 404.
-func GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
-	user, err := validate.ValidateUser(r)
+func (SiteController) GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, r, "notFound", userInfo{user})
+	templates.RenderTemplate(w, "notFound", userInfo{user})
 }
 
 // SendFile sends file to client.
-func SendFile(w http.ResponseWriter, r *http.Request) {
+func (sc SiteController) SendFile(w http.ResponseWriter, r *http.Request) {
 	// get user from session
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -126,17 +132,17 @@ func SendFile(w http.ResponseWriter, r *http.Request) {
 	// get file
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		GetErrorPage(w, r, err)
+		sc.GetErrorPage(w, r, err)
 		return
 	}
 	if fileInfo.IsDir() {
-		GetErrorPage(w, r, errors.New("requested item is not a file"))
+		sc.GetErrorPage(w, r, errors.New("requested item is not a file"))
 		return
 	}
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		GetErrorPage(w, r, err)
+		sc.GetErrorPage(w, r, err)
 		return
 	}
 
@@ -167,32 +173,32 @@ func SendFile(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAdminPage renders the Administration page. Client must be admin.
-func GetAdminPage(w http.ResponseWriter, r *http.Request) {
-	u, err := validate.ValidateAdmin(r)
+func (SiteController) GetAdminPage(w http.ResponseWriter, r *http.Request) {
+	u, err := session.ValidateAdminSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, r, "admin", userInfo{u})
+	templates.RenderTemplate(w, "admin", userInfo{u})
 }
 
-// GetAdminDisplayAllUsers render a sub administration page which displays all users in database. Client must be admin.
-func GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
-	u, err := validate.ValidateAdmin(r)
+// GetAdminDisplayAllUsers render a sub administration page which displays all users in models. Client must be admin.
+func (sc SiteController) GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
+	u, err := session.ValidateAdminSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	users, err := database.GetAllUsers()
+	users, err := models.GetAllUsers()
 	if err != nil {
-		GetErrorPage(w, r, err)
+		sc.GetErrorPage(w, r, err)
 		return
 	}
 
 	data := struct {
-		User  database.User
-		Users []database.User
+		User  models.User
+		Users []models.User
 	}{u, users}
-	templates.RenderTemplate(w, r, "adminUsers", data)
+	templates.RenderTemplate(w, "adminUsers", data)
 }

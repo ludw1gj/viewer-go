@@ -23,7 +23,7 @@ function addEventListenersAdminForms() {
             }
             displaySuccessNotification(resp.data.content);
         };
-        submitAjaxJson(adminApiRoute + "change-username", data, errFunc, okFunc);
+        submitAjaxJSON(adminApiRoute + "change-username", data, errFunc, okFunc);
     });
     // handle change directory root form logic
     var changeDirForm = document.getElementById("change-dir-root-form");
@@ -40,7 +40,7 @@ function addEventListenersAdminForms() {
             displaySuccessNotification(resp.data.content);
             changeDirForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "change-dir-root", data, errFunc, okFunc);
+        submitAjaxJSON(adminApiRoute + "change-dir-root", data, errFunc, okFunc);
     });
     // handle change admin status form logic
     var changeAdminStatusForm = document.getElementById("change-admin-status-form");
@@ -59,7 +59,7 @@ function addEventListenersAdminForms() {
             displaySuccessNotification(resp.data.content);
             changeDirForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "change-admin-status", data, errFunc, okFunc);
+        submitAjaxJSON(adminApiRoute + "change-admin-status", data, errFunc, okFunc);
     });
     // handle create user form logic
     var createUserForm = document.getElementById("create-user-form");
@@ -86,7 +86,7 @@ function addEventListenersAdminForms() {
             displaySuccessNotification(resp.data.content);
             createUserForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "create-user", data, errFunc, okFunc);
+        submitAjaxJSON(adminApiRoute + "create-user", data, errFunc, okFunc);
     });
     // handle delete user form logic
     var deleteUserForm = document.getElementById("delete-user-form");
@@ -103,11 +103,12 @@ function addEventListenersAdminForms() {
             displaySuccessNotification(resp.data.content);
             createUserForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "delete-user", data, errFunc, okFunc);
+        submitAjaxJSON(adminApiRoute + "delete-user", data, errFunc, okFunc);
     });
 }
-// submitAjaxJson submits an AJAX POST request.
-function submitAjaxJson(url, data, errFunc, okFunc) {
+
+// submitAjaxJSON submits an AJAX POST request.
+function submitAjaxJSON(url, data, errFunc, okFunc) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -174,7 +175,7 @@ function addEventListenersBaseNav() {
         var okFunc = function () {
             window.location.href = "/login";
         };
-        submitAjaxJson("/api/user/logout", undefined, errFunc, okFunc);
+        submitAjaxJSON("/api/user/logout", undefined, errFunc, okFunc);
     });
 }
 // displayErrorNotification displays error notification.
@@ -191,7 +192,6 @@ function displaySuccessNotification(msg) {
     notification.classList.add("is-success");
     notification.innerText = msg;
 }
-
 // load authorized page's scripts.
 function loadAuthorizedPages() {
     var page = window.location.pathname;
@@ -237,10 +237,9 @@ function addEventListenerLoginForm() {
         var okFunc = function () {
             window.location.href = "/viewer/";
         };
-        submitAjaxJson("/api/user/login", data, errFunc, okFunc);
+        submitAjaxJSON("/api/user/login", data, errFunc, okFunc);
     });
 }
-
 // loadLoginPage loads login page scripts if at login page.
 function loadLoginPageScript() {
     if (window.location.pathname === "/login") {
@@ -267,7 +266,7 @@ function addEventListenersUserForms() {
             displaySuccessNotification(resp.data.content);
             location.reload(true);
         };
-        submitAjaxJson(userApiRoute + "change-name", data, errFunc, okFunc);
+        submitAjaxJSON(userApiRoute + "change-name", data, errFunc, okFunc);
     });
     // handle change password form logic
     var changePasswordForm = document.getElementById("change-password-form");
@@ -286,7 +285,7 @@ function addEventListenersUserForms() {
             displaySuccessNotification(resp.data.content);
             changePasswordForm.reset();
         };
-        submitAjaxJson(userApiRoute + "change-password", data, errFunc, okFunc);
+        submitAjaxJSON(userApiRoute + "change-password", data, errFunc, okFunc);
     });
     // handle delete user form logic
     var deleteAccountForm = document.getElementById("delete-account-form");
@@ -303,7 +302,7 @@ function addEventListenersUserForms() {
         var okFunc = function () {
             window.location.href = "/login";
         };
-        submitAjaxJson(userApiRoute + "delete", data, errFunc, okFunc);
+        submitAjaxJSON(userApiRoute + "delete", data, errFunc, okFunc);
     });
 }
 // addEventListenersViewerForms function should be run at initialisation of viewer page.
@@ -359,7 +358,8 @@ function addEventListenersViewerForms() {
         viewerAjaxHelper(apiRoute + "delete-all", data);
     });
 }
-// viewerAjaxHelper is a wrapper for submitAjaxJson function.
+
+// viewerAjaxHelper is a wrapper for submitAjaxJSON function.
 function viewerAjaxHelper(url, data) {
     var errFunc = function (resp) {
         displayErrorNotification(resp.error.message);
@@ -367,7 +367,7 @@ function viewerAjaxHelper(url, data) {
     var okFunc = function () {
         location.reload(true);
     };
-    submitAjaxJson(url, data, errFunc, okFunc);
+    submitAjaxJSON(url, data, errFunc, okFunc);
 }
 // makePath generates a path.
 function makePath(currentDir, fileName) {

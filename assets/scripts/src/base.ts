@@ -17,13 +17,13 @@ function addEventListenersBaseNav(): void {
     // handle logout user
     let logoutButton = document.getElementById("logout-button") as HTMLElement;
     logoutButton.addEventListener('click', () => {
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
         const okFunc = () => {
             window.location.href = "/login";
         };
-        submitAjaxJson("/api/user/logout", undefined, errFunc, okFunc);
+        submitAjaxJSON("/api/user/logout", undefined, errFunc, okFunc);
     });
 }
 

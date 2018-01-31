@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "es5",
     "strict": true,
-    "outFile": "./static/scripts/build/build.js"
+    "outFile": "./assets/scripts/build/build.js"
   },
   "exclude": [
     "node_modules"

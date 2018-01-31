@@ -1,6 +1,6 @@
 // This file contains handlers for user specific api routes.
 
-package api
+package controllers
 
 import (
 	"encoding/json"
@@ -9,12 +9,17 @@ import (
 	"fmt"
 
 	"github.com/robertjeffs/viewer-go/logic/session"
-	"github.com/robertjeffs/viewer-go/logic/validate"
-	"github.com/robertjeffs/viewer-go/model/database"
+	"github.com/robertjeffs/viewer-go/models"
 )
 
-// UserLogin will process a user login.
-func UserLogin(w http.ResponseWriter, r *http.Request) {
+type UserController struct{}
+
+func NewUserController() *UserController {
+	return &UserController{}
+}
+
+// Login will process a user login.
+func (UserController) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != "POST" {
@@ -30,12 +35,12 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(loginCredentials); err != nil {
+	if err := validateJSONInput(loginCredentials); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID, err := database.ValidateUser(loginCredentials.Username, loginCredentials.Password)
+	userID, err := models.ValidateUser(loginCredentials.Username, loginCredentials.Password)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
@@ -47,8 +52,8 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Login successful.")
 }
 
-// UserLogout will logout the user by changing the session value "authenticated" to false.
-func UserLogout(w http.ResponseWriter, r *http.Request) {
+// Logout will logout the user by changing the session value "authenticated" to false.
+func (UserController) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := session.RemoveUserAuthFromSession(w, r); err != nil {
@@ -58,12 +63,12 @@ func UserLogout(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Logout successful.")
 }
 
-// UserDeleteAccount will process the delete user form, if password is correct the user's account will be deleted and
+// DeleteAccount will process the delete user form, if password is correct the user's account will be deleted and
 // the user redirected to the login page.
-func UserDeleteAccount(w http.ResponseWriter, r *http.Request) {
+func (UserController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -76,7 +81,7 @@ func UserDeleteAccount(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(password); err != nil {
+	if err := validateJSONInput(password); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -88,12 +93,12 @@ func UserDeleteAccount(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Account deletion successful.")
 }
 
-// UserChangePassword will process a json post request, comparing password sent with current password and if they match,
+// ChangePassword will process a json post request, comparing password sent with current password and if they match,
 // the current password will be changed to the new password.
-func UserChangePassword(w http.ResponseWriter, r *http.Request) {
+func (UserController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -109,14 +114,14 @@ func UserChangePassword(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(passwords); err != nil {
+	if err := validateJSONInput(passwords); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := user.UpdatePassword(passwords.OldPassword, passwords.NewPassword); err != nil {
 		switch err.(type) {
-		case *database.ErrInvalidPassword:
+		case *models.ErrInvalidPassword:
 			sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 			return
 		default:
@@ -127,11 +132,11 @@ func UserChangePassword(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Password changed successfully.")
 }
 
-// UserChangeName will change the user's first/last name.
-func UserChangeName(w http.ResponseWriter, r *http.Request) {
+// ChangeName will change the user's first/last name.
+func (UserController) ChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -147,7 +152,7 @@ func UserChangeName(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(data); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

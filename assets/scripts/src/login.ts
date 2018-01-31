@@ -19,7 +19,7 @@ function addEventListenerLoginForm(): void {
             password: password.value
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             let notification = document.getElementById("login-error-notification") as HTMLFormElement;
             notification.classList.remove("hidden");
             notification.classList.add("is-danger");
@@ -29,7 +29,7 @@ function addEventListenerLoginForm(): void {
         const okFunc = () => {
             window.location.href = "/viewer/";
         };
-        submitAjaxJson("/api/user/login", data, errFunc, okFunc);
+        submitAjaxJSON("/api/user/login", data, errFunc, okFunc);
     });
 }
 

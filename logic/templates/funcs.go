@@ -103,7 +103,8 @@ func generateDirectoryList(userDirRoot string, urlPath string) (list template.HT
 
 	// execute and return the templates
 	var templateBuf bytes.Buffer
-	if err := directoryListTemplate.Execute(&templateBuf, directoryList{index, previous.String(), entities, urlPath, isEmpty}); err != nil {
+	if err := directoryListTemplate.Execute(&templateBuf, directoryList{index, previous.String(),
+		entities, urlPath, isEmpty}); err != nil {
 		return list, err
 	}
 	return template.HTML(templateBuf.String()), nil

@@ -47,11 +47,11 @@ function addEventListenersAdminForms(): void {
             new_username: newUsername.value
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
-        const okFunc = (resp: JsonDataResponse) => {
+        const okFunc = (resp: JSONDataResponse) => {
             let username = document.getElementById("username") as HTMLSpanElement;
             if (data.current_username === username.innerText) {
                 location.reload(true);
@@ -59,7 +59,7 @@ function addEventListenersAdminForms(): void {
             }
             displaySuccessNotification(resp.data.content);
         };
-        submitAjaxJson(adminApiRoute + "change-username", data, errFunc, okFunc)
+        submitAjaxJSON(adminApiRoute + "change-username", data, errFunc, okFunc)
     });
 
     // handle change directory root form logic
@@ -73,15 +73,15 @@ function addEventListenersAdminForms(): void {
             dir_root: dirRoot.value
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
-        const okFunc = (resp: JsonDataResponse) => {
+        const okFunc = (resp: JSONDataResponse) => {
             displaySuccessNotification(resp.data.content);
             changeDirForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "change-dir-root", data, errFunc, okFunc)
+        submitAjaxJSON(adminApiRoute + "change-dir-root", data, errFunc, okFunc)
     });
 
     // handle change admin status form logic
@@ -97,15 +97,15 @@ function addEventListenersAdminForms(): void {
             is_admin: isAdmin.checked
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
-        const okFunc = (resp: JsonDataResponse) => {
+        const okFunc = (resp: JSONDataResponse) => {
             displaySuccessNotification(resp.data.content);
             changeDirForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "change-admin-status", data, errFunc, okFunc)
+        submitAjaxJSON(adminApiRoute + "change-admin-status", data, errFunc, okFunc)
     });
 
     // handle create user form logic
@@ -129,15 +129,15 @@ function addEventListenersAdminForms(): void {
             is_admin: isAdmin.checked
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
-        const okFunc = (resp: JsonDataResponse) => {
+        const okFunc = (resp: JSONDataResponse) => {
             displaySuccessNotification(resp.data.content);
             createUserForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "create-user", data, errFunc, okFunc);
+        submitAjaxJSON(adminApiRoute + "create-user", data, errFunc, okFunc);
     });
 
     // handle delete user form logic
@@ -151,14 +151,14 @@ function addEventListenersAdminForms(): void {
             user_id: parseInt(userID.value)
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
-        const okFunc = (resp: JsonDataResponse) => {
+        const okFunc = (resp: JSONDataResponse) => {
             displaySuccessNotification(resp.data.content);
             createUserForm.reset();
         };
-        submitAjaxJson(adminApiRoute + "delete-user", data, errFunc, okFunc);
+        submitAjaxJSON(adminApiRoute + "delete-user", data, errFunc, okFunc);
     });
 }

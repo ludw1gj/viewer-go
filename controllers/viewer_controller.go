@@ -1,6 +1,6 @@
 // This file contains handlers for viewer functionality api routes.
 
-package api
+package controllers
 
 import (
 	"encoding/json"
@@ -13,15 +13,21 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/robertjeffs/viewer-go/logic/validate"
+	"github.com/robertjeffs/viewer-go/logic/session"
 )
 
-// ViewerCreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the
+type ViewerController struct{}
+
+func NewViewerController() *ViewerController {
+	return &ViewerController{}
+}
+
+// CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the
 // viewer page at path provided in the query string "path".
-func ViewerCreateFolder(w http.ResponseWriter, r *http.Request) {
+func (ViewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -34,7 +40,7 @@ func ViewerCreateFolder(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(folderPath); err != nil {
+	if err := validateJSONInput(folderPath); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -44,11 +50,7 @@ func ViewerCreateFolder(w http.ResponseWriter, r *http.Request) {
 		if _, err := os.Stat(dirPath); !os.IsNotExist(err) {
 			return errors.New("folder already exists")
 		}
-
-		if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-			return err
-		}
-		return nil
+		return os.MkdirAll(dirPath, os.ModePerm)
 	}
 
 	dirPath := path.Join(user.DirectoryRoot, folderPath.Path)
@@ -59,12 +61,12 @@ func ViewerCreateFolder(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Successfully created folder.")
 }
 
-// ViewerDelete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
+// Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
 // page at path provided in the query string "path".
-func ViewerDelete(w http.ResponseWriter, r *http.Request) {
+func (ViewerController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -77,7 +79,7 @@ func ViewerDelete(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(data); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -87,11 +89,7 @@ func ViewerDelete(w http.ResponseWriter, r *http.Request) {
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			return errors.New("file or Folder does not exist")
 		}
-
-		if err := os.RemoveAll(filePath); err != nil {
-			return err
-		}
-		return nil
+		return os.RemoveAll(filePath)
 	}
 
 	filePath := path.Join(user.DirectoryRoot, data.Path)
@@ -102,12 +100,12 @@ func ViewerDelete(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Successfully deleted file/folder.")
 }
 
-// ViewerDeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the
+// DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the
 // viewer page at that path.
-func ViewerDeleteAll(w http.ResponseWriter, r *http.Request) {
+func (ViewerController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -120,7 +118,7 @@ func ViewerDeleteAll(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validate.ValidateJsonInput(data); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -153,12 +151,12 @@ func ViewerDeleteAll(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Successfully deleted all contents.")
 }
 
-// ViewerUpload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
+// Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
 // redirects to the viewer page at that path.
-func ViewerUpload(w http.ResponseWriter, r *http.Request) {
+func (ViewerController) Upload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := validate.ValidateUser(r)
+	user, err := session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

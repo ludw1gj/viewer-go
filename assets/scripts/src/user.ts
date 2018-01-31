@@ -32,15 +32,15 @@ function addEventListenersUserForms(): void {
             last_name: lastName.value
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
-        const okFunc = (resp: JsonDataResponse) => {
+        const okFunc = (resp: JSONDataResponse) => {
             displaySuccessNotification(resp.data.content);
             location.reload(true);
         };
-        submitAjaxJson(userApiRoute + "change-name", data, errFunc, okFunc);
+        submitAjaxJSON(userApiRoute + "change-name", data, errFunc, okFunc);
     });
 
     // handle change password form logic
@@ -56,15 +56,15 @@ function addEventListenersUserForms(): void {
             new_password: newPassword.value
         };
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
-        const okFunc = (resp: JsonDataResponse) => {
+        const okFunc = (resp: JSONDataResponse) => {
             displaySuccessNotification(resp.data.content);
             changePasswordForm.reset();
         };
-        submitAjaxJson(userApiRoute + "change-password", data, errFunc, okFunc);
+        submitAjaxJSON(userApiRoute + "change-password", data, errFunc, okFunc);
     });
 
     // handle delete user form logic
@@ -78,7 +78,7 @@ function addEventListenersUserForms(): void {
             password: password.value
         };
 
-        const errFunc = function (resp: JsonErrorResponse) {
+        const errFunc = function (resp: JSONErrorResponse) {
             displayErrorNotification(resp.error.message);
             deleteAccountForm.reset();
         };
@@ -86,6 +86,6 @@ function addEventListenersUserForms(): void {
         const okFunc = function () {
             window.location.href = "/login";
         };
-        submitAjaxJson(userApiRoute + "delete", data, errFunc, okFunc);
+        submitAjaxJSON(userApiRoute + "delete", data, errFunc, okFunc);
     });
 }

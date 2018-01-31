@@ -13,7 +13,7 @@ function addEventListenersViewerForms(): void {
     uploadForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        const errFunc = (resp: JsonErrorResponse) => {
+        const errFunc = (resp: JSONErrorResponse) => {
             displayErrorNotification(resp.error.message);
         };
 
@@ -68,15 +68,15 @@ function addEventListenersViewerForms(): void {
     });
 }
 
-// viewerAjaxHelper is a wrapper for submitAjaxJson function.
+// viewerAjaxHelper is a wrapper for submitAjaxJSON function.
 function viewerAjaxHelper(url: string, data: object): void {
-    const errFunc = (resp: JsonErrorResponse) => {
+    const errFunc = (resp: JSONErrorResponse) => {
         displayErrorNotification(resp.error.message);
     };
     const okFunc = () => {
         location.reload(true);
     };
-    submitAjaxJson(url, data, errFunc, okFunc)
+    submitAjaxJSON(url, data, errFunc, okFunc)
 }
 
 // makePath generates a path.
