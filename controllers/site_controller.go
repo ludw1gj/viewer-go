@@ -4,15 +4,12 @@ package controllers
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"strconv"
 	"strings"
-	"time"
-
-	"bytes"
 
 	"fmt"
 
@@ -127,7 +124,7 @@ func (sc SiteController) SendFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// path to file
-	filePath := path.Join(user.DirectoryRoot, mux.Vars(r)["path"])
+	filePath := cleanPath(user.DirectoryRoot, mux.Vars(r)["path"])
 
 	// get file
 	fileInfo, err := os.Stat(filePath)
@@ -140,36 +137,24 @@ func (sc SiteController) SendFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := ioutil.ReadFile(filePath)
+	file, err := os.Open(filePath)
+	defer file.Close()
 	if err != nil {
-		sc.GetErrorPage(w, r, err)
+		sc.GetErrorPage(w, r, errors.New("requested file not found"))
 		return
 	}
 
-	// contentType determines the content-type by the file extension of the file at the path.
-	contentType := func(path string) (contentType string) {
-		hasSuffix := func(suffix string) bool {
-			return strings.HasSuffix(path, suffix)
-		}
+	fileHeader := make([]byte, 512)
+	file.Read(fileHeader)
 
-		if hasSuffix(".css") {
-			return "text/css"
-		} else if hasSuffix(".js") {
-			return "application/javascript"
-		} else if hasSuffix(".png") {
-			return "images/png"
-		} else if hasSuffix(".jpg") {
-			return "images/jpeg"
-		} else if hasSuffix(".jpeg") {
-			return "images/jpeg"
-		} else if hasSuffix(".mp4") {
-			return "video/mp4"
-		}
-		return "text/plain"
-	}
+	fileStat, _ := file.Stat()
+	FileSize := strconv.FormatInt(fileStat.Size(), 10)
 
-	w.Header().Add("Content-Type", contentType(filePath))
-	http.ServeContent(w, r, filePath, time.Now(), bytes.NewReader(data))
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileStat.Name())
+	w.Header().Set("Content-Type", http.DetectContentType(fileHeader))
+	w.Header().Set("Content-Length", FileSize)
+	file.Seek(0, 0)
+	io.Copy(w, file)
 }
 
 // GetAdminPage renders the Administration page. Client must be admin.

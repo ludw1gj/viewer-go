@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"path"
+	"path/filepath"
 
 	"bytes"
 	"fmt"
@@ -76,4 +78,8 @@ func validateJSONInput(a interface{}) error {
 		}
 	}
 	return nil
+}
+
+func cleanPath(userRoot, folderPath string) string {
+	return filepath.Join("users", userRoot, filepath.FromSlash(path.Clean("/"+folderPath)))
 }

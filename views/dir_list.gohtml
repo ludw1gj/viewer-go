@@ -1,19 +1,19 @@
 <ul>
-    {{if not .Index -}}
+{{if not .Index -}}
     <li><a href="{{.PreviousURL}}">../</a></li>
-    {{- end}}
+{{- end}}
 
-    {{if .IsEmpty -}}
+{{if .IsEmpty -}}
     <li>- Directory is empty -</li>
-    {{- end}}
+{{- end}}
 
-    {{range .Entities -}}
-    {{if .IsDir -}}
+{{range .Entities -}}
+{{if .IsDir -}}
     <li><a href="{{.URL}}">{{.Name}}/</a></li>
-    {{else}}
-    <li><a href="{{.URL}}">{{.Name}}</a></li>
-    {{- end}}
-    {{- end}}
+{{else}}
+    <li><a href="{{.URL}}" download>{{.Name}}</a></li>
+{{- end}}
+{{- end}}
 </ul>
 
 {{if not .Index -}}

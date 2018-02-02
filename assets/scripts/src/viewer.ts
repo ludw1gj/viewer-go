@@ -20,7 +20,7 @@ function addEventListenersViewerForms(): void {
         const okFunc = () => {
             location.reload(true);
         };
-        submitAjaxFormData(apiRoute + "upload", uploadForm, errFunc, okFunc);
+        submitAjaxFormData(apiRoute + "upload/" + currentDir, uploadForm, errFunc, okFunc);
     });
 
     // handle create folder form logic

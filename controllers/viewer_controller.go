@@ -10,8 +10,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/robertjeffs/viewer-go/logic/session"
 )
@@ -33,14 +33,14 @@ func (ViewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	folderPath := struct {
+	data := struct {
 		Path string `json:"path"`
 	}{}
-	if err := json.NewDecoder(r.Body).Decode(&folderPath); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validateJSONInput(folderPath); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -53,7 +53,7 @@ func (ViewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 		return os.MkdirAll(dirPath, os.ModePerm)
 	}
 
-	dirPath := path.Join(user.DirectoryRoot, folderPath.Path)
+	dirPath := cleanPath(user.DirectoryRoot, data.Path)
 	if err := createFolder(dirPath); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Could not create directory: %s", err.Error()))
 		return
@@ -92,7 +92,7 @@ func (ViewerController) Delete(w http.ResponseWriter, r *http.Request) {
 		return os.RemoveAll(filePath)
 	}
 
-	filePath := path.Join(user.DirectoryRoot, data.Path)
+	filePath := cleanPath(user.DirectoryRoot, data.Path)
 	if err := deleteFile(filePath); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -143,7 +143,7 @@ func (ViewerController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 		return nil
 	}
 
-	dirPath := path.Join(user.DirectoryRoot, data.Path)
+	dirPath := cleanPath(user.DirectoryRoot, data.Path)
 	if err := deleteAllFiles(dirPath); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -195,7 +195,8 @@ func (ViewerController) Upload(w http.ResponseWriter, r *http.Request) {
 		return nil
 	}
 
-	dirPath := path.Join(user.DirectoryRoot, r.FormValue("path"))
+	fileDirectory := strings.TrimPrefix(r.URL.Path, "/api/viewer/upload/")
+	dirPath := cleanPath(user.DirectoryRoot, fileDirectory)
 	if err = saveFiles(dirPath, r.MultipartForm.File); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

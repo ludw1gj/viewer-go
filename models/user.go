@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
+	"path/filepath"
 
 	"github.com/robertjeffs/viewer-go/logic/database"
 	"golang.org/x/crypto/bcrypt"
@@ -141,7 +143,8 @@ func CreateUser(u User) error {
 	}
 
 	// create user root directory on disk
-	if err := os.MkdirAll(u.DirectoryRoot, os.ModePerm); err != nil {
+	userDirectory := filepath.Join("users", filepath.FromSlash(path.Clean("/"+u.DirectoryRoot)))
+	if err := os.MkdirAll(userDirectory, os.ModePerm); err != nil {
 		return err
 	}
 

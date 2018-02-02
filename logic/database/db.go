@@ -41,7 +41,7 @@ func Load(dbFile string) (err error) {
 		}
 
 		// create a default admin user
-		if err := os.MkdirAll("./admin", os.ModePerm); err != nil {
+		if err := os.MkdirAll("./users/admin", os.ModePerm); err != nil {
 			return err
 		}
 

@@ -33,7 +33,7 @@ func LoadRoutes() {
 	protected.NotFoundHandler = http.HandlerFunc(sc.GetNotFoundPage)
 
 	// api
-	protected.HandleFunc("/api/viewer/upload", vc.Upload).Methods("POST")
+	protected.HandleFunc("/api/viewer/upload/{path:.*}", vc.Upload).Methods("POST")
 	protected.HandleFunc("/api/viewer/create", vc.CreateFolder).Methods("POST")
 	protected.HandleFunc("/api/viewer/delete", vc.Delete).Methods("POST")
 	protected.HandleFunc("/api/viewer/delete-all", vc.DeleteAll).Methods("POST")

@@ -106,7 +106,6 @@ function addEventListenersAdminForms() {
         submitAjaxJSON(adminApiRoute + "delete-user", data, errFunc, okFunc);
     });
 }
-
 // submitAjaxJSON submits an AJAX POST request.
 function submitAjaxJSON(url, data, errFunc, okFunc) {
     var xhr = new XMLHttpRequest();
@@ -319,7 +318,7 @@ function addEventListenersViewerForms() {
         var okFunc = function () {
             location.reload(true);
         };
-        submitAjaxFormData(apiRoute + "upload", uploadForm, errFunc, okFunc);
+        submitAjaxFormData(apiRoute + "upload/" + currentDir, uploadForm, errFunc, okFunc);
     });
     // handle create folder form logic
     var createFolderForm = document.getElementById("create-folder-form");
@@ -358,7 +357,6 @@ function addEventListenersViewerForms() {
         viewerAjaxHelper(apiRoute + "delete-all", data);
     });
 }
-
 // viewerAjaxHelper is a wrapper for submitAjaxJSON function.
 function viewerAjaxHelper(url, data) {
     var errFunc = function (resp) {

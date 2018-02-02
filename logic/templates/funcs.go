@@ -15,7 +15,7 @@ import (
 // fragment.
 func generateDirectoryList(userDirRoot string, urlPath string) (list template.HTML, err error) {
 	// get items in directory
-	f, err := os.Open(path.Join(userDirRoot, urlPath))
+	f, err := os.Open(path.Join("users", userDirRoot, urlPath))
 	if err != nil {
 		return list, err
 	}
