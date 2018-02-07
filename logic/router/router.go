@@ -8,52 +8,52 @@ import (
 	"github.com/robertjeffs/viewer-go/logic/session"
 )
 
-// LoadRoutes initialises routes and a assets file handler if dev is true.
+// LoadRoutes initialises routes and a file server.
 func LoadRoutes() {
 	protected := mux.NewRouter()
 
 	// controllers
-	sc := controllers.NewSiteController()
-	vc := controllers.NewViewerController()
-	uc := controllers.NewUserController()
-	ac := controllers.NewAdminController()
+	siteController := controllers.NewSiteController()
+	viewerAPIController := controllers.NewViewerAPIController()
+	userAPIController := controllers.NewUserAPIController()
+	adminAPIController := controllers.NewAdminAPIController()
 
-	http.HandleFunc("/login", sc.GetLoginPage)
-	http.HandleFunc("/api/user/login", uc.Login)
+	http.HandleFunc("/login", siteController.GetLoginPage)
+	http.HandleFunc("/api/user/login", userAPIController.Login)
 	http.Handle("/", authenticateRoute(protected))
 
 	// site
 	protected.HandleFunc("/", redirectToViewerPage).Methods("GET")
-	protected.HandleFunc("/viewer/{path:.*}", sc.GetViewerPage).Methods("GET")
-	protected.HandleFunc("/file/{path:.*}", sc.SendFile).Methods("GET")
-	protected.HandleFunc("/about", sc.GetAboutPage).Methods("GET")
-	protected.HandleFunc("/user", sc.GetUserPage).Methods("GET")
-	protected.HandleFunc("/admin", sc.GetAdminPage).Methods("GET")
-	protected.HandleFunc("/admin/users", sc.GetAdminDisplayAllUsers).Methods("GET")
-	protected.NotFoundHandler = http.HandlerFunc(sc.GetNotFoundPage)
+	protected.HandleFunc("/viewer/{path:.*}", siteController.GetViewerPage).Methods("GET")
+	protected.HandleFunc("/file/{path:.*}", siteController.SendFile).Methods("GET")
+	protected.HandleFunc("/about", siteController.GetAboutPage).Methods("GET")
+	protected.HandleFunc("/user", siteController.GetUserPage).Methods("GET")
+	protected.HandleFunc("/admin", siteController.GetAdminPage).Methods("GET")
+	protected.HandleFunc("/admin/users", siteController.GetAdminDisplayAllUsers).Methods("GET")
+	protected.NotFoundHandler = http.HandlerFunc(siteController.GetNotFoundPage)
 
 	// api
-	protected.HandleFunc("/api/viewer/upload/{path:.*}", vc.Upload).Methods("POST")
-	protected.HandleFunc("/api/viewer/create", vc.CreateFolder).Methods("POST")
-	protected.HandleFunc("/api/viewer/delete", vc.Delete).Methods("POST")
-	protected.HandleFunc("/api/viewer/delete-all", vc.DeleteAll).Methods("POST")
+	protected.HandleFunc("/api/viewer/upload/{path:.*}", viewerAPIController.Upload).Methods("POST")
+	protected.HandleFunc("/api/viewer/create", viewerAPIController.CreateFolder).Methods("POST")
+	protected.HandleFunc("/api/viewer/delete", viewerAPIController.Delete).Methods("POST")
+	protected.HandleFunc("/api/viewer/delete-all", viewerAPIController.DeleteAll).Methods("POST")
 
-	protected.HandleFunc("/api/user/logout", uc.Logout).Methods("POST")
-	protected.HandleFunc("/api/user/delete", uc.DeleteAccount).Methods("POST")
-	protected.HandleFunc("/api/user/change-password", uc.ChangePassword).Methods("POST")
-	protected.HandleFunc("/api/user/change-name", uc.ChangeName).Methods("POST")
+	protected.HandleFunc("/api/user/logout", userAPIController.Logout).Methods("POST")
+	protected.HandleFunc("/api/user/delete", userAPIController.DeleteAccount).Methods("POST")
+	protected.HandleFunc("/api/user/change-password", userAPIController.ChangePassword).Methods("POST")
+	protected.HandleFunc("/api/user/change-name", userAPIController.ChangeName).Methods("POST")
 
-	protected.HandleFunc("/api/admin/change-username", ac.ChangeUserUsername).Methods("POST")
-	protected.HandleFunc("/api/admin/create-user", ac.CreateUser).Methods("POST")
-	protected.HandleFunc("/api/admin/delete-user", ac.DeleteUser).Methods("POST")
-	protected.HandleFunc("/api/admin/change-dir-root", ac.ChangeDirRoot).Methods("POST")
-	protected.HandleFunc("/api/admin/change-admin-status", ac.ChangeUserAdminStatus).Methods("POST")
+	protected.HandleFunc("/api/admin/change-username", adminAPIController.ChangeUserUsername).Methods("POST")
+	protected.HandleFunc("/api/admin/create-user", adminAPIController.CreateUser).Methods("POST")
+	protected.HandleFunc("/api/admin/delete-user", adminAPIController.DeleteUser).Methods("POST")
+	protected.HandleFunc("/api/admin/change-dir-root", adminAPIController.ChangeDirRoot).Methods("POST")
+	protected.HandleFunc("/api/admin/change-admin-status", adminAPIController.ChangeUserAdminStatus).Methods("POST")
 
 	fs := http.FileServer(http.Dir("./assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets", fs))
 }
 
-// AuthenticateRoute is middleware that checks if users are authenticated.
+// authenticateRoute is middleware that checks if users are authenticated.
 func authenticateRoute(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isAuth := session.CheckUserAuth(r); !isAuth {

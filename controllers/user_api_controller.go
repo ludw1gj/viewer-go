@@ -12,14 +12,14 @@ import (
 	"github.com/robertjeffs/viewer-go/models"
 )
 
-type UserController struct{}
+type UserAPIController struct{}
 
-func NewUserController() *UserController {
-	return &UserController{}
+func NewUserAPIController() *UserAPIController {
+	return &UserAPIController{}
 }
 
 // Login will process a user login.
-func (UserController) Login(w http.ResponseWriter, r *http.Request) {
+func (UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != "POST" {
@@ -53,7 +53,7 @@ func (UserController) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // Logout will logout the user by changing the session value "authenticated" to false.
-func (UserController) Logout(w http.ResponseWriter, r *http.Request) {
+func (UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := session.RemoveUserAuthFromSession(w, r); err != nil {
@@ -65,7 +65,7 @@ func (UserController) Logout(w http.ResponseWriter, r *http.Request) {
 
 // DeleteAccount will process the delete user form, if password is correct the user's account will be deleted and
 // the user redirected to the login page.
-func (UserController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+func (UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := session.ValidateUserSession(r)
@@ -95,7 +95,7 @@ func (UserController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 // ChangePassword will process a json post request, comparing password sent with current password and if they match,
 // the current password will be changed to the new password.
-func (UserController) ChangePassword(w http.ResponseWriter, r *http.Request) {
+func (UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := session.ValidateUserSession(r)
@@ -133,7 +133,7 @@ func (UserController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 }
 
 // ChangeName will change the user's first/last name.
-func (UserController) ChangeName(w http.ResponseWriter, r *http.Request) {
+func (UserAPIController) ChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := session.ValidateUserSession(r)

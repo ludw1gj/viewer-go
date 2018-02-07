@@ -16,15 +16,15 @@ import (
 	"github.com/robertjeffs/viewer-go/logic/session"
 )
 
-type ViewerController struct{}
+type ViewerAPIController struct{}
 
-func NewViewerController() *ViewerController {
-	return &ViewerController{}
+func NewViewerAPIController() *ViewerAPIController {
+	return &ViewerAPIController{}
 }
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the
 // viewer page at path provided in the query string "path".
-func (ViewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
+func (ViewerAPIController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := session.ValidateUserSession(r)
@@ -63,7 +63,7 @@ func (ViewerController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 
 // Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
 // page at path provided in the query string "path".
-func (ViewerController) Delete(w http.ResponseWriter, r *http.Request) {
+func (ViewerAPIController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := session.ValidateUserSession(r)
@@ -102,7 +102,7 @@ func (ViewerController) Delete(w http.ResponseWriter, r *http.Request) {
 
 // DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the
 // viewer page at that path.
-func (ViewerController) DeleteAll(w http.ResponseWriter, r *http.Request) {
+func (ViewerAPIController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := session.ValidateUserSession(r)
@@ -153,7 +153,7 @@ func (ViewerController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
 // redirects to the viewer page at that path.
-func (ViewerController) Upload(w http.ResponseWriter, r *http.Request) {
+func (ViewerAPIController) Upload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, err := session.ValidateUserSession(r)

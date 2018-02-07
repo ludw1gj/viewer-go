@@ -13,14 +13,14 @@ import (
 	"github.com/robertjeffs/viewer-go/models"
 )
 
-type AdminController struct{}
+type AdminAPIController struct{}
 
-func NewAdminController() *AdminController {
-	return &AdminController{}
+func NewAdminAPIController() *AdminAPIController {
+	return &AdminAPIController{}
 }
 
 // CreateUser receives new user information via json and creates the user. Client must be admin.
-func (AdminController) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := session.ValidateAdminSession(r); err != nil {
@@ -50,7 +50,7 @@ func (AdminController) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteUser receives user information via json and deletes the user. Client must be admin.
-func (AdminController) DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := session.ValidateAdminSession(r); err != nil {
@@ -79,7 +79,7 @@ func (AdminController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // ChangeUserUsername changes a user's username. Client must be admin.
-func (AdminController) ChangeUserUsername(w http.ResponseWriter, r *http.Request) {
+func (AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := session.ValidateAdminSession(r); err != nil {
@@ -111,7 +111,7 @@ func (AdminController) ChangeUserUsername(w http.ResponseWriter, r *http.Request
 
 // ChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the models. Client must
 // be admin.
-func (AdminController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
+func (AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := session.ValidateAdminSession(r); err != nil {
@@ -142,7 +142,7 @@ func (AdminController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Requ
 }
 
 // ChangeDirRoot changes the directory root of the client and updates it in the models. Client must be admin.
-func (AdminController) ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
+func (AdminAPIController) ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	u, err := session.ValidateAdminSession(r)
