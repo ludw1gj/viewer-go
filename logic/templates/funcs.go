@@ -13,7 +13,7 @@ import (
 
 // generateDirectoryList renders the directory list templates according the directory path and returns the HTML document
 // fragment.
-func generateDirectoryList(userDirRoot string, urlPath string) (list template.HTML, err error) {
+func generateDirectoryList(userDirRoot string, urlPath string, directoryListTemplate *template.Template) (list template.HTML, err error) {
 	// get items in directory
 	f, err := os.Open(path.Join("users", userDirRoot, urlPath))
 	if err != nil {

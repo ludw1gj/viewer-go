@@ -50,7 +50,7 @@ func (SiteController) GetErrorPage(w http.ResponseWriter, r *http.Request, pageE
 		pageErr.Error(),
 		user,
 	}
-	templates.RenderTemplate(w, "error", data)
+	templates.RenderSiteTemplate(w, "error", data)
 }
 
 // GetViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the
@@ -71,7 +71,7 @@ func (SiteController) GetViewerPage(w http.ResponseWriter, r *http.Request) {
 		urlPath,
 		user,
 	}
-	templates.RenderTemplate(w, "viewer", data)
+	templates.RenderSiteTemplate(w, "viewer", data)
 }
 
 // GetLoginPage method renders the login page.
@@ -91,7 +91,7 @@ func (SiteController) GetUserPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, "user", userInfo{user})
+	templates.RenderSiteTemplate(w, "user", userInfo{user})
 }
 
 // GetAboutPage handles the about page.
@@ -101,7 +101,7 @@ func (SiteController) GetAboutPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, "about", userInfo{user})
+	templates.RenderSiteTemplate(w, "about", userInfo{user})
 }
 
 // GetNotFoundPage renders the not found page and sends status 404.
@@ -111,7 +111,7 @@ func (SiteController) GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, "notFound", userInfo{user})
+	templates.RenderSiteTemplate(w, "notFound", userInfo{user})
 }
 
 // SendFile sends file to client.
@@ -164,7 +164,7 @@ func (SiteController) GetAdminPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderTemplate(w, "admin", userInfo{u})
+	templates.RenderSiteTemplate(w, "admin", userInfo{u})
 }
 
 // GetAdminDisplayAllUsers render a sub administration page which displays all users in models. Client must be admin.
@@ -185,5 +185,5 @@ func (sc SiteController) GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.
 		User  models.User
 		Users []models.User
 	}{u, users}
-	templates.RenderTemplate(w, "adminUsers", data)
+	templates.RenderSiteTemplate(w, "adminUsers", data)
 }

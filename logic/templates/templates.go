@@ -14,26 +14,23 @@ import (
 )
 
 var (
-	templateDir      = "views"
-	baseTemplatePath = path.Join(templateDir, "base.gohtml")
-
-	directoryListTemplate = template.Must(template.ParseFiles(path.Join(templateDir, "dir_list.gohtml")))
-
-	templates = map[string]*template.Template{
-		"login":      template.Must(template.ParseFiles(path.Join(templateDir, "login.gohtml"))),
-		"viewer":     initTemplate("viewer"),
-		"about":      initTemplate("about"),
-		"user":       initTemplate("user"),
-		"admin":      initTemplate("admin"),
-		"adminUsers": initTemplate("admin_users"),
-		"error":      initTemplate("error"),
-		"notFound":   initTemplate("not_found"),
+	siteTemplates = map[string]*template.Template{
+		"login":      initSiteTemplate("login", false),
+		"viewer":     initSiteTemplate("viewer", true),
+		"about":      initSiteTemplate("about", true),
+		"user":       initSiteTemplate("user", true),
+		"admin":      initSiteTemplate("admin", true),
+		"adminUsers": initSiteTemplate("admin_users", true),
+		"error":      initSiteTemplate("error", true),
+		"notFound":   initSiteTemplate("not_found", true),
 	}
+
+	directoryListTemplate = template.Must(template.ParseFiles(path.Join("views", "viewer", "dir_list.gohtml")))
 
 	// function map for use in templates
 	funcMap = template.FuncMap{
 		"generateDirectoryList": func(userDirRoot string, urlPath string) template.HTML {
-			list, err := generateDirectoryList(userDirRoot, urlPath)
+			list, err := generateDirectoryList(userDirRoot, urlPath, directoryListTemplate)
 			if err != nil {
 				errMsg := fmt.Sprintf("There has been an error getting directory list: %s", err.Error())
 				return template.HTML(errMsg)
@@ -43,11 +40,17 @@ var (
 	}
 )
 
-// initTemplate returns new templates.Template and parses files of templateName in the templates directory with base
+// initSiteTemplate returns new templates.Template and parses files of templateName in the templates directory with base
 // templates.
-func initTemplate(templateName string) *template.Template {
-	return template.Must(template.New(templateName).Funcs(funcMap).
-		ParseFiles(baseTemplatePath, path.Join(templateDir, templateName+".gohtml")))
+func initSiteTemplate(templateName string, baseTemplate bool) *template.Template {
+	siteTemplateDir := path.Join("views", "site")
+	siteBaseTemplatePath := path.Join(siteTemplateDir, "base.gohtml")
+
+	if baseTemplate {
+		return template.Must(template.New(templateName).Funcs(funcMap).
+			ParseFiles(siteBaseTemplatePath, path.Join(siteTemplateDir, templateName+".gohtml")))
+	}
+	return template.Must(template.ParseFiles(path.Join(siteTemplateDir, "login.gohtml")))
 }
 
 func renderError(w http.ResponseWriter, err error) {
@@ -60,7 +63,7 @@ func renderError(w http.ResponseWriter, err error) {
 // RenderLoginTemplate renders the login template.
 func RenderLoginTemplate(w http.ResponseWriter) {
 	// Ensure the template exists in the map.
-	tpl, ok := templates["login"]
+	tpl, ok := siteTemplates["login"]
 	if !ok {
 		renderError(w, errors.New("template does not exist"))
 		return
@@ -78,10 +81,10 @@ func RenderLoginTemplate(w http.ResponseWriter) {
 	w.Write(buf.Bytes())
 }
 
-// RenderTemplate executes a templates and sends it to the client.
-func RenderTemplate(w http.ResponseWriter, name string, data interface{}) {
+// RenderSiteTemplate executes a templates and sends it to the client.
+func RenderSiteTemplate(w http.ResponseWriter, name string, data interface{}) {
 	// Ensure the template exists in the map.
-	tpl, ok := templates[name]
+	tpl, ok := siteTemplates[name]
 	if !ok {
 		renderError(w, errors.New("template does not exist"))
 		return
