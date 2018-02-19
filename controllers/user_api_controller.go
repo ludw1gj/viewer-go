@@ -12,14 +12,18 @@ import (
 	"github.com/robertjeffs/viewer-go/models"
 )
 
-type UserAPIController struct{}
+type UserAPIController struct {
+	*session.SessionManager
+}
 
 func NewUserAPIController() *UserAPIController {
-	return &UserAPIController{}
+	return &UserAPIController{
+		session.NewSessionManager(),
+	}
 }
 
 // Login will process a user login.
-func (UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
+func (uc UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != "POST" {
@@ -40,12 +44,13 @@ func (UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := models.ValidateUser(loginCredentials.Username, loginCredentials.Password)
+	userManager := models.NewUserManager()
+	userID, err := userManager.ValidateUser(loginCredentials.Username, loginCredentials.Password)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
-	if err := session.NewUserSession(w, r, userID); err != nil {
+	if err := uc.NewUserSession(w, r, userID); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
@@ -53,10 +58,10 @@ func (UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // Logout will logout the user by changing the session value "authenticated" to false.
-func (UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
+func (uc UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if err := session.RemoveUserAuthFromSession(w, r); err != nil {
+	if err := uc.RemoveUserAuthFromSession(w, r); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Logout error: %s", err.Error()))
 		return
 	}
@@ -65,10 +70,10 @@ func (UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
 
 // DeleteAccount will process the delete user form, if password is correct the user's account will be deleted and
 // the user redirected to the login page.
-func (UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+func (uc UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.ValidateUserSession(r)
+	user, err := uc.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -95,10 +100,10 @@ func (UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 // ChangePassword will process a json post request, comparing password sent with current password and if they match,
 // the current password will be changed to the new password.
-func (UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Request) {
+func (uc UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.ValidateUserSession(r)
+	user, err := uc.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -133,10 +138,10 @@ func (UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Request) 
 }
 
 // ChangeName will change the user's first/last name.
-func (UserAPIController) ChangeName(w http.ResponseWriter, r *http.Request) {
+func (uc UserAPIController) ChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.ValidateUserSession(r)
+	user, err := uc.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

@@ -16,18 +16,22 @@ import (
 	"github.com/robertjeffs/viewer-go/logic/session"
 )
 
-type ViewerAPIController struct{}
+type ViewerAPIController struct {
+	*session.SessionManager
+}
 
 func NewViewerAPIController() *ViewerAPIController {
-	return &ViewerAPIController{}
+	return &ViewerAPIController{
+		session.NewSessionManager(),
+	}
 }
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the
 // viewer page at path provided in the query string "path".
-func (ViewerAPIController) CreateFolder(w http.ResponseWriter, r *http.Request) {
+func (vc ViewerAPIController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.ValidateUserSession(r)
+	user, err := vc.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -63,10 +67,10 @@ func (ViewerAPIController) CreateFolder(w http.ResponseWriter, r *http.Request) 
 
 // Delete deletes a folder from the disk of the name of the form value "file-name", then redirects to the viewer
 // page at path provided in the query string "path".
-func (ViewerAPIController) Delete(w http.ResponseWriter, r *http.Request) {
+func (vc ViewerAPIController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.ValidateUserSession(r)
+	user, err := vc.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -102,10 +106,10 @@ func (ViewerAPIController) Delete(w http.ResponseWriter, r *http.Request) {
 
 // DeleteAll deletes the contents of a path from the disk of the query string value "path", then redirects to the
 // viewer page at that path.
-func (ViewerAPIController) DeleteAll(w http.ResponseWriter, r *http.Request) {
+func (vc ViewerAPIController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.ValidateUserSession(r)
+	user, err := vc.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -153,10 +157,10 @@ func (ViewerAPIController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 
 // Upload parses a multipart form and saves uploaded files to the disk at the path from query string "path", then
 // redirects to the viewer page at that path.
-func (ViewerAPIController) Upload(w http.ResponseWriter, r *http.Request) {
+func (vc ViewerAPIController) Upload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := session.ValidateUserSession(r)
+	user, err := vc.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

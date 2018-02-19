@@ -3,27 +3,33 @@
 package controllers
 
 import (
+	"github.com/robertjeffs/viewer-go/logic/session"
 	"net/http"
 
 	"encoding/json"
 
 	"fmt"
 
-	"github.com/robertjeffs/viewer-go/logic/session"
 	"github.com/robertjeffs/viewer-go/models"
 )
 
-type AdminAPIController struct{}
+type AdminAPIController struct {
+	*models.UserManager
+	*session.SessionManager
+}
 
 func NewAdminAPIController() *AdminAPIController {
-	return &AdminAPIController{}
+	return &AdminAPIController{
+		models.NewUserManager(),
+		session.NewSessionManager(),
+	}
 }
 
 // CreateUser receives new user information via json and creates the user. Client must be admin.
-func (AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := session.ValidateAdminSession(r); err != nil {
+	if _, err := ac.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -42,7 +48,7 @@ func (AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.CreateUser(user); err != nil {
+	if err := ac.UserManager.CreateUser(user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -50,10 +56,10 @@ func (AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteUser receives user information via json and deletes the user. Client must be admin.
-func (AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := session.ValidateAdminSession(r); err != nil {
+	if _, err := ac.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -71,7 +77,7 @@ func (AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.DeleteUser(data.UserID); err != nil {
+	if err := ac.UserManager.DeleteUser(data.UserID); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -79,10 +85,10 @@ func (AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // ChangeUserUsername changes a user's username. Client must be admin.
-func (AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.Request) {
+func (ac AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := session.ValidateAdminSession(r); err != nil {
+	if _, err := ac.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -102,19 +108,19 @@ func (AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err := models.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
+	if err := ac.UserManager.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, "Changed user's username successfully.")
 }
 
-// ChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the models. Client must
+// ChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the database. Client must
 // be admin.
-func (AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
+func (ac AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := session.ValidateAdminSession(r); err != nil {
+	if _, err := ac.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -134,18 +140,18 @@ func (AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	if err := models.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
+	if err := ac.UserManager.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, fmt.Sprintf("Changed admin status of user of id %d to %t", data.UserID, data.IsAdmin))
 }
 
-// ChangeDirRoot changes the directory root of the client and updates it in the models. Client must be admin.
-func (AdminAPIController) ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
+// ChangeDirRoot changes the directory root of the client and updates it in the database. Client must be admin.
+func (ac AdminAPIController) ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	u, err := session.ValidateAdminSession(r)
+	u, err := ac.ValidateAdminSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

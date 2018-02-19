@@ -19,10 +19,14 @@ import (
 	"github.com/robertjeffs/viewer-go/models"
 )
 
-type SiteController struct{}
+type SiteController struct {
+	*session.SessionManager
+}
 
 func NewSiteController() *SiteController {
-	return &SiteController{}
+	return &SiteController{
+		session.NewSessionManager(),
+	}
 }
 
 // userInfo is used for data object of error for rendering templates.
@@ -31,9 +35,9 @@ type userInfo struct {
 }
 
 // GetErrorPage renders the error page and sends status 500.
-func (SiteController) GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
+func (sc SiteController) GetErrorPage(w http.ResponseWriter, r *http.Request, pageErr error) {
 	w.WriteHeader(http.StatusInternalServerError)
-	user, err := session.ValidateUserSession(r)
+	user, err := sc.ValidateUserSession(r)
 	if err != nil {
 		log.Printf("StatusInternalServerError failed to execute get user from session on error page: %s", err.Error())
 
@@ -55,8 +59,8 @@ func (SiteController) GetErrorPage(w http.ResponseWriter, r *http.Request, pageE
 
 // GetViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the
 // user's directory in the filesystem to display a directory list for.
-func (SiteController) GetViewerPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.ValidateUserSession(r)
+func (sc SiteController) GetViewerPage(w http.ResponseWriter, r *http.Request) {
+	user, err := sc.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -85,8 +89,8 @@ func (SiteController) GetLoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUserPage renders the user page.
-func (SiteController) GetUserPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.ValidateUserSession(r)
+func (sc SiteController) GetUserPage(w http.ResponseWriter, r *http.Request) {
+	user, err := sc.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -95,8 +99,8 @@ func (SiteController) GetUserPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAboutPage handles the about page.
-func (SiteController) GetAboutPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.ValidateUserSession(r)
+func (sc SiteController) GetAboutPage(w http.ResponseWriter, r *http.Request) {
+	user, err := sc.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -105,8 +109,8 @@ func (SiteController) GetAboutPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetNotFoundPage renders the not found page and sends status 404.
-func (SiteController) GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
-	user, err := session.ValidateUserSession(r)
+func (sc SiteController) GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
+	user, err := sc.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -117,7 +121,7 @@ func (SiteController) GetNotFoundPage(w http.ResponseWriter, r *http.Request) {
 // SendFile sends file to client.
 func (sc SiteController) SendFile(w http.ResponseWriter, r *http.Request) {
 	// get user from session
-	user, err := session.ValidateUserSession(r)
+	user, err := sc.ValidateUserSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -158,8 +162,8 @@ func (sc SiteController) SendFile(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAdminPage renders the Administration page. Client must be admin.
-func (SiteController) GetAdminPage(w http.ResponseWriter, r *http.Request) {
-	u, err := session.ValidateAdminSession(r)
+func (sc SiteController) GetAdminPage(w http.ResponseWriter, r *http.Request) {
+	u, err := sc.ValidateAdminSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -169,13 +173,14 @@ func (SiteController) GetAdminPage(w http.ResponseWriter, r *http.Request) {
 
 // GetAdminDisplayAllUsers render a sub administration page which displays all users in models. Client must be admin.
 func (sc SiteController) GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
-	u, err := session.ValidateAdminSession(r)
+	u, err := sc.ValidateAdminSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	users, err := models.GetAllUsers()
+	userManager := models.NewUserManager()
+	users, err := userManager.GetAllUsers()
 	if err != nil {
 		sc.GetErrorPage(w, r, err)
 		return
