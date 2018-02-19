@@ -81,5 +81,5 @@ func validateJSONInput(a interface{}) error {
 }
 
 func cleanPath(userRoot, folderPath string) string {
-	return filepath.Join("users", userRoot, filepath.FromSlash(path.Clean("/"+folderPath)))
+	return filepath.Join("data", "users", userRoot, filepath.FromSlash(path.Clean("/"+folderPath)))
 }

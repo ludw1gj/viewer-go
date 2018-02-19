@@ -15,8 +15,8 @@ import (
 
 func main() {
 	port := flag.Int("port", 3000, "Port number")
-	dbFile := flag.String("dbFile", "viewer.db", "Database File")
-	sessionConfigFile := flag.String("configFile", "config.json", "Session config json file")
+	dbFile := flag.String("dbFile", "data/viewer.db", "Database File")
+	sessionConfigFile := flag.String("configFile", "data/session.json", "Session config json file")
 	flag.Parse()
 
 	// load database, session, and routes

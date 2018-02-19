@@ -143,7 +143,7 @@ func CreateUser(u User) error {
 	}
 
 	// create user root directory on disk
-	userDirectory := filepath.Join("users", filepath.FromSlash(path.Clean("/"+u.DirectoryRoot)))
+	userDirectory := filepath.Join("data", "users", filepath.FromSlash(path.Clean("/"+u.DirectoryRoot)))
 	if err := os.MkdirAll(userDirectory, os.ModePerm); err != nil {
 		return err
 	}
