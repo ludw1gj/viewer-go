@@ -72,136 +72,7 @@ define("Handler/AjaxHandler", ["require", "exports", "Handler/NotificationHandle
     }());
     exports.AjaxHandler = AjaxHandler;
 });
-define("Logic/AdminPageLogic", ["require", "exports", "Handler/NotificationHandler", "Handler/AjaxHandler"], function (require, exports, NotificationHandler_2, AjaxHandler_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var AdminPageLogic = (function () {
-        function AdminPageLogic() {
-            this.adminApiRoute = "/api/admin/";
-            this.addEventListenerToChangeUsernameForm();
-            this.addEventListenerToChangeDirectoryRootForm();
-            this.addEventListenerToChangeAdminStatusForm();
-            this.addEventListenerToCreateUserForm();
-            this.addEventListenerToDeleteUserForm();
-        }
-        AdminPageLogic.prototype.addEventListenerToChangeUsernameForm = function () {
-            var _this = this;
-            var changeUsernameForm = document.getElementById("change-username-form");
-            changeUsernameForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                var currentUsername = changeUsernameForm.current_username;
-                var newUsername = changeUsernameForm.new_username;
-                var data = {
-                    current_username: currentUsername.value,
-                    new_username: newUsername.value
-                };
-                var errFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displayError(resp.error.message);
-                };
-                var okFunc = function (resp) {
-                    var username = document.getElementById("username");
-                    if (data.current_username === username.innerText) {
-                        location.reload(true);
-                        return;
-                    }
-                    NotificationHandler_2.NotificationHandler.displaySuccess(resp.data.content);
-                };
-                AjaxHandler_1.AjaxHandler.submitJSON(_this.adminApiRoute + "change-username", data, errFunc, okFunc);
-            });
-        };
-        AdminPageLogic.prototype.addEventListenerToChangeDirectoryRootForm = function () {
-            var _this = this;
-            var changeDirForm = document.getElementById("change-dir-root-form");
-            changeDirForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                var dirRoot = changeDirForm.dir_root;
-                var data = {
-                    dir_root: dirRoot.value
-                };
-                var errFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displayError(resp.error.message);
-                };
-                var okFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displaySuccess(resp.data.content);
-                    changeDirForm.reset();
-                };
-                AjaxHandler_1.AjaxHandler.submitJSON(_this.adminApiRoute + "change-dir-root", data, errFunc, okFunc);
-            });
-        };
-        AdminPageLogic.prototype.addEventListenerToChangeAdminStatusForm = function () {
-            var _this = this;
-            var changeAdminStatusForm = document.getElementById("change-admin-status-form");
-            changeAdminStatusForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                var userID = changeAdminStatusForm.user_id;
-                var isAdmin = changeAdminStatusForm.is_admin;
-                var data = {
-                    user_id: parseInt(userID.value),
-                    is_admin: isAdmin.checked
-                };
-                var errFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displayError(resp.error.message);
-                };
-                var okFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displaySuccess(resp.data.content);
-                    changeAdminStatusForm.reset();
-                };
-                AjaxHandler_1.AjaxHandler.submitJSON(_this.adminApiRoute + "change-admin-status", data, errFunc, okFunc);
-            });
-        };
-        AdminPageLogic.prototype.addEventListenerToCreateUserForm = function () {
-            var _this = this;
-            var createUserForm = document.getElementById("create-user-form");
-            createUserForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                var username = createUserForm.username;
-                var password = createUserForm.password;
-                var firstName = createUserForm.first_name;
-                var lastName = createUserForm.last_name;
-                var DirRoot = createUserForm.directory_root;
-                var isAdmin = createUserForm.is_admin;
-                var data = {
-                    username: username.value,
-                    password: password.value,
-                    first_name: firstName.value,
-                    last_name: lastName.value,
-                    directory_root: DirRoot.value,
-                    is_admin: isAdmin.checked
-                };
-                var errFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displayError(resp.error.message);
-                };
-                var okFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displaySuccess(resp.data.content);
-                    createUserForm.reset();
-                };
-                AjaxHandler_1.AjaxHandler.submitJSON(_this.adminApiRoute + "create-user", data, errFunc, okFunc);
-            });
-        };
-        AdminPageLogic.prototype.addEventListenerToDeleteUserForm = function () {
-            var _this = this;
-            var deleteUserForm = document.getElementById("delete-user-form");
-            deleteUserForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                var userID = deleteUserForm.user_id;
-                var data = {
-                    user_id: parseInt(userID.value)
-                };
-                var errFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displayError(resp.error.message);
-                };
-                var okFunc = function (resp) {
-                    NotificationHandler_2.NotificationHandler.displaySuccess(resp.data.content);
-                    deleteUserForm.reset();
-                };
-                AjaxHandler_1.AjaxHandler.submitJSON(_this.adminApiRoute + "delete-user", data, errFunc, okFunc);
-            });
-        };
-        return AdminPageLogic;
-    }());
-    exports.AdminPageLogic = AdminPageLogic;
-});
-define("Logic/LoginPageLogic", ["require", "exports", "Handler/AjaxHandler"], function (require, exports, AjaxHandler_2) {
+define("Logic/LoginPageLogic", ["require", "exports", "Handler/AjaxHandler"], function (require, exports, AjaxHandler_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var LoginPageLogic = (function () {
@@ -227,14 +98,14 @@ define("Logic/LoginPageLogic", ["require", "exports", "Handler/AjaxHandler"], fu
                 var okFunc = function () {
                     window.location.href = "/viewer/";
                 };
-                AjaxHandler_2.AjaxHandler.submitJSON("/api/user/login", data, errFunc, okFunc);
+                AjaxHandler_1.AjaxHandler.submitJSON("/api/user/login", data, errFunc, okFunc);
             });
         };
         return LoginPageLogic;
     }());
     exports.LoginPageLogic = LoginPageLogic;
 });
-define("Logic/NavbarLogic", ["require", "exports", "Handler/NotificationHandler", "Handler/AjaxHandler"], function (require, exports, NotificationHandler_3, AjaxHandler_3) {
+define("Logic/NavbarLogic", ["require", "exports", "Handler/NotificationHandler", "Handler/AjaxHandler"], function (require, exports, NotificationHandler_2, AjaxHandler_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var NavbarLogic = (function () {
@@ -260,17 +131,105 @@ define("Logic/NavbarLogic", ["require", "exports", "Handler/NotificationHandler"
             var logoutButton = document.getElementById("logout-button");
             logoutButton.addEventListener('click', function () {
                 var errFunc = function (resp) {
-                    NotificationHandler_3.NotificationHandler.displayError(resp.error.message);
+                    NotificationHandler_2.NotificationHandler.displayError(resp.error.message);
                 };
                 var okFunc = function () {
                     window.location.href = "/login";
                 };
-                AjaxHandler_3.AjaxHandler.submitJSON("/api/user/logout", undefined, errFunc, okFunc);
+                AjaxHandler_2.AjaxHandler.submitJSON("/api/user/logout", undefined, errFunc, okFunc);
             });
         };
         return NavbarLogic;
     }());
     exports.NavbarLogic = NavbarLogic;
+});
+define("Logic/ViewerPageLogic", ["require", "exports", "Handler/NotificationHandler", "Handler/AjaxHandler"], function (require, exports, NotificationHandler_3, AjaxHandler_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var ViewerPageLogic = (function () {
+        function ViewerPageLogic() {
+            this.apiRoute = "/api/viewer/";
+            this.currentDir = document.getElementById("current-dir").innerText.slice(1);
+            this.addEventListenerToUploadFileForm();
+            this.addEventListenerToCreateFolderForm();
+            this.addEventListenerToDeleteFileFolderForm();
+            this.addEventListenerToDeleteAllForm();
+        }
+        ViewerPageLogic.prototype.addEventListenerToUploadFileForm = function () {
+            var _this = this;
+            var uploadForm = document.getElementById("upload-form");
+            uploadForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                var errFunc = function (resp) {
+                    NotificationHandler_3.NotificationHandler.displayError(resp.error.message);
+                };
+                var okFunc = function () {
+                    location.reload(true);
+                };
+                AjaxHandler_3.AjaxHandler.submitFormData(_this.apiRoute + "upload/" + _this.currentDir, uploadForm, errFunc, okFunc);
+            });
+        };
+        ViewerPageLogic.prototype.addEventListenerToCreateFolderForm = function () {
+            var _this = this;
+            var createFolderForm = document.getElementById("create-folder-form");
+            createFolderForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                var folderName = createFolderForm.folder_name;
+                var data = {
+                    path: ViewerPageLogic.makePath(_this.currentDir, folderName.value)
+                };
+                ViewerPageLogic.ajaxHelper(_this.apiRoute + "create", data);
+            });
+        };
+        ViewerPageLogic.prototype.addEventListenerToDeleteFileFolderForm = function () {
+            var _this = this;
+            var deleteFileFolderForm = document.getElementById("delete-file-folder-form");
+            deleteFileFolderForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                var fileName = deleteFileFolderForm.file_name;
+                var data = {
+                    path: ViewerPageLogic.makePath(_this.currentDir, fileName.value)
+                };
+                ViewerPageLogic.ajaxHelper(_this.apiRoute + "delete", data);
+            });
+        };
+        ViewerPageLogic.prototype.addEventListenerToDeleteAllForm = function () {
+            var _this = this;
+            var deleteAllForm = document.getElementById("delete-all-form");
+            deleteAllForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                var path;
+                if (_this.currentDir === "") {
+                    path = "/";
+                }
+                else {
+                    path = _this.currentDir;
+                }
+                var data = {
+                    path: path
+                };
+                ViewerPageLogic.ajaxHelper(_this.apiRoute + "delete-all", data);
+            });
+        };
+        ViewerPageLogic.ajaxHelper = function (url, data) {
+            var errFunc = function (resp) {
+                NotificationHandler_3.NotificationHandler.displayError(resp.error.message);
+            };
+            var okFunc = function () {
+                location.reload(true);
+            };
+            AjaxHandler_3.AjaxHandler.submitJSON(url, data, errFunc, okFunc);
+        };
+        ViewerPageLogic.makePath = function (currentDir, fileName) {
+            var index = (currentDir === "");
+            if (index) {
+                return fileName;
+            }
+            return currentDir + "/" + fileName;
+        };
+        return ViewerPageLogic;
+    }());
+    exports.ViewerPageLogic = ViewerPageLogic;
 });
 define("Logic/UserPageLogic", ["require", "exports", "Handler/NotificationHandler", "Handler/AjaxHandler"], function (require, exports, NotificationHandler_4, AjaxHandler_4) {
     "use strict";
@@ -347,93 +306,134 @@ define("Logic/UserPageLogic", ["require", "exports", "Handler/NotificationHandle
     }());
     exports.UserPageLogic = UserPageLogic;
 });
-define("Logic/ViewerPageLogic", ["require", "exports", "Handler/NotificationHandler", "Handler/AjaxHandler"], function (require, exports, NotificationHandler_5, AjaxHandler_5) {
+define("Logic/AdminPageLogic", ["require", "exports", "Handler/NotificationHandler", "Handler/AjaxHandler"], function (require, exports, NotificationHandler_5, AjaxHandler_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var ViewerPageLogic = (function () {
-        function ViewerPageLogic() {
-            this.apiRoute = "/api/viewer/";
-            this.currentDir = document.getElementById("current-dir").innerText.slice(1);
-            this.addEventListenerToUploadFileForm();
-            this.addEventListenerToCreateFolderForm();
-            this.addEventListenerToDeleteFileFolderForm();
-            this.addEventListenerToDeleteAllForm();
+    var AdminPageLogic = (function () {
+        function AdminPageLogic() {
+            this.adminApiRoute = "/api/admin/";
+            this.addEventListenerToChangeUsernameForm();
+            this.addEventListenerToChangeDirectoryRootForm();
+            this.addEventListenerToChangeAdminStatusForm();
+            this.addEventListenerToCreateUserForm();
+            this.addEventListenerToDeleteUserForm();
         }
-        ViewerPageLogic.prototype.addEventListenerToUploadFileForm = function () {
+        AdminPageLogic.prototype.addEventListenerToChangeUsernameForm = function () {
             var _this = this;
-            var uploadForm = document.getElementById("upload-form");
-            uploadForm.addEventListener("submit", function (event) {
+            var changeUsernameForm = document.getElementById("change-username-form");
+            changeUsernameForm.addEventListener("submit", function (event) {
                 event.preventDefault();
+                var currentUsername = changeUsernameForm.current_username;
+                var newUsername = changeUsernameForm.new_username;
+                var data = {
+                    current_username: currentUsername.value,
+                    new_username: newUsername.value
+                };
                 var errFunc = function (resp) {
                     NotificationHandler_5.NotificationHandler.displayError(resp.error.message);
                 };
-                var okFunc = function () {
-                    location.reload(true);
+                var okFunc = function (resp) {
+                    var username = document.getElementById("username");
+                    if (data.current_username === username.innerText) {
+                        location.reload(true);
+                        return;
+                    }
+                    NotificationHandler_5.NotificationHandler.displaySuccess(resp.data.content);
                 };
-                AjaxHandler_5.AjaxHandler.submitFormData(_this.apiRoute + "upload/" + _this.currentDir, uploadForm, errFunc, okFunc);
+                AjaxHandler_5.AjaxHandler.submitJSON(_this.adminApiRoute + "change-username", data, errFunc, okFunc);
             });
         };
-        ViewerPageLogic.prototype.addEventListenerToCreateFolderForm = function () {
+        AdminPageLogic.prototype.addEventListenerToChangeDirectoryRootForm = function () {
             var _this = this;
-            var createFolderForm = document.getElementById("create-folder-form");
-            createFolderForm.addEventListener("submit", function (event) {
+            var changeDirForm = document.getElementById("change-dir-root-form");
+            changeDirForm.addEventListener("submit", function (event) {
                 event.preventDefault();
-                var folderName = createFolderForm.folder_name;
+                var dirRoot = changeDirForm.dir_root;
                 var data = {
-                    path: ViewerPageLogic.makePath(_this.currentDir, folderName.value)
+                    dir_root: dirRoot.value
                 };
-                ViewerPageLogic.ajaxHelper(_this.apiRoute + "create", data);
+                var errFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displayError(resp.error.message);
+                };
+                var okFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displaySuccess(resp.data.content);
+                    changeDirForm.reset();
+                };
+                AjaxHandler_5.AjaxHandler.submitJSON(_this.adminApiRoute + "change-dir-root", data, errFunc, okFunc);
             });
         };
-        ViewerPageLogic.prototype.addEventListenerToDeleteFileFolderForm = function () {
+        AdminPageLogic.prototype.addEventListenerToChangeAdminStatusForm = function () {
             var _this = this;
-            var deleteFileFolderForm = document.getElementById("delete-file-folder-form");
-            deleteFileFolderForm.addEventListener("submit", function (event) {
+            var changeAdminStatusForm = document.getElementById("change-admin-status-form");
+            changeAdminStatusForm.addEventListener("submit", function (event) {
                 event.preventDefault();
-                var fileName = deleteFileFolderForm.file_name;
+                var userID = changeAdminStatusForm.user_id;
+                var isAdmin = changeAdminStatusForm.is_admin;
                 var data = {
-                    path: ViewerPageLogic.makePath(_this.currentDir, fileName.value)
+                    user_id: parseInt(userID.value),
+                    is_admin: isAdmin.checked
                 };
-                ViewerPageLogic.ajaxHelper(_this.apiRoute + "delete", data);
+                var errFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displayError(resp.error.message);
+                };
+                var okFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displaySuccess(resp.data.content);
+                    changeAdminStatusForm.reset();
+                };
+                AjaxHandler_5.AjaxHandler.submitJSON(_this.adminApiRoute + "change-admin-status", data, errFunc, okFunc);
             });
         };
-        ViewerPageLogic.prototype.addEventListenerToDeleteAllForm = function () {
+        AdminPageLogic.prototype.addEventListenerToCreateUserForm = function () {
             var _this = this;
-            var deleteAllForm = document.getElementById("delete-all-form");
-            deleteAllForm.addEventListener("submit", function (event) {
+            var createUserForm = document.getElementById("create-user-form");
+            createUserForm.addEventListener("submit", function (event) {
                 event.preventDefault();
-                var path;
-                if (_this.currentDir === "") {
-                    path = "/";
-                }
-                else {
-                    path = _this.currentDir;
-                }
+                var username = createUserForm.username;
+                var password = createUserForm.password;
+                var firstName = createUserForm.first_name;
+                var lastName = createUserForm.last_name;
+                var DirRoot = createUserForm.directory_root;
+                var isAdmin = createUserForm.is_admin;
                 var data = {
-                    path: path
+                    username: username.value,
+                    password: password.value,
+                    first_name: firstName.value,
+                    last_name: lastName.value,
+                    directory_root: DirRoot.value,
+                    is_admin: isAdmin.checked
                 };
-                ViewerPageLogic.ajaxHelper(_this.apiRoute + "delete-all", data);
+                var errFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displayError(resp.error.message);
+                };
+                var okFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displaySuccess(resp.data.content);
+                    createUserForm.reset();
+                };
+                AjaxHandler_5.AjaxHandler.submitJSON(_this.adminApiRoute + "create-user", data, errFunc, okFunc);
             });
         };
-        ViewerPageLogic.ajaxHelper = function (url, data) {
-            var errFunc = function (resp) {
-                NotificationHandler_5.NotificationHandler.displayError(resp.error.message);
-            };
-            var okFunc = function () {
-                location.reload(true);
-            };
-            AjaxHandler_5.AjaxHandler.submitJSON(url, data, errFunc, okFunc);
+        AdminPageLogic.prototype.addEventListenerToDeleteUserForm = function () {
+            var _this = this;
+            var deleteUserForm = document.getElementById("delete-user-form");
+            deleteUserForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                var userID = deleteUserForm.user_id;
+                var data = {
+                    user_id: parseInt(userID.value)
+                };
+                var errFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displayError(resp.error.message);
+                };
+                var okFunc = function (resp) {
+                    NotificationHandler_5.NotificationHandler.displaySuccess(resp.data.content);
+                    deleteUserForm.reset();
+                };
+                AjaxHandler_5.AjaxHandler.submitJSON(_this.adminApiRoute + "delete-user", data, errFunc, okFunc);
+            });
         };
-        ViewerPageLogic.makePath = function (currentDir, fileName) {
-            var index = (currentDir === "");
-            if (index) {
-                return fileName;
-            }
-            return currentDir + "/" + fileName;
-        };
-        return ViewerPageLogic;
+        return AdminPageLogic;
     }());
-    exports.ViewerPageLogic = ViewerPageLogic;
+    exports.AdminPageLogic = AdminPageLogic;
 });
 define("LogicController", ["require", "exports", "Logic/LoginPageLogic", "Logic/NavbarLogic", "Logic/ViewerPageLogic", "Logic/UserPageLogic", "Logic/AdminPageLogic"], function (require, exports, LoginPageLogic_1, NavbarLogic_1, ViewerPageLogic_1, UserPageLogic_1, AdminPageLogic_1) {
     "use strict";

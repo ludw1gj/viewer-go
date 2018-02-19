@@ -8,7 +8,7 @@
     "noImplicitReturns": true
   },
   "include": [
-    "./assets/scripts/src"
+    "./assets/scripts/src/**/*"
   ],
   "exclude": [
     "node_modules"
