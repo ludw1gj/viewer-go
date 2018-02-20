@@ -20,7 +20,7 @@ function addEventListenerLoginForm(): void {
         };
 
         const errFunc = (resp: JSONErrorResponse) => {
-            let notification = document.getElementById("login-error-notification") as HTMLFormElement;
+            const notification = document.getElementById("login-error-notification") as HTMLFormElement;
             notification.classList.remove("hidden");
             notification.classList.add("is-danger");
             notification.innerText = resp.error.message;

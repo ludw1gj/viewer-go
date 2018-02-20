@@ -173,17 +173,18 @@ define("Logic/ViewerPageLogic", ["require", "exports", "Handler/NotificationHand
         var deleteAllForm = document.getElementById("delete-all-form");
         deleteAllForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            var path;
+            var sendAjax = function (deletePath) {
+                var data = {
+                    path: deletePath
+                };
+                ajaxHelper(apiRoute + "delete-all", data);
+            };
             if (currentDir === "") {
-                path = "/";
+                sendAjax("/");
             }
             else {
-                path = currentDir;
+                sendAjax(currentDir);
             }
-            var data = {
-                path: path
-            };
-            ajaxHelper(apiRoute + "delete-all", data);
         });
     }
     function ajaxHelper(url, data) {

@@ -61,7 +61,7 @@ function addEventListenerToChangeUsernameForm(): void {
 }
 
 function addEventListenerToChangeDirectoryRootForm(): void {
-    let changeDirForm = document.getElementById("change-dir-root-form") as HTMLFormElement;
+    const changeDirForm = document.getElementById("change-dir-root-form") as HTMLFormElement;
 
     changeDirForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
@@ -85,7 +85,7 @@ function addEventListenerToChangeDirectoryRootForm(): void {
 }
 
 function addEventListenerToChangeAdminStatusForm(): void {
-    let changeAdminStatusForm = document.getElementById("change-admin-status-form") as HTMLFormElement;
+    const changeAdminStatusForm = document.getElementById("change-admin-status-form") as HTMLFormElement;
 
     changeAdminStatusForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();

@@ -27,7 +27,7 @@ function addEventListenerToUploadFileForm(): void {
 }
 
 function addEventListenerToCreateFolderForm(): void {
-    let createFolderForm = document.getElementById("create-folder-form") as HTMLFormElement;
+    const createFolderForm = document.getElementById("create-folder-form") as HTMLFormElement;
 
     createFolderForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
@@ -42,7 +42,7 @@ function addEventListenerToCreateFolderForm(): void {
 }
 
 function addEventListenerToDeleteFileFolderForm(): void {
-    let deleteFileFolderForm = document.getElementById("delete-file-folder-form") as HTMLFormElement;
+    const deleteFileFolderForm = document.getElementById("delete-file-folder-form") as HTMLFormElement;
 
     deleteFileFolderForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
@@ -57,22 +57,23 @@ function addEventListenerToDeleteFileFolderForm(): void {
 }
 
 function addEventListenerToDeleteAllForm(): void {
-    let deleteAllForm = document.getElementById("delete-all-form") as HTMLFormElement;
+    const deleteAllForm = document.getElementById("delete-all-form") as HTMLFormElement;
 
     deleteAllForm.addEventListener("submit", (event: Event) => {
         event.preventDefault();
 
-        let path: string;
-        if (currentDir === "") {
-            path = "/";
-        } else {
-            path = currentDir;
-        }
-
-        const data: pathInput = {
-            path: path
+        const sendAjax = function (deletePath: string) {
+            const data: pathInput = {
+                path: deletePath
+            };
+            ajaxHelper(apiRoute + "delete-all", data);
         };
-        ajaxHelper(apiRoute + "delete-all", data);
+
+        if (currentDir === "") {
+            sendAjax("/");
+        } else {
+            sendAjax(currentDir);
+        }
     });
 }
 
