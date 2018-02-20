@@ -1,13 +1,12 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
-	"flag"
-
-	"fmt"
-
+	"github.com/robertjeffs/viewer-go/logic/config"
 	"github.com/robertjeffs/viewer-go/logic/database"
 	"github.com/robertjeffs/viewer-go/logic/router"
 	"github.com/robertjeffs/viewer-go/logic/session"
@@ -17,7 +16,10 @@ func main() {
 	port := flag.Int("port", 3000, "Port number")
 	dbFile := flag.String("dbFile", "data/viewer.db", "Database File")
 	sessionConfigFile := flag.String("configFile", "data/session.json", "Session config json file")
+	usersDirectory := flag.String("usersDir", "data/users", "Directory where user data will be stored")
 	flag.Parse()
+
+	config.SetUsersDirectory(*usersDirectory)
 
 	// load database, session, and routes
 	err := database.Load(*dbFile)

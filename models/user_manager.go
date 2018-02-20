@@ -4,11 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/robertjeffs/viewer-go/logic/database"
-	"golang.org/x/crypto/bcrypt"
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/robertjeffs/viewer-go/logic/config"
+	"github.com/robertjeffs/viewer-go/logic/database"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserManager struct{}
@@ -62,7 +64,7 @@ func (UserManager) CreateUser(u User) error {
 	}
 
 	// create user root directory on disk
-	userDirectory := filepath.Join("data", "users", filepath.FromSlash(path.Clean("/"+u.DirectoryRoot)))
+	userDirectory := filepath.Join(config.GetUsersDirectory(), filepath.FromSlash(path.Clean("/"+u.DirectoryRoot)))
 	if err := os.MkdirAll(userDirectory, os.ModePerm); err != nil {
 		return err
 	}

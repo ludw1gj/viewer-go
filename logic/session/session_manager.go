@@ -3,7 +3,6 @@ package session
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/robertjeffs/viewer-go/models"

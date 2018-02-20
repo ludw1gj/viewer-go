@@ -1,15 +1,16 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"path"
 	"path/filepath"
-
-	"bytes"
-	"fmt"
 	"reflect"
+
+	"github.com/robertjeffs/viewer-go/logic/config"
 )
 
 // sendErrorResponse writes an error json response to the client.
@@ -81,5 +82,5 @@ func validateJSONInput(a interface{}) error {
 }
 
 func cleanPath(userRoot, folderPath string) string {
-	return filepath.Join("data", "users", userRoot, filepath.FromSlash(path.Clean("/"+folderPath)))
+	return filepath.Join(config.GetUsersDirectory(), userRoot, filepath.FromSlash(path.Clean("/"+folderPath)))
 }
