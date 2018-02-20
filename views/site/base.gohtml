@@ -10,15 +10,8 @@
     <link rel="shortcut icon" href="/assets/serve/favicon-192.png">
 
     <!--css-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
+    <link rel="stylesheet" href="/assets/styles/vendor/bulma.min.css">
     <link rel="stylesheet" href="/assets/styles/base.css">
-
-    <!--js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"></script>
-    <script src="/assets/scripts/build/build.js"></script>
-    <script>
-        requirejs(['LogicController']);
-    </script>
 </head>
 
 <body>
@@ -54,6 +47,14 @@
         {{block "content" .}}{{end}}
     </div>
 </section>
+
+<!--js-->
+<script src="/assets/scripts/vendor/require.min.js"></script>
+<script src="/assets/scripts/build/build.js"></script>
+<script>
+    requirejs(['LogicController']);
+</script>
+
 </body>
 
 </html>
