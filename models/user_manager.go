@@ -94,8 +94,8 @@ func (UserManager) ValidateUser(username string, password string) (userID int, e
 		return userID, errors.New("there is no user by that username")
 	}
 
-	if err := comparePasswords(user.Password, password); err != nil {
-		return userID, err
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return userID, NewErrInvalidPassword()
 	}
 	return user.ID, nil
 }

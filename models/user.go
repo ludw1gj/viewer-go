@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	"os"
+
 	"github.com/robertjeffs/viewer-go/logic/database"
 	"golang.org/x/crypto/bcrypt"
-	"os"
 )
 
 // ErrInvalidPassword type conforms to error type.
@@ -18,9 +19,9 @@ func (e *ErrInvalidPassword) Error() string {
 }
 
 // NewErrInvalidPassword returns a pointer to a ErrInvalidPassword type instance.
-func NewErrInvalidPassword(message string) *ErrInvalidPassword {
+func NewErrInvalidPassword() *ErrInvalidPassword {
 	return &ErrInvalidPassword{
-		message: message,
+		message: "Password is invalid.",
 	}
 }
 
@@ -38,8 +39,8 @@ type User struct {
 // Delete deletes a user from the database if the provided password is valid.
 func (u User) Delete(password string) error {
 	// check if password is valid
-	if err := comparePasswords(u.Password, password); err != nil {
-		return err
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
+		return NewErrInvalidPassword()
 	}
 
 	if _, err := database.DB.Exec("DELETE FROM users WHERE id = $1", u.ID); err != nil {
@@ -51,8 +52,8 @@ func (u User) Delete(password string) error {
 // UpdatePassword updates the user's password in the database, if the provided password is valid.
 func (u User) UpdatePassword(password string, newPassword string) error {
 	// check if oldPassword is valid
-	if err := comparePasswords(u.Password, password); err != nil {
-		return err
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
+		return NewErrInvalidPassword()
 	}
 
 	// generate hash of new password
