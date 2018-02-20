@@ -1,72 +1,66 @@
-import {NotificationHandler} from "./NotificationHandler";
+import {displayError} from "./NotificationHandler";
 
-interface JSONErrorResponse {
+export interface JSONErrorResponse {
     error: {
         message: string;
     };
 }
 
-interface JSONDataResponse {
+export interface JSONDataResponse {
     data: {
         content: string;
     };
 }
 
-class AjaxHandler {
+export function ajaxSubmitJSON(url: string,
+                               data: object | undefined,
+                               errFunc: (resp: JSONErrorResponse) => void,
+                               okFunc: (resp: JSONDataResponse) => void) {
 
-    public static submitJSON(url: string,
-                             data: object | undefined,
-                             errFunc: (resp: JSONErrorResponse) => void,
-                             okFunc: (resp: JSONDataResponse) => void) {
+    const xhr = new XMLHttpRequest();
 
-        let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
 
-        xhr.open("POST", url, true);
-        xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+        const DONE = 4;
 
-        xhr.onreadystatechange = () => {
-            const DONE = 4;
-
-            if (xhr.readyState === DONE) {
-                const resp = JSON.parse(xhr.responseText) as JSONDataResponse | JSONErrorResponse;
-                if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
-                    errFunc(resp as JSONErrorResponse);
-                } else if ("data" in resp) {
-                    okFunc(resp as JSONDataResponse);
-                } else {
-                    NotificationHandler.displayError("There has been an error.");
-                }
+        if (xhr.readyState === DONE) {
+            const resp = JSON.parse(xhr.responseText) as JSONDataResponse | JSONErrorResponse;
+            if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
+                errFunc(resp as JSONErrorResponse);
+            } else if ("data" in resp) {
+                okFunc(resp as JSONDataResponse);
+            } else {
+                displayError("There has been an error.");
             }
-        };
-        xhr.send(JSON.stringify(data));
-    }
-
-    public static submitFormData(url: string,
-                                 uploadForm: HTMLFormElement,
-                                 errFunc: (resp: JSONErrorResponse) => void,
-                                 okFunc: (resp: JSONDataResponse) => void): void {
-
-        const formData = new FormData(uploadForm);
-
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", url, true);
-        xhr.onreadystatechange = () => {
-            const DONE = 4;
-
-            if (xhr.readyState === DONE) {
-                const resp = JSON.parse(xhr.responseText) as JSONDataResponse | JSONErrorResponse;
-                if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
-                    errFunc(resp as JSONErrorResponse);
-                } else if ("data" in resp) {
-                    okFunc(resp as JSONDataResponse);
-                } else {
-                    NotificationHandler.displayError("There has been an error.");
-                }
-            }
-        };
-        xhr.send(formData);
-    }
-
+        }
+    };
+    xhr.send(JSON.stringify(data));
 }
 
-export {AjaxHandler, JSONErrorResponse, JSONDataResponse}
+export function ajaxSubmitFormData(url: string,
+                                   uploadForm: HTMLFormElement,
+                                   errFunc: (resp: JSONErrorResponse) => void,
+                                   okFunc: (resp: JSONDataResponse) => void): void {
+
+    const formData = new FormData(uploadForm);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.onreadystatechange = () => {
+        const DONE = 4;
+
+        if (xhr.readyState === DONE) {
+            const resp = JSON.parse(xhr.responseText) as JSONDataResponse | JSONErrorResponse;
+            if ("error" in resp || xhr.status === 401 || xhr.status === 500) {
+                errFunc(resp as JSONErrorResponse);
+            } else if ("data" in resp) {
+                okFunc(resp as JSONDataResponse);
+            } else {
+                displayError("There has been an error.");
+            }
+        }
+    };
+    xhr.send(formData);
+}

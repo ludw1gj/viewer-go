@@ -1,37 +1,32 @@
-import {LoginPageLogic} from "./Logic/LoginPageLogic";
-import {NavbarLogic} from "./Logic/NavbarLogic";
-import {ViewerPageLogic} from "./Logic/ViewerPageLogic";
-import {UserPageLogic} from "./Logic/UserPageLogic";
-import {AdminPageLogic} from "./Logic/AdminPageLogic";
+import {initiateLoginPage} from "./Logic/LoginPageLogic";
+import {initiateNavbar} from "./Logic/NavbarLogic";
+import {initiateViewerPage} from "./Logic/ViewerPageLogic";
+import {initiateUserPage} from "./Logic/UserPageLogic";
+import {initiateAdminPage} from "./Logic/AdminPageLogic";
 
-class LogicController {
+function run(): void {
+    const page = window.location.pathname;
 
-    public static run(): void {
-        const page = window.location.pathname;
+    if (page === "/login") {
+        initiateLoginPage();
+        return;
+    }
+    initiateNavbar();
 
-        if (page === "/login") {
-            new LoginPageLogic();
-            return;
-        }
-
-        new NavbarLogic();
-
-        const isViewerPage = page.search("/viewer/") !== -1;
-        if (isViewerPage) {
-            new ViewerPageLogic();
-            return;
-        }
-
-        switch (page) {
-            case "/user":
-                new UserPageLogic();
-                break;
-            case "/admin":
-                new AdminPageLogic();
-                break;
-        }
+    const isViewerPage = page.search("/viewer/") !== -1;
+    if (isViewerPage) {
+        initiateViewerPage();
+        return;
     }
 
+    switch (page) {
+        case "/user":
+            initiateUserPage();
+            break;
+        case "/admin":
+            initiateAdminPage();
+            break;
+    }
 }
 
-LogicController.run();
+run();

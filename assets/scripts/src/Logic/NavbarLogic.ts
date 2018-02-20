@@ -1,44 +1,38 @@
-import {NotificationHandler} from "../Handler/NotificationHandler";
-import {AjaxHandler, JSONErrorResponse} from "../Handler/AjaxHandler";
+import {displayError} from "../Handler/NotificationHandler";
+import {ajaxSubmitJSON, JSONErrorResponse} from "../Handler/AjaxHandler";
 
-class NavbarLogic {
+function addEventListenerToMobileMenuButton(): void {
+    // extend and collapse navigation menu for mobile
+    const mobileMenuButton = document.getElementById("mobile-menu-button") as HTMLElement;
 
-    constructor() {
-        this.addEventListenerToMobileMenuButton();
-        this.addEventListenerToLogoutButton();
-    }
+    mobileMenuButton.addEventListener("click", () => {
+        const mobileMenu = document.getElementById("mobile-menu") as HTMLElement;
 
-    private addEventListenerToMobileMenuButton(): void {
-        // extend and collapse navigation menu for mobile
-        let mobileMenuButton = document.getElementById("mobile-menu-button") as HTMLElement;
-
-        mobileMenuButton.addEventListener("click", () => {
-            let mobileMenu = document.getElementById("mobile-menu") as HTMLElement;
-
-            if (mobileMenuButton.classList.contains("is-active") || mobileMenuButton.classList.contains("is-active")) {
-                mobileMenu.classList.remove("is-active");
-                mobileMenuButton.classList.remove("is-active");
-            } else {
-                mobileMenuButton.classList.add("is-active");
-                mobileMenu.classList.add("is-active");
-            }
-        });
-    }
-
-    private addEventListenerToLogoutButton(): void {
-        let logoutButton = document.getElementById("logout-button") as HTMLElement;
-
-        logoutButton.addEventListener('click', () => {
-            const errFunc = (resp: JSONErrorResponse) => {
-                NotificationHandler.displayError(resp.error.message);
-            };
-            const okFunc = () => {
-                window.location.href = "/login";
-            };
-            AjaxHandler.submitJSON("/api/user/logout", undefined, errFunc, okFunc);
-        });
-    }
-
+        if (mobileMenuButton.classList.contains("is-active") || mobileMenuButton.classList.contains("is-active")) {
+            mobileMenu.classList.remove("is-active");
+            mobileMenuButton.classList.remove("is-active");
+        } else {
+            mobileMenuButton.classList.add("is-active");
+            mobileMenu.classList.add("is-active");
+        }
+    });
 }
 
-export {NavbarLogic}
+function addEventListenerToLogoutButton(): void {
+    const logoutButton = document.getElementById("logout-button") as HTMLElement;
+
+    logoutButton.addEventListener('click', () => {
+        const errFunc = (resp: JSONErrorResponse) => {
+            displayError(resp.error.message);
+        };
+        const okFunc = () => {
+            window.location.href = "/login";
+        };
+        ajaxSubmitJSON("/api/user/logout", undefined, errFunc, okFunc);
+    });
+}
+
+export function initiateNavbar() {
+    addEventListenerToMobileMenuButton();
+    addEventListenerToLogoutButton();
+}

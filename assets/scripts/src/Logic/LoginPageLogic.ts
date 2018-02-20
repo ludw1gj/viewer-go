@@ -1,44 +1,38 @@
-import {AjaxHandler, JSONErrorResponse} from "../Handler/AjaxHandler";
+import {ajaxSubmitJSON, JSONErrorResponse} from "../Handler/AjaxHandler";
 
 interface loginInput {
     username: string;
     password: string;
 }
 
-class LoginPageLogic {
+function addEventListenerLoginForm(): void {
+    const loginForm = document.getElementById("login-form") as HTMLFormElement;
 
-    constructor() {
-        this.addEventListenerLoginForm();
-    }
+    loginForm.addEventListener("submit", (event: Event) => {
+        event.preventDefault();
 
-    private addEventListenerLoginForm(): void {
-        let loginForm = document.getElementById("login-form") as HTMLFormElement;
+        const username: HTMLInputElement = loginForm.username;
+        const password: HTMLInputElement = loginForm.password;
 
-        loginForm.addEventListener("submit", (event: Event) => {
-            event.preventDefault();
+        const data: loginInput = {
+            username: username.value,
+            password: password.value
+        };
 
-            const username: HTMLInputElement = loginForm.username;
-            const password: HTMLInputElement = loginForm.password;
+        const errFunc = (resp: JSONErrorResponse) => {
+            let notification = document.getElementById("login-error-notification") as HTMLFormElement;
+            notification.classList.remove("hidden");
+            notification.classList.add("is-danger");
+            notification.innerText = resp.error.message;
+        };
 
-            const data: loginInput = {
-                username: username.value,
-                password: password.value
-            };
-
-            const errFunc = (resp: JSONErrorResponse) => {
-                let notification = document.getElementById("login-error-notification") as HTMLFormElement;
-                notification.classList.remove("hidden");
-                notification.classList.add("is-danger");
-                notification.innerText = resp.error.message;
-            };
-
-            const okFunc = () => {
-                window.location.href = "/viewer/";
-            };
-            AjaxHandler.submitJSON("/api/user/login", data, errFunc, okFunc);
-        });
-    }
-
+        const okFunc = () => {
+            window.location.href = "/viewer/";
+        };
+        ajaxSubmitJSON("/api/user/login", data, errFunc, okFunc);
+    });
 }
 
-export {LoginPageLogic}
+export function initiateLoginPage() {
+    addEventListenerLoginForm();
+}
