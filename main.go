@@ -14,8 +14,8 @@ import (
 
 func main() {
 	port := flag.Int("port", 3000, "Port number")
-	dbFile := flag.String("dbFile", "data/viewer.db", "Database File")
-	sessionConfigFile := flag.String("configFile", "data/session.json", "Session config json file")
+	dbFile := flag.String("dbFile", "data/viewer/viewer.db", "Database File")
+	sessionConfigFile := flag.String("configFile", "data/viewer/session.json", "Session config json file")
 	usersDirectory := flag.String("usersDir", "data/users", "Directory where user data will be stored")
 	flag.Parse()
 
