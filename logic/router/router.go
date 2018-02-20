@@ -53,11 +53,11 @@ func LoadRoutes() {
 	http.Handle("/assets/", http.StripPrefix("/assets", fs))
 }
 
-// authenticateRoute is middleware that checks if users are authenticated.
 func authenticateRoute(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionManager := session.NewSessionManager()
 
+		// check if user is authenticated
 		if isAuth := sessionManager.CheckUserAuth(r); !isAuth {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return

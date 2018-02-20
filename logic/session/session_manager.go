@@ -2,10 +2,11 @@ package session
 
 import (
 	"errors"
-	"github.com/robertjeffs/viewer-go/models"
-
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/robertjeffs/viewer-go/models"
 )
 
 type SessionManager struct{}
@@ -18,7 +19,11 @@ func NewSessionManager() *SessionManager {
 func (SessionManager) NewUserSession(w http.ResponseWriter, r *http.Request, userID int) error {
 	s, err := store.Get(r, "viewer-session")
 	if err != nil {
-		return errors.New(fmt.Sprintf("Cookie is invalid, clearing cookies may help. Error: \"%s\"", err.Error()))
+		if err.Error() == "securecookie: the value is not valid" && s != nil {
+			store.Save(r, w, s)
+		} else {
+			return errors.New(fmt.Sprintf("Cookie error. Error: \"%s\"", err.Error()))
+		}
 	}
 
 	// Set user as authenticated
