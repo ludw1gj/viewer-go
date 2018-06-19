@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "System",
     "target": "es5",
-    "out": "./assets/scripts/build/build.js",
+    "outFile": "./assets/scripts/build/build.js",
     "removeComments": true,
     "strict": true,
     "noImplicitReturns": true
