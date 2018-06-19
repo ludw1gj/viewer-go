@@ -14,11 +14,8 @@
     <link rel="stylesheet" href="/assets/styles/login.css">
 
     <!--js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.21.4/system-production.js"></script>
     <script src="/assets/scripts/build/build.js"></script>
-    <script>
-        requirejs(['LogicController']);
-    </script>
 </head>
 
 <body>
@@ -38,6 +35,10 @@
         </form>
     </div>
 </section>
+
+<script>
+    SystemJS.import('index');
+</script>
 </body>
 
 </html>

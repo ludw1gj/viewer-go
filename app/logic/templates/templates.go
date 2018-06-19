@@ -15,17 +15,17 @@ import (
 
 var (
 	siteTemplates = map[string]*template.Template{
-		"login":      initSiteTemplate("login", false),
-		"viewer":     initSiteTemplate("viewer", true),
-		"about":      initSiteTemplate("about", true),
-		"user":       initSiteTemplate("user", true),
-		"admin":      initSiteTemplate("admin", true),
-		"adminUsers": initSiteTemplate("admin_users", true),
-		"error":      initSiteTemplate("error", true),
-		"notFound":   initSiteTemplate("not_found", true),
+		"login":      createSiteTemplate("login", false),
+		"viewer":     createSiteTemplate("viewer", true),
+		"about":      createSiteTemplate("about", true),
+		"user":       createSiteTemplate("user", true),
+		"admin":      createSiteTemplate("admin", true),
+		"adminUsers": createSiteTemplate("admin_users", true),
+		"error":      createSiteTemplate("error", true),
+		"notFound":   createSiteTemplate("not_found", true),
 	}
 
-	directoryListTemplate = template.Must(template.ParseFiles(path.Join("views", "viewer", "dir_list.gohtml")))
+	directoryListTemplate = template.Must(template.ParseFiles(path.Join(getTemplateDir(), "viewer", "dir_list.gohtml")))
 
 	// function map for use in templates
 	funcMap = template.FuncMap{
@@ -40,10 +40,14 @@ var (
 	}
 )
 
-// initSiteTemplate returns new templates.Template and parses files of templateName in the templates directory with base
+func getTemplateDir() string {
+	return path.Join("app", "views")
+}
+
+// createSiteTemplate returns new templates.Template and parses files of templateName in the templates directory with base
 // templates.
-func initSiteTemplate(templateName string, baseTemplate bool) *template.Template {
-	siteTemplateDir := path.Join("app", "views", "site")
+func createSiteTemplate(templateName string, baseTemplate bool) *template.Template {
+	siteTemplateDir := path.Join(getTemplateDir(), "site")
 	siteBaseTemplatePath := path.Join(siteTemplateDir, "base.gohtml")
 
 	if baseTemplate {
@@ -55,34 +59,14 @@ func initSiteTemplate(templateName string, baseTemplate bool) *template.Template
 
 func renderError(w http.ResponseWriter, err error) {
 	log.Printf("StatusInternalServerError template failed to execute: %s", err.Error())
+	errMessage := fmt.Sprintf("500: Server error - %s", err.Error())
 
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("500: Server error"))
+	w.Write([]byte(errMessage))
 }
 
-// RenderLoginTemplate renders the login template.
-func RenderLoginTemplate(w http.ResponseWriter) {
-	// Ensure the template exists in the map.
-	tpl, ok := siteTemplates["login"]
-	if !ok {
-		renderError(w, errors.New("template does not exist"))
-		return
-	}
-
-	var buf bytes.Buffer
-	err := tpl.Execute(&buf, nil)
-	if err != nil {
-		log.Println(err)
-
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("500: Server error. %s", err.Error())))
-		return
-	}
-	w.Write(buf.Bytes())
-}
-
-// RenderSiteTemplate executes a templates and sends it to the client.
-func RenderSiteTemplate(w http.ResponseWriter, name string, data interface{}) {
+// renderTemplate executes a templates and sends it to the client.
+func renderTemplate(w http.ResponseWriter, name string, baseTemplate string, data interface{}) {
 	// Ensure the template exists in the map.
 	tpl, ok := siteTemplates[name]
 	if !ok {
@@ -90,11 +74,30 @@ func RenderSiteTemplate(w http.ResponseWriter, name string, data interface{}) {
 		return
 	}
 
+	executeTemplate := func(b *bytes.Buffer) error {
+		if baseTemplate != "" {
+			return tpl.ExecuteTemplate(b, baseTemplate, data)
+		}
+		return tpl.Execute(b, data)
+	}
+
 	var buf bytes.Buffer
-	if err := tpl.ExecuteTemplate(&buf, "base.gohtml", data); err != nil {
+	if err := executeTemplate(&buf); err != nil {
 		renderError(w, err)
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Write(buf.Bytes())
+}
+
+// RenderLoginTemplate renders the login template, acts as a wrapper for func renderTemplate.
+func RenderLoginTemplate(w http.ResponseWriter) {
+	renderTemplate(w, "login", "", nil)
+}
+
+// RenderSiteTemplate renders a site template, acts as a wrapper for func renderTemplate.
+func RenderSiteTemplate(w http.ResponseWriter, name string, data interface{}) {
+	renderTemplate(w, name, "base.gohtml", data)
 }

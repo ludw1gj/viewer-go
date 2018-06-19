@@ -10,9 +10,12 @@ interface pathInput {
 }
 
 const apiRoute = "/api/viewer/";
-const currentDir: string = (document.getElementById(
-  "current-dir"
-) as HTMLElement).innerText.slice(1);
+
+const getCurrentDir = (): string => {
+  return (document.getElementById(
+    "current-dir"
+  ) as HTMLElement).innerText.slice(1);
+};
 
 const addEventListenerToUploadFileForm = () => {
   const uploadForm = document.getElementById("upload-form") as HTMLFormElement;
@@ -29,7 +32,7 @@ const addEventListenerToUploadFileForm = () => {
     };
 
     submitAjaxFormData(
-      apiRoute + "upload/" + currentDir,
+      apiRoute + "upload/" + getCurrentDir(),
       uploadForm,
       errFunc,
       okFunc
@@ -48,7 +51,7 @@ const addEventListenerToCreateFolderForm = () => {
     const folderName: HTMLInputElement = createFolderForm.folder_name;
 
     const data: pathInput = {
-      path: makePath(currentDir, folderName.value)
+      path: makePath(getCurrentDir(), folderName.value)
     };
     ajaxHelper(apiRoute + "create", data);
   });
@@ -65,7 +68,7 @@ const addEventListenerToDeleteFileFolderForm = () => {
     const fileName: HTMLInputElement = deleteFileFolderForm.file_name;
 
     const data: pathInput = {
-      path: makePath(currentDir, fileName.value)
+      path: makePath(getCurrentDir(), fileName.value)
     };
     ajaxHelper(apiRoute + "delete", data);
   });
@@ -86,10 +89,10 @@ const addEventListenerToDeleteAllForm = () => {
       ajaxHelper(apiRoute + "delete-all", data);
     };
 
-    if (currentDir === "") {
+    if (getCurrentDir() === "") {
       sendAjax("/");
     } else {
-      sendAjax(currentDir);
+      sendAjax(getCurrentDir());
     }
   });
 };

@@ -12,6 +12,10 @@
     <!--css-->
     <link rel="stylesheet" href="/assets/styles/vendor/bulma.min.css">
     <link rel="stylesheet" href="/assets/styles/base.css">
+
+    <!--js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.21.4/system-production.js"></script>
+    <script src="/assets/scripts/build/build.js"></script>
 </head>
 
 <body>
@@ -48,13 +52,9 @@
     </div>
 </section>
 
-<!--js-->
-<script src="/assets/scripts/vendor/require.min.js"></script>
-<script src="/assets/scripts/build/build.js"></script>
 <script>
-    requirejs(['LogicController']);
+    SystemJS.import('index');
 </script>
-
 </body>
 
 </html>

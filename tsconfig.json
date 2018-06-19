@@ -1,16 +1,12 @@
 {
   "compilerOptions": {
-    "module": "amd",
+    "module": "System",
     "target": "es5",
-    "outFile": "./assets/scripts/build/build.js",
+    "out": "./assets/scripts/build/build.js",
     "removeComments": true,
     "strict": true,
     "noImplicitReturns": true
   },
-  "include": [
-    "./assets/scripts/src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./assets/scripts/src/**/*"],
+  "exclude": ["node_modules"]
 }
