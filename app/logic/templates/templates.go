@@ -1,5 +1,4 @@
-// This file contains template logic.
-
+// Package templates contains template logic.
 package templates
 
 import (
@@ -44,8 +43,8 @@ func getTemplateDir() string {
 	return path.Join("app", "views")
 }
 
-// createSiteTemplate returns new templates.Template and parses files of templateName in the templates directory with base
-// templates.
+// createSiteTemplate returns new templates.Template and parses files of templateName in the
+// templates directory with base templates.
 func createSiteTemplate(templateName string, baseTemplate bool) *template.Template {
 	siteTemplateDir := path.Join(getTemplateDir(), "site")
 	siteBaseTemplatePath := path.Join(siteTemplateDir, "base.gohtml")

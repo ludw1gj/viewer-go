@@ -58,10 +58,10 @@ const addEventListenerToChangeUsernameForm = () => {
     const okFunc = (resp: JSONDataResponse) => {
       const username = document.getElementById("username") as HTMLSpanElement;
       if (data.current_username === username.innerText) {
-        location.reload(true);
-        return;
+        username.innerText = data.new_username;
       }
       displaySuccess(resp.data.content);
+      changeUsernameForm.reset();
     };
     submitAjaxJSON(adminApiRoute + "change-username", data, errFunc, okFunc);
   });

@@ -55,7 +55,7 @@ the trouble, build on the platform you're targeting.
 
 This project uses SQLite database. When the app is run it will check for viewer.db (or whatever you have inputted via the `-dbFile` flag, viewer.db is the default) file in the current directory, and
 if not found, the file will automatically be created which includes the users table and a default
-user.
+users.
 
 The default user has these values:  
 **Username:** admin  
@@ -66,7 +66,7 @@ The default user has these values:
 **IsAdmin:** true
 
 As a result of creating the default user, a folder named "admin" will be created in the current directory. You may want
-to delete this folder and change the Username, Directory Root and other values of this user.
+to delete this folder and change the Username, Directory Root and other values of this users.
 
 ### Configuration File - config.json
 

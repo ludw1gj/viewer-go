@@ -6,20 +6,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/robertjeffs/viewer-go/app/users"
+
 	"fmt"
 
 	"github.com/robertjeffs/viewer-go/app/logic/session"
-	"github.com/robertjeffs/viewer-go/app/models"
 )
 
+// UserAPIController contains methods for user api route responses.
 type UserAPIController struct {
-	*session.SessionManager
-}
-
-func NewUserAPIController() *UserAPIController {
-	return &UserAPIController{
-		session.NewSessionManager(),
-	}
+	*session.Manager
 }
 
 // Login will process a user login.
@@ -44,8 +40,7 @@ func (uc UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userManager := models.NewUserManager()
-	userID, err := userManager.ValidateUser(loginCredentials.Username, loginCredentials.Password)
+	userID, err := users.ValidateUser(loginCredentials.Username, loginCredentials.Password)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
@@ -79,19 +74,19 @@ func (uc UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	password := struct {
+	data := struct {
 		Password string `json:"password"`
 	}{}
-	if err := json.NewDecoder(r.Body).Decode(&password); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := validateJSONInput(password); err != nil {
+	if err := validateJSONInput(data); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := user.Delete(password.Password); err != nil {
+	if err := users.DeleteUser(user, data.Password); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -124,9 +119,9 @@ func (uc UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := user.UpdatePassword(passwords.OldPassword, passwords.NewPassword); err != nil {
+	if err := users.UpdateUserPassword(user, passwords.OldPassword, passwords.NewPassword); err != nil {
 		switch err.(type) {
-		case *models.ErrInvalidPassword:
+		case *users.ErrInvalidPassword:
 			sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 			return
 		default:
@@ -162,7 +157,7 @@ func (uc UserAPIController) ChangeName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := user.UpdateName(data.FirstName, data.LastName); err != nil {
+	if err := users.UpdateUserFullname(user, data.FirstName, data.LastName); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

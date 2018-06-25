@@ -11,27 +11,23 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/robertjeffs/viewer-go/app/users"
+
 	"fmt"
 
 	"github.com/gorilla/mux"
 	"github.com/robertjeffs/viewer-go/app/logic/session"
 	"github.com/robertjeffs/viewer-go/app/logic/templates"
-	"github.com/robertjeffs/viewer-go/app/models"
 )
 
+// SiteController contains methods for general site route responses.
 type SiteController struct {
-	*session.SessionManager
-}
-
-func NewSiteController() *SiteController {
-	return &SiteController{
-		session.NewSessionManager(),
-	}
+	*session.Manager
 }
 
 // userInfo is used for data object of error for rendering templates.
 type userInfo struct {
-	User models.User
+	User users.User
 }
 
 // GetErrorPage renders the error page and sends status 500.
@@ -49,7 +45,7 @@ func (sc SiteController) GetErrorPage(w http.ResponseWriter, r *http.Request, pa
 
 	data := struct {
 		Error string
-		User  models.User
+		User  users.User
 	}{
 		pageErr.Error(),
 		user,
@@ -70,7 +66,7 @@ func (sc SiteController) GetViewerPage(w http.ResponseWriter, r *http.Request) {
 	urlPath := strings.TrimPrefix(mux.Vars(r)["path"], "/")
 	data := struct {
 		CurrentDir string
-		User       models.User
+		User       users.User
 	}{
 		urlPath,
 		user,
@@ -163,32 +159,31 @@ func (sc SiteController) SendFile(w http.ResponseWriter, r *http.Request) {
 
 // GetAdminPage renders the Administration page. Client must be admin.
 func (sc SiteController) GetAdminPage(w http.ResponseWriter, r *http.Request) {
-	u, err := sc.ValidateAdminSession(r)
+	user, err := sc.ValidateAdminSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templates.RenderSiteTemplate(w, "admin", userInfo{u})
+	templates.RenderSiteTemplate(w, "admin", userInfo{user})
 }
 
-// GetAdminDisplayAllUsers render a sub administration page which displays all users in models. Client must be admin.
+// GetAdminDisplayAllUsers render a sub administration page which displays all users in users. Client must be admin.
 func (sc SiteController) GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
-	u, err := sc.ValidateAdminSession(r)
+	user, err := sc.ValidateAdminSession(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	userManager := models.NewUserManager()
-	users, err := userManager.GetAllUsers()
+	allUsers, err := users.GetAllUsers()
 	if err != nil {
 		sc.GetErrorPage(w, r, err)
 		return
 	}
 
 	data := struct {
-		User  models.User
-		Users []models.User
-	}{u, users}
+		User  users.User
+		Users []users.User
+	}{user, allUsers}
 	templates.RenderSiteTemplate(w, "adminUsers", data)
 }

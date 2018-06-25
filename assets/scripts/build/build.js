@@ -278,18 +278,21 @@ System.register("app/lib/userPage", ["app/bin/display", "app/bin/ajax"], functio
                 var changeNameForm = document.getElementById("change-name-form");
                 changeNameForm.addEventListener("submit", function (event) {
                     event.preventDefault();
-                    var firstName = changeNameForm.first_name;
-                    var lastName = changeNameForm.last_name;
+                    var firstname = changeNameForm.first_name;
+                    var lastname = changeNameForm.last_name;
                     var data = {
-                        first_name: firstName.value,
-                        last_name: lastName.value
+                        first_name: firstname.value,
+                        last_name: lastname.value
                     };
                     var errFunc = function (resp) {
                         display_4.displayError(resp.error.message);
                     };
                     var okFunc = function (resp) {
                         display_4.displaySuccess(resp.data.content);
-                        location.reload(true);
+                        var firstname = document.getElementById("firstname");
+                        var lastname = document.getElementById("lastname");
+                        firstname.innerText = data.first_name;
+                        lastname.innerText = data.last_name;
                     };
                     ajax_4.submitAjaxJSON(userApiRoute + "change-name", data, errFunc, okFunc);
                 });
@@ -371,10 +374,10 @@ System.register("app/lib/adminPage", ["app/bin/display", "app/bin/ajax"], functi
                     var okFunc = function (resp) {
                         var username = document.getElementById("username");
                         if (data.current_username === username.innerText) {
-                            location.reload(true);
-                            return;
+                            username.innerText = data.new_username;
                         }
                         display_5.displaySuccess(resp.data.content);
+                        changeUsernameForm.reset();
                     };
                     ajax_5.submitAjaxJSON(adminApiRoute + "change-username", data, errFunc, okFunc);
                 });

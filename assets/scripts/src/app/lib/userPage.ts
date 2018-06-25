@@ -29,12 +29,12 @@ const addEventListenerToChangeNameForm = () => {
   changeNameForm.addEventListener("submit", (event: Event) => {
     event.preventDefault();
 
-    const firstName: HTMLInputElement = changeNameForm.first_name;
-    const lastName: HTMLInputElement = changeNameForm.last_name;
+    const firstname: HTMLInputElement = changeNameForm.first_name;
+    const lastname: HTMLInputElement = changeNameForm.last_name;
 
     const data: changeNameInput = {
-      first_name: firstName.value,
-      last_name: lastName.value
+      first_name: firstname.value,
+      last_name: lastname.value
     };
 
     const errFunc = (resp: JSONErrorResponse) => {
@@ -43,7 +43,12 @@ const addEventListenerToChangeNameForm = () => {
 
     const okFunc = (resp: JSONDataResponse) => {
       displaySuccess(resp.data.content);
-      location.reload(true);
+
+      const firstname = document.getElementById("firstname") as HTMLSpanElement;
+      const lastname = document.getElementById("lastname") as HTMLSpanElement;
+
+      firstname.innerText = data.first_name;
+      lastname.innerText = data.last_name;
     };
     submitAjaxJSON(userApiRoute + "change-name", data, errFunc, okFunc);
   });

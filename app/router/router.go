@@ -1,3 +1,4 @@
+// Package router initialises a mux.Router instance and registers routes including a file server.
 package router
 
 import (
@@ -9,18 +10,18 @@ import (
 )
 
 // LoadRoutes initialises routes and a file server.
-func LoadRoutes() {
+func LoadRoutes(sm *session.Manager) {
 	protected := mux.NewRouter()
 
 	// controllers
-	siteController := controllers.NewSiteController()
-	viewerAPIController := controllers.NewViewerAPIController()
-	userAPIController := controllers.NewUserAPIController()
-	adminAPIController := controllers.NewAdminAPIController()
+	siteController := controllers.NewSiteController(sm)
+	viewerAPIController := controllers.NewViewerAPIController(sm)
+	userAPIController := controllers.NewUserAPIController(sm)
+	adminAPIController := controllers.NewAdminAPIController(sm)
 
 	http.HandleFunc("/login", siteController.GetLoginPage)
 	http.HandleFunc("/api/user/login", userAPIController.Login)
-	http.Handle("/", authenticateRoute(protected))
+	http.Handle("/", authenticateRoute(protected, sm))
 
 	// site
 	protected.HandleFunc("/", redirectToViewerPage).Methods("GET")
@@ -53,12 +54,10 @@ func LoadRoutes() {
 	http.Handle("/assets/", http.StripPrefix("/assets", fs))
 }
 
-func authenticateRoute(h http.Handler) http.Handler {
+func authenticateRoute(h http.Handler, sm *session.Manager) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessionManager := session.NewSessionManager()
-
 		// check if user is authenticated
-		if isAuth := sessionManager.CheckUserAuth(r); !isAuth {
+		if isAuth := sm.CheckUserAuth(r); !isAuth {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}

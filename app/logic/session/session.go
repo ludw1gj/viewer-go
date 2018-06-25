@@ -2,74 +2,122 @@
 package session
 
 import (
-	"encoding/json"
 	"errors"
-	"github.com/gorilla/securecookie"
+	"fmt"
+	"net/http"
+
+	"github.com/robertjeffs/viewer-go/app/users"
+
 	"github.com/gorilla/sessions"
-	"io/ioutil"
-	"os"
 )
 
-var store *sessions.CookieStore
-
-// keys contain key types for session CookieStore.
-type keys struct {
-	AuthorisationKey []byte `json:"authorisation_key"`
-	EncryptionKey    []byte `json:"encryption_key"`
+// Manager contains the cookie store and methods useless for managing the user session.
+type Manager struct {
+	store  *sessions.CookieStore
+	loaded bool
 }
 
-// cookieKeys contains the required configuration information.
-type cookieKeys struct {
-	Cookie keys `json:"cookie"`
-}
-
-// Load initialises CookieStore.
-func Load(configJSONFile string) error {
-	// generateCookieConfigJSONFile generates a json file containing cookie authorisation and encryption keys.
-	generateCookieConfigJSONFile := func(file string) error {
-		c := cookieKeys{
-			keys{
-				securecookie.GenerateRandomKey(32),
-				securecookie.GenerateRandomKey(32),
-			},
-		}
-		configJSON, err := json.Marshal(c)
-		if err != nil {
-			return err
-		}
-		if err := ioutil.WriteFile(file, configJSON, 0644); err != nil {
-			return err
-		}
-		return nil
+// NewManager loads the cookie store, and returns a Manager instance and an error if one had
+// occured.
+func NewManager(configJSONFile string) (sm Manager, err error) {
+	if sm.loaded {
+		return sm, errors.New("CookieStore is already loaded")
 	}
-
-	// loadCookieConfig reads a json file and returns the configuration values. If the json file does not exist, it will
-	// be created.
-	loadCookieConfig := func(file string) (ck cookieKeys, err error) {
-		if _, err := os.Stat(file); os.IsNotExist(err) {
-			// file does not exist
-			if err := generateCookieConfigJSONFile(file); err != nil {
-				return ck, err
-			}
-		}
-
-		configFile, err := os.Open(file)
-		if err != nil {
-			return ck, err
-		}
-		defer configFile.Close()
-
-		jsonParser := json.NewDecoder(configFile)
-		if err := jsonParser.Decode(&ck); err != nil {
-			return ck, err
-		}
-		return ck, nil
-	}
-
-	ck, err := loadCookieConfig(configJSONFile)
+	store, err := generateCookieStore(configJSONFile)
 	if err != nil {
-		return errors.New("Failed to initialise a CookieStore: " + err.Error())
+		return sm, err
 	}
-	store = sessions.NewCookieStore(ck.Cookie.AuthorisationKey, ck.Cookie.EncryptionKey)
+
+	sm.store = store
+	return sm, nil
+}
+
+// NewUserSession creates a new user session and authenticates the users.
+func (sm Manager) NewUserSession(w http.ResponseWriter, r *http.Request, userID int) error {
+	s, err := sm.store.Get(r, "viewer-session")
+	if err != nil {
+		if err.Error() == "securecookie: the value is not valid" && s != nil {
+			sm.store.Save(r, w, s)
+		} else {
+			return fmt.Errorf("Cookie error. Error: \"%s\"", err.Error())
+		}
+	}
+
+	// Set user as authenticated
+	s.Values["id"] = userID
+	s.Values["authenticated"] = true
+	if err := s.Save(r, w); err != nil {
+		return err
+	}
 	return nil
+}
+
+// RemoveUserAuthFromSession removes user's session authentication.
+func (sm Manager) RemoveUserAuthFromSession(w http.ResponseWriter, r *http.Request) error {
+	s, err := sm.store.Get(r, "viewer-session")
+	if err != nil {
+		return err
+	}
+
+	// revoke user's authentication
+	s.Values["authenticated"] = false
+	if err := s.Save(r, w); err != nil {
+		return err
+	}
+	return nil
+}
+
+// CheckUserAuth checks if user is authenticated.
+func (sm Manager) CheckUserAuth(r *http.Request) bool {
+	s, err := sm.store.Get(r, "viewer-session")
+	if err != nil {
+		return false
+	}
+
+	// check if user is authenticated
+	if auth, ok := s.Values["authenticated"].(bool); !ok || !auth {
+		// user is not auth
+		return false
+	}
+	return true
+}
+
+// ValidateUserSession checks if user's session is valid and then returns the user's information.
+func (sm Manager) ValidateUserSession(r *http.Request) (user users.User, err error) {
+	// getUserID returns a user's associated with a session.
+	getUserID := func(r *http.Request) (id int, err error) {
+		s, err := sm.store.Get(r, "viewer-session")
+		if err != nil {
+			return id, err
+		}
+
+		id, ok := s.Values["id"].(int)
+		if !ok {
+			return id, err
+		}
+		return id, nil
+	}
+
+	userID, err := getUserID(r)
+	if err != nil {
+		return user, err
+	}
+
+	user, err = users.GetUser(userID)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+// ValidateAdminSession checks if the user is valid and is admin.
+func (sm Manager) ValidateAdminSession(r *http.Request) (user users.User, err error) {
+	user, err = sm.ValidateUserSession(r)
+	if err != nil {
+		return user, err
+	}
+	if !user.Admin {
+		return user, errors.New("user is not an admin")
+	}
+	return user, nil
 }

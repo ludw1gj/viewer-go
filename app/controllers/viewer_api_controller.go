@@ -16,14 +16,9 @@ import (
 	"github.com/robertjeffs/viewer-go/app/logic/session"
 )
 
+// ViewerAPIController contains methods for viewer functionality route responses.
 type ViewerAPIController struct {
-	*session.SessionManager
-}
-
-func NewViewerAPIController() *ViewerAPIController {
-	return &ViewerAPIController{
-		session.NewSessionManager(),
-	}
+	*session.Manager
 }
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the

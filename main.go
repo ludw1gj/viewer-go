@@ -8,8 +8,8 @@ import (
 
 	"github.com/robertjeffs/viewer-go/app/logic/config"
 	"github.com/robertjeffs/viewer-go/app/logic/database"
-	"github.com/robertjeffs/viewer-go/app/logic/router"
 	"github.com/robertjeffs/viewer-go/app/logic/session"
+	"github.com/robertjeffs/viewer-go/app/router"
 )
 
 func main() {
@@ -22,15 +22,14 @@ func main() {
 	config.SetUsersDirectory(*usersDirectory)
 
 	// load database, session, and routes
-	err := database.Load(*dbFile)
+	if err := database.Load(*dbFile); err != nil {
+		log.Fatalln(err.Error())
+	}
+	sm, err := session.NewManager(*sessionConfigFile)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	err = session.Load(*sessionConfigFile)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	router.LoadRoutes()
+	router.LoadRoutes(&sm)
 
 	// listen and serve
 	log.Printf("viewer-go listening on port %d...", *port)

@@ -5,28 +5,21 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/robertjeffs/viewer-go/app/users"
+
 	"github.com/robertjeffs/viewer-go/app/logic/session"
 
 	"encoding/json"
 
 	"fmt"
-
-	"github.com/robertjeffs/viewer-go/app/models"
 )
 
+// AdminAPIController contains methods for admin api route responses.
 type AdminAPIController struct {
-	*models.UserManager
-	*session.SessionManager
+	*session.Manager
 }
 
-func NewAdminAPIController() *AdminAPIController {
-	return &AdminAPIController{
-		models.NewUserManager(),
-		session.NewSessionManager(),
-	}
-}
-
-// CreateUser receives new user information via json and creates the user. Client must be admin.
+// CreateUser receives new user information via json and creates the users. Client must be admin.
 func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -35,7 +28,7 @@ func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user := models.User{}
+	user := users.User{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -49,14 +42,14 @@ func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := ac.UserManager.CreateUser(user); err != nil {
+	if err := users.CreateUser(user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	sendSuccessResponse(w, "Successfully created user.")
+	sendSuccessResponse(w, "Successfully created users.")
 }
 
-// DeleteUser receives user information via json and deletes the user. Client must be admin.
+// DeleteUser receives user information via json and deletes the users. Client must be admin.
 func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -78,11 +71,11 @@ func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := ac.UserManager.DeleteUser(data.UserID); err != nil {
+	if err := users.DeleteUserByID(data.UserID); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	sendSuccessResponse(w, "Successfully deleted user.")
+	sendSuccessResponse(w, "Successfully deleted users.")
 }
 
 // ChangeUserUsername changes a user's username. Client must be admin.
@@ -109,15 +102,15 @@ func (ac AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	if err := ac.UserManager.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
+	if err := users.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	sendSuccessResponse(w, "Changed user's username successfully.")
 }
 
-// ChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the database. Client must
-// be admin.
+// ChangeUserAdminStatus changes a user's admin status via the provided ID and updates it in the
+// database. Client must be admin.
 func (ac AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -141,7 +134,7 @@ func (ac AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if err := ac.UserManager.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
+	if err := users.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -152,7 +145,7 @@ func (ac AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *htt
 func (ac AdminAPIController) ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	u, err := ac.ValidateAdminSession(r)
+	user, err := ac.ValidateAdminSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -172,7 +165,7 @@ func (ac AdminAPIController) ChangeDirRoot(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := u.UpdateDirRoot(data.DirRoot); err != nil {
+	if err := users.UpdateUserDirRoot(user, data.DirRoot); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

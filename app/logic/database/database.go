@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// DB is the sql.DB instance. Do not mutate other than setting it.
 var DB *sql.DB
 
 // Load initialises connection to sqlite3 database.

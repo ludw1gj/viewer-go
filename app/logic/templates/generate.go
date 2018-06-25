@@ -13,9 +13,10 @@ import (
 	"github.com/robertjeffs/viewer-go/app/logic/config"
 )
 
-// generateDirectoryList renders the directory list templates according the directory path and returns the HTML document
-// fragment.
-func generateDirectoryList(userDirRoot string, urlPath string, directoryListTemplate *template.Template) (list template.HTML, err error) {
+// generateDirectoryList renders the directory list templates according the directory path and
+// returns the HTML document fragment.
+func generateDirectoryList(userDirRoot string, urlPath string,
+	directoryListTemplate *template.Template) (list template.HTML, err error) {
 	// get items in directory
 	f, err := os.Open(path.Join(config.GetUsersDirectory(), userDirRoot, urlPath))
 	if err != nil {
