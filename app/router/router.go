@@ -2,6 +2,7 @@
 package router
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -10,14 +11,14 @@ import (
 )
 
 // LoadRoutes initialises routes and a file server.
-func LoadRoutes(sm *session.Manager) {
+func LoadRoutes(dbConn *sql.DB, sm *session.Manager) {
 	protected := mux.NewRouter()
 
 	// controllers
-	siteController := controllers.NewSiteController(sm)
+	siteController := controllers.NewSiteController(dbConn, sm)
 	viewerAPIController := controllers.NewViewerAPIController(sm)
-	userAPIController := controllers.NewUserAPIController(sm)
-	adminAPIController := controllers.NewAdminAPIController(sm)
+	userAPIController := controllers.NewUserAPIController(dbConn, sm)
+	adminAPIController := controllers.NewAdminAPIController(dbConn, sm)
 
 	http.HandleFunc("/login", siteController.GetLoginPage)
 	http.HandleFunc("/api/user/login", userAPIController.Login)

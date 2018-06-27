@@ -18,7 +18,7 @@ import (
 
 // ViewerAPIController contains methods for viewer functionality route responses.
 type ViewerAPIController struct {
-	*session.Manager
+	session *session.Manager
 }
 
 // CreateFolder creates a folder on the disk of the name of the form value "folder-name", then redirects to the
@@ -26,7 +26,7 @@ type ViewerAPIController struct {
 func (vc ViewerAPIController) CreateFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := vc.ValidateUserSession(r)
+	user, err := vc.session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -65,7 +65,7 @@ func (vc ViewerAPIController) CreateFolder(w http.ResponseWriter, r *http.Reques
 func (vc ViewerAPIController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := vc.ValidateUserSession(r)
+	user, err := vc.session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -104,7 +104,7 @@ func (vc ViewerAPIController) Delete(w http.ResponseWriter, r *http.Request) {
 func (vc ViewerAPIController) DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := vc.ValidateUserSession(r)
+	user, err := vc.session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -155,7 +155,7 @@ func (vc ViewerAPIController) DeleteAll(w http.ResponseWriter, r *http.Request) 
 func (vc ViewerAPIController) Upload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := vc.ValidateUserSession(r)
+	user, err := vc.session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return

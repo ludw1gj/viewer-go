@@ -22,14 +22,16 @@ func main() {
 	config.SetUsersDirectory(*usersDirectory)
 
 	// load database, session, and routes
-	if err := database.Load(*dbFile); err != nil {
-		log.Fatalln(err.Error())
-	}
-	sm, err := session.NewManager(*sessionConfigFile)
+	dbConn, err := database.CreateDBConn(*dbFile)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	router.LoadRoutes(&sm)
+	// TODO: return *Manager instead
+	sm, err := session.NewManager(*sessionConfigFile, dbConn)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	router.LoadRoutes(dbConn, &sm)
 
 	// listen and serve
 	log.Printf("viewer-go listening on port %d...", *port)

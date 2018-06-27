@@ -1,25 +1,32 @@
 // Package controllers contains controllers of route responses.
 package controllers
 
-import "github.com/robertjeffs/viewer-go/app/logic/session"
+import (
+	"database/sql"
+
+	"github.com/robertjeffs/viewer-go/app/logic/session"
+)
 
 // NewSiteController returns a SiteController instance.
-func NewSiteController(sm *session.Manager) *SiteController {
+func NewSiteController(db *sql.DB, sm *session.Manager) *SiteController {
 	return &SiteController{
+		db,
 		sm,
 	}
 }
 
 // NewUserAPIController returns a UserAPIController instance.
-func NewUserAPIController(sm *session.Manager) *UserAPIController {
+func NewUserAPIController(db *sql.DB, sm *session.Manager) *UserAPIController {
 	return &UserAPIController{
+		db,
 		sm,
 	}
 }
 
 // NewAdminAPIController returns a AdminAPIController instance.
-func NewAdminAPIController(sm *session.Manager) *AdminAPIController {
+func NewAdminAPIController(db *sql.DB, sm *session.Manager) *AdminAPIController {
 	return &AdminAPIController{
+		db,
 		sm,
 	}
 }

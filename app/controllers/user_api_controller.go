@@ -3,6 +3,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
@@ -15,7 +16,8 @@ import (
 
 // UserAPIController contains methods for user api route responses.
 type UserAPIController struct {
-	*session.Manager
+	db      *sql.DB
+	session *session.Manager
 }
 
 // Login will process a user login.
@@ -40,12 +42,12 @@ func (uc UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := users.ValidateUser(loginCredentials.Username, loginCredentials.Password)
+	userID, err := users.ValidateUser(uc.db, loginCredentials.Username, loginCredentials.Password)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
-	if err := uc.NewUserSession(w, r, userID); err != nil {
+	if err := uc.session.NewUserSession(w, r, userID); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
@@ -56,7 +58,7 @@ func (uc UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 func (uc UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if err := uc.RemoveUserAuthFromSession(w, r); err != nil {
+	if err := uc.session.RemoveUserAuthFromSession(w, r); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Logout error: %s", err.Error()))
 		return
 	}
@@ -68,7 +70,7 @@ func (uc UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
 func (uc UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := uc.ValidateUserSession(r)
+	user, err := uc.session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -86,7 +88,7 @@ func (uc UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := users.DeleteUser(user, data.Password); err != nil {
+	if err := users.DeleteUser(uc.db, user, data.Password); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -98,7 +100,7 @@ func (uc UserAPIController) DeleteAccount(w http.ResponseWriter, r *http.Request
 func (uc UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := uc.ValidateUserSession(r)
+	user, err := uc.session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -119,7 +121,7 @@ func (uc UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := users.UpdateUserPassword(user, passwords.OldPassword, passwords.NewPassword); err != nil {
+	if err := users.UpdateUserPassword(uc.db, user, passwords.OldPassword, passwords.NewPassword); err != nil {
 		switch err.(type) {
 		case *users.ErrInvalidPassword:
 			sendErrorResponse(w, http.StatusUnauthorized, err.Error())
@@ -136,7 +138,7 @@ func (uc UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Reques
 func (uc UserAPIController) ChangeName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := uc.ValidateUserSession(r)
+	user, err := uc.session.ValidateUserSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -157,7 +159,7 @@ func (uc UserAPIController) ChangeName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := users.UpdateUserFullname(user, data.FirstName, data.LastName); err != nil {
+	if err := users.UpdateUserFullname(uc.db, user, data.FirstName, data.LastName); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

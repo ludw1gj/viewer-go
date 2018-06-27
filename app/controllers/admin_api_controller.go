@@ -3,6 +3,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/robertjeffs/viewer-go/app/users"
@@ -16,14 +17,15 @@ import (
 
 // AdminAPIController contains methods for admin api route responses.
 type AdminAPIController struct {
-	*session.Manager
+	db      *sql.DB
+	session *session.Manager
 }
 
 // CreateUser receives new user information via json and creates the users. Client must be admin.
 func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := ac.ValidateAdminSession(r); err != nil {
+	if _, err := ac.session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -42,7 +44,7 @@ func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := users.CreateUser(user); err != nil {
+	if err := users.CreateUser(ac.db, user); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -53,7 +55,7 @@ func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) 
 func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := ac.ValidateAdminSession(r); err != nil {
+	if _, err := ac.session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -71,7 +73,7 @@ func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := users.DeleteUserByID(data.UserID); err != nil {
+	if err := users.DeleteUserByID(ac.db, data.UserID); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -82,7 +84,7 @@ func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) 
 func (ac AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := ac.ValidateAdminSession(r); err != nil {
+	if _, err := ac.session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -102,7 +104,7 @@ func (ac AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	if err := users.ChangeUserUsername(data.CurrentUsername, data.NewUsername); err != nil {
+	if err := users.ChangeUserUsername(ac.db, data.CurrentUsername, data.NewUsername); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -114,7 +116,7 @@ func (ac AdminAPIController) ChangeUserUsername(w http.ResponseWriter, r *http.R
 func (ac AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := ac.ValidateAdminSession(r); err != nil {
+	if _, err := ac.session.ValidateAdminSession(r); err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
@@ -134,7 +136,7 @@ func (ac AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if err := users.ChangeUserAdminStatus(data.UserID, data.IsAdmin); err != nil {
+	if err := users.ChangeUserAdminStatus(ac.db, data.UserID, data.IsAdmin); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -145,7 +147,7 @@ func (ac AdminAPIController) ChangeUserAdminStatus(w http.ResponseWriter, r *htt
 func (ac AdminAPIController) ChangeDirRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := ac.ValidateAdminSession(r)
+	user, err := ac.session.ValidateAdminSession(r)
 	if err != nil {
 		sendErrorResponse(w, http.StatusUnauthorized, "Unauthorized.")
 		return
@@ -165,7 +167,7 @@ func (ac AdminAPIController) ChangeDirRoot(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := users.UpdateUserDirRoot(user, data.DirRoot); err != nil {
+	if err := users.UpdateUserDirRoot(ac.db, user, data.DirRoot); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

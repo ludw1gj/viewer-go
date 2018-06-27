@@ -2,6 +2,7 @@
 package session
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -14,22 +15,24 @@ import (
 // Manager contains the cookie store and methods useless for managing the user session.
 type Manager struct {
 	store  *sessions.CookieStore
+	db     *sql.DB
 	loaded bool
 }
 
 // NewManager loads the cookie store, and returns a Manager instance and an error if one had
 // occured.
-func NewManager(configJSONFile string) (sm Manager, err error) {
-	if sm.loaded {
-		return sm, errors.New("CookieStore is already loaded")
-	}
+func NewManager(configJSONFile string, db *sql.DB) (Manager, error) {
 	store, err := generateCookieStore(configJSONFile)
 	if err != nil {
-		return sm, err
+		return Manager{}, err
 	}
 
-	sm.store = store
-	return sm, nil
+	manager := Manager{
+		store,
+		db,
+		true,
+	}
+	return manager, nil
 }
 
 // NewUserSession creates a new user session and authenticates the users.
@@ -103,7 +106,7 @@ func (sm Manager) ValidateUserSession(r *http.Request) (user users.User, err err
 		return user, err
 	}
 
-	user, err = users.GetUser(userID)
+	user, err = users.GetUser(sm.db, userID)
 	if err != nil {
 		return user, err
 	}

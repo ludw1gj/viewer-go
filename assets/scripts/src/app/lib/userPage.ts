@@ -19,9 +19,7 @@ interface deleteAccountInput {
   password: string;
 }
 
-const userApiRoute = "/api/user/";
-
-const addEventListenerToChangeNameForm = () => {
+const addEventListenerToChangeNameForm = (apiRoute: string) => {
   const changeNameForm = document.getElementById(
     "change-name-form"
   ) as HTMLFormElement;
@@ -50,11 +48,11 @@ const addEventListenerToChangeNameForm = () => {
       firstname.innerText = data.first_name;
       lastname.innerText = data.last_name;
     };
-    submitAjaxJSON(userApiRoute + "change-name", data, errFunc, okFunc);
+    submitAjaxJSON(apiRoute + "change-name", data, errFunc, okFunc);
   });
 };
 
-const addEventListenerToChangePasswordForm = () => {
+const addEventListenerToChangePasswordForm = (apiRoute: string) => {
   const changePasswordForm = document.getElementById(
     "change-password-form"
   ) as HTMLFormElement;
@@ -78,11 +76,11 @@ const addEventListenerToChangePasswordForm = () => {
       displaySuccess(resp.data.content);
       changePasswordForm.reset();
     };
-    submitAjaxJSON(userApiRoute + "change-password", data, errFunc, okFunc);
+    submitAjaxJSON(apiRoute + "change-password", data, errFunc, okFunc);
   });
 };
 
-const addEventListenerToDeleteAccountForm = () => {
+const addEventListenerToDeleteAccountForm = (apiRoute: string) => {
   const deleteAccountForm = document.getElementById(
     "delete-account-form"
   ) as HTMLFormElement;
@@ -104,12 +102,14 @@ const addEventListenerToDeleteAccountForm = () => {
     const okFunc = function() {
       window.location.href = "/login";
     };
-    submitAjaxJSON(userApiRoute + "delete", data, errFunc, okFunc);
+    submitAjaxJSON(apiRoute + "delete", data, errFunc, okFunc);
   });
 };
 
 export const addEventListenersUserPage = () => {
-  addEventListenerToChangeNameForm();
-  addEventListenerToChangePasswordForm();
-  addEventListenerToDeleteAccountForm();
+  const userApiRoute = "/api/user/";
+
+  addEventListenerToChangeNameForm(userApiRoute);
+  addEventListenerToChangePasswordForm(userApiRoute);
+  addEventListenerToDeleteAccountForm(userApiRoute);
 };
