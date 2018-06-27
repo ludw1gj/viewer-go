@@ -26,12 +26,11 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	// TODO: return *Manager instead
 	sm, err := session.NewManager(*sessionConfigFile, dbConn)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	router.LoadRoutes(dbConn, &sm)
+	router.LoadRoutes(dbConn, sm)
 
 	// listen and serve
 	log.Printf("viewer-go listening on port %d...", *port)

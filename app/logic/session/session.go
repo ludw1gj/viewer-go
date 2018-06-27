@@ -21,10 +21,10 @@ type Manager struct {
 
 // NewManager loads the cookie store, and returns a Manager instance and an error if one had
 // occured.
-func NewManager(configJSONFile string, db *sql.DB) (Manager, error) {
+func NewManager(configJSONFile string, db *sql.DB) (*Manager, error) {
 	store, err := generateCookieStore(configJSONFile)
 	if err != nil {
-		return Manager{}, err
+		return nil, err
 	}
 
 	manager := Manager{
@@ -32,7 +32,7 @@ func NewManager(configJSONFile string, db *sql.DB) (Manager, error) {
 		db,
 		true,
 	}
-	return manager, nil
+	return &manager, nil
 }
 
 // NewUserSession creates a new user session and authenticates the users.
