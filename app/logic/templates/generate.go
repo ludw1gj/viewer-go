@@ -16,16 +16,16 @@ import (
 // generateDirectoryList renders the directory list templates according the directory path and
 // returns the HTML document fragment.
 func generateDirectoryList(userDirRoot string, urlPath string,
-	directoryListTemplate *template.Template) (list template.HTML, err error) {
+	directoryListTemplate *template.Template) (template.HTML, error) {
 	// get items in directory
 	f, err := os.Open(path.Join(config.GetUsersDirectory(), userDirRoot, urlPath))
 	if err != nil {
-		return list, err
+		return "", err
 	}
 	defer f.Close()
 	items, err := f.Readdir(-1)
 	if err != nil {
-		return list, err
+		return "", err
 	}
 
 	// sort items by name
@@ -33,6 +33,7 @@ func generateDirectoryList(userDirRoot string, urlPath string,
 	for _, item := range items {
 		itemInfo[item.Name()] = item.IsDir()
 	}
+
 	itemNamesSorted := make([]string, len(itemInfo))
 	i := 0
 	for itemName := range itemInfo {
@@ -62,7 +63,7 @@ func generateDirectoryList(userDirRoot string, urlPath string,
 		}
 		itemURL, err := url.Parse(rawURL)
 		if err != nil {
-			return list, err
+			return "", err
 		}
 		entities = append(entities, entity{itemURL.String(), itemName, isDir})
 	}
@@ -108,7 +109,7 @@ func generateDirectoryList(userDirRoot string, urlPath string,
 	var templateBuf bytes.Buffer
 	if err := directoryListTemplate.Execute(&templateBuf, directoryList{index, previous.String(),
 		entities, urlPath, isEmpty}); err != nil {
-		return list, err
+		return "", err
 	}
 	return template.HTML(templateBuf.String()), nil
 }

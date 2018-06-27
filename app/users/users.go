@@ -102,19 +102,20 @@ func UpdateUserDirRoot(db *sql.DB, u User, dirRoot string) error {
 }
 
 // GetAllUsers returns all users in the database.
-func GetAllUsers(db *sql.DB) (users []User, err error) {
+func GetAllUsers(db *sql.DB) ([]User, error) {
 	rows, err := db.Query("SELECT * FROM users")
 	if err != nil {
-		return users, err
+		return []User{}, err
 	}
 	defer rows.Close()
 
+	var users []User
 	for rows.Next() {
 		u := User{}
 
 		if err := rows.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Password, &u.DirectoryRoot,
 			&u.Admin); err != nil {
-			return users, err
+			return []User{}, err
 		}
 		users = append(users, u)
 	}
@@ -122,7 +123,9 @@ func GetAllUsers(db *sql.DB) (users []User, err error) {
 }
 
 // GetUser returns a single user from the database that matches the provided id.
-func GetUser(db *sql.DB, id int) (u User, err error) {
+func GetUser(db *sql.DB, id int) (User, error) {
+	var u User
+
 	row := db.QueryRow("SELECT * FROM users WHERE id = $1", id)
 	if err := row.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Password, &u.DirectoryRoot,
 		&u.Admin); err != nil {
@@ -169,16 +172,16 @@ func CreateUser(db *sql.DB, u User) error {
 
 // ValidateUser validates a user with username and password. It will check if the username exists in the database
 // and checks if the password is valid, then returning the user's id.
-func ValidateUser(db *sql.DB, username string, password string) (userID int, err error) {
+func ValidateUser(db *sql.DB, username string, password string) (int, error) {
 	var u User
 	row := db.QueryRow("SELECT * FROM users WHERE username = $1", username)
 	if err := row.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Password, &u.DirectoryRoot,
 		&u.Admin); err != nil {
-		return userID, errors.New("there is no user by that username")
+		return -1, errors.New("there is no user by that username")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
-		return userID, NewErrInvalidPassword()
+		return -1, NewErrInvalidPassword()
 	}
 	return u.ID, nil
 }

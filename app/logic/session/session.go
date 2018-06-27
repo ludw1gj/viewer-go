@@ -86,27 +86,27 @@ func (sm Manager) CheckUserAuth(r *http.Request) bool {
 }
 
 // ValidateUserSession checks if user's session is valid and then returns the user's information.
-func (sm Manager) ValidateUserSession(r *http.Request) (user users.User, err error) {
+func (sm Manager) ValidateUserSession(r *http.Request) (users.User, error) {
 	// getUserID returns a user's associated with a session.
-	getUserID := func(r *http.Request) (id int, err error) {
+	getUserID := func(r *http.Request) (int, error) {
 		s, err := sm.store.Get(r, "viewer-session")
 		if err != nil {
-			return id, err
+			return -1, err
 		}
 
 		id, ok := s.Values["id"].(int)
 		if !ok {
-			return id, err
+			return -1, err
 		}
 		return id, nil
 	}
 
 	userID, err := getUserID(r)
 	if err != nil {
-		return user, err
+		return users.User{}, err
 	}
 
-	user, err = users.GetUser(sm.db, userID)
+	user, err := users.GetUser(sm.db, userID)
 	if err != nil {
 		return user, err
 	}
@@ -114,8 +114,8 @@ func (sm Manager) ValidateUserSession(r *http.Request) (user users.User, err err
 }
 
 // ValidateAdminSession checks if the user is valid and is admin.
-func (sm Manager) ValidateAdminSession(r *http.Request) (user users.User, err error) {
-	user, err = sm.ValidateUserSession(r)
+func (sm Manager) ValidateAdminSession(r *http.Request) (users.User, error) {
+	user, err := sm.ValidateUserSession(r)
 	if err != nil {
 		return user, err
 	}

@@ -43,23 +43,24 @@ func generateCookieStore(configJSONFile string) (*sessions.CookieStore, error) {
 
 	// loadCookieConfig reads a json file and returns the configuration values. If the json file does not exist, it will
 	// be created.
-	loadCookieConfig := func(file string) (ck cookieKeys, err error) {
+	loadCookieConfig := func(file string) (cookieKeys, error) {
 		if _, err := os.Stat(file); os.IsNotExist(err) {
 			// file does not exist
 			if err := generateCookieConfigJSONFile(file); err != nil {
-				return ck, err
+				return cookieKeys{}, err
 			}
 		}
 
 		configFile, err := os.Open(file)
 		if err != nil {
-			return ck, err
+			return cookieKeys{}, err
 		}
 		defer configFile.Close()
 
+		var ck cookieKeys
 		jsonParser := json.NewDecoder(configFile)
 		if err := jsonParser.Decode(&ck); err != nil {
-			return ck, err
+			return cookieKeys{}, err
 		}
 		return ck, nil
 	}
