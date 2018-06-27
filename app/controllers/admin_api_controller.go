@@ -21,7 +21,7 @@ type AdminAPIController struct {
 	session *session.Manager
 }
 
-// CreateUser receives new user information via json and creates the users. Client must be admin.
+// CreateUser receives new user information via json and creates the user. Client must be admin.
 func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -48,10 +48,10 @@ func (ac AdminAPIController) CreateUser(w http.ResponseWriter, r *http.Request) 
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	sendSuccessResponse(w, "Successfully created users.")
+	sendSuccessResponse(w, "Successfully created user.")
 }
 
-// DeleteUser receives user information via json and deletes the users. Client must be admin.
+// DeleteUser receives user information via json and deletes the user. Client must be admin.
 func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -77,7 +77,7 @@ func (ac AdminAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) 
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	sendSuccessResponse(w, "Successfully deleted users.")
+	sendSuccessResponse(w, "Successfully deleted user.")
 }
 
 // ChangeUserUsername changes a user's username. Client must be admin.

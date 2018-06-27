@@ -55,8 +55,8 @@ func (sc SiteController) getErrorPage(w http.ResponseWriter, r *http.Request, pa
 	templates.RenderSiteTemplate(w, "error", data)
 }
 
-// GetViewerPage handles the viewer page. It uses the path variable in the route to determine which directory in the
-// user's directory in the filesystem to display a directory list for.
+// GetViewerPage handles the viewer page. It uses the path variable in the route to determine which
+// directory in the user's directory in the filesystem to display a directory list for.
 func (sc SiteController) GetViewerPage(w http.ResponseWriter, r *http.Request) {
 	user, err := sc.session.ValidateUserSession(r)
 	if err != nil {
@@ -169,7 +169,8 @@ func (sc SiteController) GetAdminPage(w http.ResponseWriter, r *http.Request) {
 	templates.RenderSiteTemplate(w, "admin", userInfo{user})
 }
 
-// GetAdminDisplayAllUsers render a sub administration page which displays all users in users. Client must be admin.
+// GetAdminDisplayAllUsers render a sub administration page which displays all users in database.
+// Client must be admin.
 func (sc SiteController) GetAdminDisplayAllUsers(w http.ResponseWriter, r *http.Request) {
 	user, err := sc.session.ValidateAdminSession(r)
 	if err != nil {
