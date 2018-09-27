@@ -25,12 +25,12 @@ go get golang.org/x/crypto/bcrypt
 go get github.com/lib/pq
 go get github.com/mattn/go-sqlite3
 
-go get github.com/robertjeffs/viewer-go
+go get github.com/ludw1gj/viewer-go
 ```
 
 - Go to viewer-go directory:
 
-`cd {Your GOPATH}/src/github.com/robertjeffs/viewer-go`
+`cd {Your GOPATH}/src/github.com/ludw1gj/viewer-go`
 
 - To run in development:
 
