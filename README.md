@@ -10,7 +10,6 @@ gorilla/mux
 gorilla/sessions  
 gorilla/securecookie  
 crypto/bcrypt  
-lib/pq  
 mattn/go-sqlite3
 
 ## Setup
@@ -22,19 +21,18 @@ go get github.com/gorilla/mux
 go get github.com/gorilla/sessions
 go get github.com/gorilla/securecookie
 go get golang.org/x/crypto/bcrypt
-go get github.com/lib/pq
 go get github.com/mattn/go-sqlite3
 
-go get github.com/ludw1gj/viewer-go
+go get github.com/ludw1gjj/viewer-go
 ```
 
 - Go to viewer-go directory:
 
-`cd {Your GOPATH}/src/github.com/ludw1gj/viewer-go`
+`cd {Your GOPATH}/src/github.com/ludw1gjj/viewer-go`
 
 - To run in development:
 
-`go run main.go -dev=true -port=3000 -dbFile=viewer.db -configFile=config.json`
+`go run main.go -port=3000 -dbFile=viewer.db -configFile=config.json`
 
 - Access via:
 
@@ -42,7 +40,7 @@ go get github.com/ludw1gj/viewer-go
 
 - To build and run:  
   `go build`  
-  `./viewer-go`
+  `./viewer-go -port=3000 -dbFile=viewer.db -configFile=config.json`
 
 ## Notes
 

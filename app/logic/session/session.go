@@ -7,16 +7,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/robertjeffs/viewer-go/app/users"
+	"github.com/ludw1gj/viewer-go/app/users"
 
 	"github.com/gorilla/sessions"
 )
 
 // Manager contains the cookie store and methods useless for managing the user session.
 type Manager struct {
-	store  *sessions.CookieStore
-	db     *sql.DB
-	loaded bool
+	store *sessions.CookieStore
+	db    *sql.DB
 }
 
 // NewManager loads the cookie store, and returns a Manager instance and an error if one had
@@ -30,7 +29,6 @@ func NewManager(configJSONFile string, db *sql.DB) (*Manager, error) {
 	manager := Manager{
 		store,
 		db,
-		true,
 	}
 	return &manager, nil
 }

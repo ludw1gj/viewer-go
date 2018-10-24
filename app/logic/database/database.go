@@ -12,8 +12,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TODO: rename to InitDBConn
+
 // CreateDBConn initialises connection to sqlite3 database.
 func CreateDBConn(dbFile string) (*sql.DB, error) {
+	// creates file if doesn't exist
 	db, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
 		return nil, errors.New("failed to initialise a connection to sqlite3 database: " + err.Error())

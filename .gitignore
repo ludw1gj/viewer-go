@@ -4,6 +4,7 @@
 test/
 
 # config, database and other files
+main
 /config.json
 admin/
 viewer-go

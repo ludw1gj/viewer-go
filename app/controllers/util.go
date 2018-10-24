@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/robertjeffs/viewer-go/app/logic/config"
+	"github.com/ludw1gj/viewer-go/app/logic/config"
 )
 
 // sendErrorResponse writes an error json response to the client.

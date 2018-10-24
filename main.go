@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/robertjeffs/viewer-go/app/logic/config"
-	"github.com/robertjeffs/viewer-go/app/logic/database"
-	"github.com/robertjeffs/viewer-go/app/logic/session"
-	"github.com/robertjeffs/viewer-go/app/router"
+	"github.com/ludw1gj/viewer-go/app/logic/config"
+	"github.com/ludw1gj/viewer-go/app/logic/database"
+	"github.com/ludw1gj/viewer-go/app/logic/session"
+	"github.com/ludw1gj/viewer-go/app/router"
 )
 
 func main() {

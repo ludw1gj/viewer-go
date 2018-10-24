@@ -4,7 +4,7 @@ package controllers
 import (
 	"database/sql"
 
-	"github.com/robertjeffs/viewer-go/app/logic/session"
+	"github.com/ludw1gj/viewer-go/app/logic/session"
 )
 
 // NewSiteController returns a SiteController instance.

@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/robertjeffs/viewer-go/app/logic/session"
+	"github.com/ludw1gj/viewer-go/app/logic/session"
 )
 
 // ViewerAPIController contains methods for viewer functionality route responses.

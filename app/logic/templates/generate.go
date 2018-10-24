@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/robertjeffs/viewer-go/app/logic/config"
+	"github.com/ludw1gj/viewer-go/app/logic/config"
 )
 
 // generateDirectoryList renders the directory list templates according the directory path and
@@ -36,6 +36,7 @@ func generateDirectoryList(userDirRoot string, urlPath string,
 
 	itemNamesSorted := make([]string, len(itemInfo))
 	i := 0
+	// range over key only
 	for itemName := range itemInfo {
 		itemNamesSorted[i] = itemName
 		i++

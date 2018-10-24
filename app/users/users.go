@@ -9,7 +9,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/robertjeffs/viewer-go/app/logic/config"
+	"github.com/ludw1gj/viewer-go/app/logic/config"
 	"golang.org/x/crypto/bcrypt"
 )
 
