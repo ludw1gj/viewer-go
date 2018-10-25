@@ -19,7 +19,7 @@ type Manager struct {
 }
 
 // NewManager loads the cookie store, and returns a Manager instance and an error if one had
-// occured.
+// occurred.
 func NewManager(configJSONFile string, db *sql.DB) (*Manager, error) {
 	store, err := generateCookieStore(configJSONFile)
 	if err != nil {

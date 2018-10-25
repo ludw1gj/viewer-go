@@ -22,7 +22,7 @@ func main() {
 	config.SetUsersDirectory(*usersDirectory)
 
 	// load database, session, and routes
-	dbConn, err := database.CreateDBConn(*dbFile)
+	dbConn, err := database.InitDBConn(*dbFile)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
