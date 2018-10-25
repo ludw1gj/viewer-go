@@ -133,7 +133,7 @@ System.register("app/lib/navbar", ["app/bin/display", "app/bin/ajax"], function 
                 var mobileMenuButton = document.getElementById("mobile-menu-button");
                 mobileMenuButton.addEventListener("click", function () {
                     var mobileMenu = document.getElementById("mobile-menu");
-                    if (mobileMenuButton.classList.contains("is-active") ||
+                    if (mobileMenu.classList.contains("is-active") ||
                         mobileMenuButton.classList.contains("is-active")) {
                         mobileMenu.classList.remove("is-active");
                         mobileMenuButton.classList.remove("is-active");
@@ -261,7 +261,7 @@ System.register("app/lib/viewerPage", ["app/bin/display", "app/bin/ajax"], funct
 });
 System.register("app/lib/userPage", ["app/bin/display", "app/bin/ajax"], function (exports_6, context_6) {
     "use strict";
-    var display_4, ajax_4, userApiRoute, addEventListenerToChangeNameForm, addEventListenerToChangePasswordForm, addEventListenerToDeleteAccountForm, addEventListenersUserPage;
+    var display_4, ajax_4, addEventListenerToChangeNameForm, addEventListenerToChangePasswordForm, addEventListenerToDeleteAccountForm, addEventListenersUserPage;
     var __moduleName = context_6 && context_6.id;
     return {
         setters: [
@@ -273,8 +273,7 @@ System.register("app/lib/userPage", ["app/bin/display", "app/bin/ajax"], functio
             }
         ],
         execute: function () {
-            userApiRoute = "/api/user/";
-            addEventListenerToChangeNameForm = function () {
+            addEventListenerToChangeNameForm = function (apiRoute) {
                 var changeNameForm = document.getElementById("change-name-form");
                 changeNameForm.addEventListener("submit", function (event) {
                     event.preventDefault();
@@ -294,10 +293,10 @@ System.register("app/lib/userPage", ["app/bin/display", "app/bin/ajax"], functio
                         firstname.innerText = data.first_name;
                         lastname.innerText = data.last_name;
                     };
-                    ajax_4.submitAjaxJSON(userApiRoute + "change-name", data, errFunc, okFunc);
+                    ajax_4.submitAjaxJSON(apiRoute + "change-name", data, errFunc, okFunc);
                 });
             };
-            addEventListenerToChangePasswordForm = function () {
+            addEventListenerToChangePasswordForm = function (apiRoute) {
                 var changePasswordForm = document.getElementById("change-password-form");
                 changePasswordForm.addEventListener("submit", function (event) {
                     event.preventDefault();
@@ -314,10 +313,10 @@ System.register("app/lib/userPage", ["app/bin/display", "app/bin/ajax"], functio
                         display_4.displaySuccess(resp.data.content);
                         changePasswordForm.reset();
                     };
-                    ajax_4.submitAjaxJSON(userApiRoute + "change-password", data, errFunc, okFunc);
+                    ajax_4.submitAjaxJSON(apiRoute + "change-password", data, errFunc, okFunc);
                 });
             };
-            addEventListenerToDeleteAccountForm = function () {
+            addEventListenerToDeleteAccountForm = function (apiRoute) {
                 var deleteAccountForm = document.getElementById("delete-account-form");
                 deleteAccountForm.addEventListener("submit", function (event) {
                     event.preventDefault();
@@ -332,13 +331,14 @@ System.register("app/lib/userPage", ["app/bin/display", "app/bin/ajax"], functio
                     var okFunc = function () {
                         window.location.href = "/login";
                     };
-                    ajax_4.submitAjaxJSON(userApiRoute + "delete", data, errFunc, okFunc);
+                    ajax_4.submitAjaxJSON(apiRoute + "delete", data, errFunc, okFunc);
                 });
             };
             exports_6("addEventListenersUserPage", addEventListenersUserPage = function () {
-                addEventListenerToChangeNameForm();
-                addEventListenerToChangePasswordForm();
-                addEventListenerToDeleteAccountForm();
+                var userApiRoute = "/api/user/";
+                addEventListenerToChangeNameForm(userApiRoute);
+                addEventListenerToChangePasswordForm(userApiRoute);
+                addEventListenerToDeleteAccountForm(userApiRoute);
             });
         }
     };

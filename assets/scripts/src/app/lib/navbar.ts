@@ -11,7 +11,7 @@ const addEventListenerToMobileMenuButton = () => {
     const mobileMenu = document.getElementById("mobile-menu") as HTMLElement;
 
     if (
-      mobileMenuButton.classList.contains("is-active") ||
+      mobileMenu.classList.contains("is-active") ||
       mobileMenuButton.classList.contains("is-active")
     ) {
       mobileMenu.classList.remove("is-active");
